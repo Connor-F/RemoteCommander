@@ -1,3 +1,3 @@
-# Remote Commander
+#Remote Commander
 
-A client server program to remotely command other computers and send commands to them
+A client server program to remotely command other computers and send commands to them.

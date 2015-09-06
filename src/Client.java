@@ -28,7 +28,7 @@ public class Client
 
         while(socket.isConnected())
         {
-            String serverCommand = inFromServer.readLine();
+            String serverCommand = inFromServer.readLine(); // blocks
         }
     }
 }
