@@ -18,8 +18,20 @@ public class Server
 
     public Server() throws IOException
     {
+        welcomeMessage();
         onlineClients = new HashMap<>();
         listen();
+    }
+
+    /**
+     * prints a nice welcome message on startup
+     */
+    private void welcomeMessage()
+    {
+        System.out.println("========================");
+        System.out.println("=== Remote Commander ===");
+        System.out.println("===== Version: 0.1 =====");
+        System.out.println("========================");
     }
 
     /**

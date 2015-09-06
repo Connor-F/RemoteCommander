@@ -25,6 +25,7 @@ public class ConnectedClient
     public void sendCommand(String command)
     {
         outToClient.println(command);
+        outToClient.flush();
     }
 
     public Socket getConnection()
