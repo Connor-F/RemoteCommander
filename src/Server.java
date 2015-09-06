@@ -15,6 +15,8 @@ public class Server
     private static final int SERVER_PORT = 0xbeef;
     /** contains all the clients that are currently online */
     private static Map<InetAddress, ConnectedClient> onlineClients;
+    private static final int MAJOR_VERSION = 0;
+    private static final int MINOR_VERSION = 1;
 
     public Server() throws IOException
     {
@@ -28,10 +30,11 @@ public class Server
      */
     private void welcomeMessage()
     {
-        System.out.println("========================");
-        System.out.println("=== Remote Commander ===");
-        System.out.println("===== Version: 0.1 =====");
-        System.out.println("========================");
+        System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━┓");
+        System.out.println("┃====== Welcome to ======┃");
+        System.out.println("┃=== Remote Commander ===┃");
+        System.out.println("┃===== Version: " + MAJOR_VERSION + "." + MINOR_VERSION + " =====┃");
+        System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━┛");
     }
 
     /**

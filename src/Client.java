@@ -79,6 +79,11 @@ public class Client
                 JLabel lbl = new JLabel(new ImageIcon(img));
                 panel.add(lbl);
                 frame.add(panel);
+                frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+                frame.setResizable(false);
+                frame.setEnabled(false);
+                frame.setAlwaysOnTop(true);
+                frame.setTitle("Hello");
                 frame.setVisible(true);
                 return;
             default:
