@@ -60,7 +60,7 @@ public class Server
         Socket clientSocket = serverSocket.accept();
         ConnectedClient connectedClient = new ConnectedClient(clientSocket, clientSocket.getInetAddress());
         onlineClients.put(clientSocket.getInetAddress(), connectedClient);
-        System.out.println("Added connection: " + connectedClient.getAddress());
+        System.out.println("> Added connection: " + connectedClient.getAddress());
         new Thread(new ClientCommander()).start(); // start allowing input once we have at least 1 connection
     }
 

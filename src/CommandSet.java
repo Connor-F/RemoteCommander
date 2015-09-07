@@ -3,7 +3,6 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Random;
 
 /**
@@ -61,11 +60,12 @@ public abstract class CommandSet
         long start = System.currentTimeMillis();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Random random = new Random();
+        KeyCode keyCode = new KeyCode();
         while(System.currentTimeMillis() - start < length)
         {
             try
             {
-                int key = random.nextInt(222) + 1;
+                int key = keyCode.randomKeyCode();
                 robot.keyPress(key);
                 Thread.sleep(delay);
                 robot.keyRelease(key);
