@@ -16,7 +16,7 @@ public class Server
     /** contains all the clients that are currently online */
     private static Map<InetAddress, ConnectedClient> onlineClients;
     private static final int MAJOR_VERSION = 0;
-    private static final int MINOR_VERSION = 1;
+    private static final int MINOR_VERSION = 2;
 
     public Server() throws IOException
     {

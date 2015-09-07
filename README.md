@@ -12,5 +12,6 @@ host OS (e.g. eject disk). Since the clients can be using different operating sy
 client code checks the hosts OS and executes the appropriate commands for that OS.
 
 **todo**
-command line history (up arrow)
-msg box title
+command line history (up arrow) -> difficult without using libs
+clear vars when an incorrect command is typed
+document each command and args

