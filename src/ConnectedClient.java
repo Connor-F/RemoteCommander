@@ -22,6 +22,10 @@ public class ConnectedClient
         outToClient = new PrintWriter(connection.getOutputStream());
     }
 
+    /**
+     * sends the command to the client
+     * @param command the string to send to the client so it can then act upon it
+     */
     public void sendCommand(String command)
     {
         outToClient.println(command);

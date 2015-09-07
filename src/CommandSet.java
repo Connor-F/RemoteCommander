@@ -25,7 +25,7 @@ public abstract class CommandSet
      */
     public void showMessage(String message)
     {
-        JOptionPane.showMessageDialog(null, message);
+        JOptionPane.showMessageDialog(null, message, "Hi", JOptionPane.NO_OPTION);
     }
 
     /**

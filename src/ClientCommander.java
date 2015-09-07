@@ -45,7 +45,7 @@ public class ClientCommander implements Runnable
         while(true)
         {
             System.out.print("> ");
-            String command = new Scanner(System.in).nextLine().toLowerCase();
+            String command = new Scanner(System.in).nextLine().toLowerCase(); // blocks
             if(commandValid(command.split("\\s+")[0]))
                 parseAndSendCommand(command);
         }
@@ -58,7 +58,7 @@ public class ClientCommander implements Runnable
      */
     private boolean commandValid(String command)
     {
-        return command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("poweroff") || command.equals("reboot") || command.equals("screenshot");
+        return command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
     }
 
     /**
@@ -72,8 +72,11 @@ public class ClientCommander implements Runnable
     private void parseAndSendCommand(String fullCommand) throws NullCommandException, IOException
     {
         String[] commandTokens = fullCommand.split("\\s+");
-        String command = commandTokens[0]; // Format: COMMAND HOST
-        if(command.equals("online")) // online command takes no arguments and nothing needs to be sent to clients
+        String command = commandTokens[0];
+
+        // Zero argument commands: online, count
+        // e.g. count
+        if(command.equals("online"))
         {
             printOnlineClients();
             return;
@@ -85,34 +88,42 @@ public class ClientCommander implements Runnable
             return;
         }
 
-        String host = commandTokens[1]; // todo: indexoutofbounds, use array length to see if will cause excp
+        // One argument commands: eject, shutdown, reboot, screenshot
+        // e.g. eject 127.0.0.1
+        String host = null;
+        if(commandTokens.length > 1)
+            host = commandTokens[1];
         if(host == null)
             throw new NullCommandException("Host not provided");
 
         ConnectedClient target = null;
-        if(host.equals("all"))
-        {
+        if(host.equals("all")) // 2 tokens means a COMMAND and HOST has been provided
             sendCommandAll(command);
-            return;
-        }
         else // find the specified client
             target = connectedClients.get(InetAddress.getByName(host));
 
-        if(target == null)
+        if(target == null && !host.equals("all"))
             throw new UnknownHostException(host + " isn't online or doesn't exist");
 
-        target.sendCommand(command); // send the cmd to the connected client
-        String msg = null; // todo msg sending
-        if(command.equals("msg"))
+        if(!host.equals("all"))
+            target.sendCommand(command); // send the cmd to the specified connected client
+
+        // Two argument commands: msg, sound
+        // e.g. msg 127.0.0.1 "No place like home"
+        String argument = null;
+        if(commandTokens.length == 3)
         {
-            msg = commandTokens[2];
-            target.sendCommand(msg); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
+            argument = commandTokens[2];
+            if(host.equals("all")) // command has already been sent, just need to send argument now
+                sendCommandAll(argument);
+            else
+                target.sendCommand(argument); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
         }
     }
 
     /**
      * iterates through each connected client and issues the command
-     * @param command the command to send to each client
+     * @param command the command(s) to send to each client
      */
     private void sendCommandAll(String command)
     {
@@ -156,5 +167,8 @@ public class ClientCommander implements Runnable
                 System.out.println("\t[ UNKNOWN ]");
             }
         }
+
+        countryReader.close();
+        cityReader.close();
     }
 }

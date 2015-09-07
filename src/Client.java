@@ -52,19 +52,22 @@ public class Client
         while(socket.isConnected())
         {
             String serverCommand = inFromServer.readLine(); // blocks
+            if(serverCommand.equals("msg") || serverCommand.equals("sound")) // known commands that take an extra arg
+                processServerCommand(serverCommand, inFromServer.readLine());
+            else
+                processServerCommand(serverCommand);
             System.out.println("Recivied from server: " + serverCommand);
-            processServerCommand(serverCommand);
         }
     }
 
     /**
      * calls the appropriate method on the CommandSet depending on what the server wants us to do to
      * the client
-     * @param serverCommand the command from the server
+     * @param serverCommand the command from the server and optionally extra arguments (msg command for example provides a msg arg)
      */
-    private void processServerCommand(String serverCommand) throws IOException, AWTException
+    private void processServerCommand(String... serverCommand) throws IOException, AWTException
     {
-        switch(serverCommand)
+        switch(serverCommand[0])
         {
             case "eject":
                 commandSet.eject();
@@ -80,11 +83,20 @@ public class Client
                 panel.add(lbl);
                 frame.add(panel);
                 frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-                frame.setResizable(false);
-                frame.setEnabled(false);
-                frame.setAlwaysOnTop(true);
+                //frame.setResizable(false);
+                //frame.setEnabled(false);
+                //frame.setAlwaysOnTop(true);
                 frame.setTitle("Hello");
                 frame.setVisible(true);
+                return;
+            case "msg":
+                commandSet.showMessage(serverCommand[1]);
+                return;
+            case "shutdown":
+                commandSet.shutdown();
+                return;
+            case "restart":
+                commandSet.restart();
                 return;
             default:
                 System.out.println("Reached default in processSErverCommand with cmd: " + serverCommand);
