@@ -30,11 +30,10 @@ public class Server
      */
     private void welcomeMessage()
     {
-        System.out.println("┏━━━━━━━━━━━━━━━━━━━━━━━━┓");
-        System.out.println("┃====== Welcome to ======┃");
+        System.out.println("┏━━━━━━Welcome to━━━━━━━━┓");
         System.out.println("┃=== Remote Commander ===┃");
         System.out.println("┃===== Version: " + MAJOR_VERSION + "." + MINOR_VERSION + " =====┃");
-        System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━┛");
+        System.out.println("┗━━━Command & Conquer━━━━┛");
     }
 
     /**
@@ -57,6 +56,8 @@ public class Server
     private void accept() throws IOException
     {
         serverSocket = new ServerSocket(SERVER_PORT);
+        if(onlineClients.size() == 0)
+            System.out.println("> Waiting for incoming connection(s)...");
         Socket clientSocket = serverSocket.accept();
         ConnectedClient connectedClient = new ConnectedClient(clientSocket, clientSocket.getInetAddress());
         onlineClients.put(clientSocket.getInetAddress(), connectedClient);

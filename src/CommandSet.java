@@ -21,6 +21,21 @@ public abstract class CommandSet
     public abstract void setWallpaper(Image newWallpaper);
 
     /**
+     * types the given message on the clients machine
+     * @param message the message to type out
+     * @throws AWTException if something went wrong creating the robot
+     */
+    public void type(String message) throws AWTException
+    {
+        Robot robot = new Robot();
+        for(char ch : message.toCharArray())
+        {
+            robot.keyPress((int)ch);
+            robot.keyRelease((int)ch);
+        }
+    }
+
+    /**
      * shows a message box on the clients screen
      * @param message the msg to be displayed in the msg box
      */
@@ -52,7 +67,7 @@ public abstract class CommandSet
      * randomly presses keys, moves the mouse and clicks mouse buttons on the clients computer
      * @param length the time in ms the random actions should last for
      * @param delay the time delay in ms between each random action
-     * @throws AWTException
+     * @throws AWTException something went wrong create the Robot
      */
     public void chaos(long length, long delay) throws AWTException
     {
@@ -66,6 +81,7 @@ public abstract class CommandSet
             try
             {
                 int key = keyCode.randomKeyCode();
+                System.out.println("Using keycode: " + key);
                 robot.keyPress(key);
                 Thread.sleep(delay);
                 robot.keyRelease(key);
@@ -91,7 +107,6 @@ public abstract class CommandSet
             }
             catch(InterruptedException ie)
             {
-
             }
         }
     }

