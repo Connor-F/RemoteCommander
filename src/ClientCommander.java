@@ -51,6 +51,8 @@ public class ClientCommander implements Runnable
             String command = new Scanner(System.in).nextLine(); // blocks
             if(commandValid(command.split("\\s+")[0]))
                 parseAndSendCommand(command);
+            else
+                System.out.println("> Unknown command: " + command.split("\\s+")[0]);
         }
     }
 
@@ -147,14 +149,10 @@ public class ClientCommander implements Runnable
 
         if(command.equals("help"))
         {
-            try
-            {
+            if(commandTokens.size() == 2)
                 printHelp(commandTokens.get(1));
-            }
-            catch(IndexOutOfBoundsException bounds)
-            {
+            else
                 printHelp(null);
-            }
             return;
         }
 
@@ -239,9 +237,7 @@ public class ClientCommander implements Runnable
     private void sendCommandAll(String command)
     {
         for (Map.Entry<InetAddress, ConnectedClient> client : connectedClients.entrySet())
-        {
             client.getValue().sendCommand(command);
-        }
     }
 
     /**

@@ -1,6 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Random;
@@ -8,7 +13,7 @@ import java.util.Random;
 /**
  * contains the definitions and some implementations (if they are not OS specific) of the features of the program
  */
-public abstract class CommandSet
+public abstract class CommandSet implements ClipboardOwner
 {
     /** the runtime environment for the host OS, used for OS specific commands */
     private Runtime runtime = Runtime.getRuntime();
@@ -21,18 +26,32 @@ public abstract class CommandSet
     public abstract void setWallpaper(Image newWallpaper);
 
     /**
-     * types the given message on the clients machine
+     * needed for the ClipboardOwner interface. We don't care if we lose ownership of the clipboard
+     * @param aClipboard
+     * @param aContents
+     */
+    @Override
+    public void lostOwnership(Clipboard aClipboard, Transferable aContents)
+    {
+    }
+
+    /**
+     * "types" the given message on the clients machine. Instead of typing each character it uses the systems clipboard
+     * to copy and paste the message
      * @param message the message to type out
      * @throws AWTException if something went wrong creating the robot
      */
     public void type(String message) throws AWTException
     {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        StringSelection stringSelection = new StringSelection(message);
+        clipboard.setContents(stringSelection, this);
+
         Robot robot = new Robot();
-        for(char ch : message.toCharArray())
-        {
-            robot.keyPress((int)ch);
-            robot.keyRelease((int)ch);
-        }
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        robot.keyPress(KeyEvent.VK_V);
+        robot.keyRelease(KeyEvent.VK_V);
+        robot.keyRelease(KeyEvent.VK_CONTROL);
     }
 
     /**
@@ -83,11 +102,8 @@ public abstract class CommandSet
                 int key = keyCode.randomKeyCode();
                 System.out.println("Using keycode: " + key);
                 robot.keyPress(key);
-                Thread.sleep(delay);
                 robot.keyRelease(key);
-                Thread.sleep(delay);
                 robot.mouseMove(random.nextInt(screenSize.width), random.nextInt(screenSize.height));
-                Thread.sleep(delay);
                 switch(random.nextInt(3))
                 {
                     case 0:
