@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -10,12 +11,6 @@ public class MacCommandSet extends CommandSet
     public void eject() throws IOException
     {
         getRuntime().exec("drutil eject internal");
-    }
-
-    @Override
-    public void playSound()
-    {
-
     }
 
     @Override

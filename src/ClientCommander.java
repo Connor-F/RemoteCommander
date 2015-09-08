@@ -5,6 +5,7 @@ import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.model.IspResponse;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -182,10 +183,29 @@ public class ClientCommander implements Runnable
         if(commandTokens.size() == 3)
         {
             argument = commandTokens.get(2);
-            if(host.equals("all")) // command has already been sent, just need to send argument now
-                sendCommandAll(argument);
+            if(command.equals("type"))
+            {
+                if(host.equals("all")) // command has already been sent, just need to send argument now
+                    sendCommandAll(argument);
+                else
+                    target.sendCommand(argument); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
+            }
             else
-                target.sendCommand(argument); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
+            {
+                if(command.equals("sound")) // special as we need to send the sound file to the client
+                {
+                    File sound = new File(argument);
+                    if(host.equals("all"))
+                    {
+                        sendFileAll(sound);
+
+                    }
+                    else
+                    {
+                        target.sendFile(sound);
+                    }
+                }
+            }
         }
 
         // Three argument commands: chaos
@@ -228,6 +248,12 @@ public class ClientCommander implements Runnable
                 target.sendCommand(type);
             }
         }
+    }
+
+    private void sendFileAll(File toSend) throws IOException
+    {
+        for (Map.Entry<InetAddress, ConnectedClient> client : connectedClients.entrySet())
+            client.getValue().sendFile(toSend);
     }
 
     /**

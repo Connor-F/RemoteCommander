@@ -1,4 +1,6 @@
+import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -10,12 +12,6 @@ public class WindowsCommandSet extends CommandSet
     public void eject() throws IOException
     {
         getRuntime().exec("eject");
-    }
-
-    @Override
-    public void playSound()
-    {
-
     }
 
     @Override

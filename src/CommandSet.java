@@ -1,3 +1,6 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -7,6 +10,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
@@ -17,13 +21,28 @@ public abstract class CommandSet implements ClipboardOwner
 {
     /** the runtime environment for the host OS, used for OS specific commands */
     private Runtime runtime = Runtime.getRuntime();
+    /** path to the OS specific temp directory (where we store transferred files etc.) */
+    private String tempPath;
 
     public abstract void eject() throws IOException;
-    public abstract void playSound();
     public abstract void shutdown();
     public abstract void restart();
     public abstract void takeCameraPicture();
     public abstract void setWallpaper(Image newWallpaper);
+
+    public CommandSet()
+    {
+        createStorageDir();
+    }
+
+    /**
+     * creates a temp directory to store transferred files (from the server) on the clients machine
+     */
+    private void createStorageDir()
+    {
+        tempPath = System.getProperty("java.io.tmpdir") + "/rc";
+        new File(tempPath).mkdir();
+    }
 
     /**
      * needed for the ClipboardOwner interface. We don't care if we lose ownership of the clipboard
@@ -33,6 +52,21 @@ public abstract class CommandSet implements ClipboardOwner
     @Override
     public void lostOwnership(Clipboard aClipboard, Transferable aContents)
     {
+    }
+
+    public void playSound(File soundFromServer)
+    {
+        try
+        {
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(soundFromServer);
+            clip.open(inputStream);
+            clip.start();
+        }
+        catch (Exception e)
+        {
+            System.err.println(e.getMessage());
+        }
     }
 
     /**
@@ -130,6 +164,11 @@ public abstract class CommandSet implements ClipboardOwner
     public Runtime getRuntime()
     {
         return runtime;
+    }
+
+    public String getTempPath()
+    {
+        return tempPath;
     }
 
 }

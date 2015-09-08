@@ -1,5 +1,4 @@
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -30,6 +29,20 @@ public class ConnectedClient
     {
         outToClient.println(command);
         outToClient.flush();
+    }
+
+    public void sendFile(File toSend) throws IOException
+    {
+        byte[] buffer = new byte[(int)toSend.length()]; // todo: better way of sizing
+        InputStream in = new FileInputStream(toSend);
+        OutputStream out = connection.getOutputStream();
+
+        int count;
+        while ((count = in.read(buffer)) > 0)
+            out.write(buffer, 0, count);
+
+        out.close();
+        in.close();
     }
 
     public Socket getConnection()

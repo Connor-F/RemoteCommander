@@ -15,4 +15,5 @@ client code checks the hosts OS and executes the appropriate commands for that O
 - command line history (up arrow) -> difficult without using libs
 - clear vars when an incorrect command is typed
 - document each command and args
-- find which keycodes are invalid
+- find which keycodes are invalid -> or use clipboard
+- check if File.createTempFile is the same as our specified temp dir
