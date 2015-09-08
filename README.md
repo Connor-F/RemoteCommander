@@ -17,3 +17,6 @@ client code checks the hosts OS and executes the appropriate commands for that O
 - document each command and args
 - find which keycodes are invalid -> or use clipboard
 - check if File.createTempFile is the same as our specified temp dir
+
+- sound causes strange errors: a sound will play after the server has been terminated but not whilst its running
+  - may be best to remove feature IF the problem occurs when using streams to retrieve screenshots

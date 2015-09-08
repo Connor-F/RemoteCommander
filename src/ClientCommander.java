@@ -65,7 +65,7 @@ public class ClientCommander implements Runnable
     private boolean commandValid(String command)
     {
         command = command.toLowerCase();
-        return command.equals("type") || command.equals("chaos") || command.equals("help") || command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
+        return command != null || command.equals("type") || command.equals("chaos") || command.equals("help") || command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
     }
 
     /**

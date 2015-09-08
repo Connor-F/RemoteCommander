@@ -11,6 +11,7 @@ public class ConnectedClient
     private Socket connection;
     /** the address of the client */
     private InetAddress address;
+
     /** output to the client */
     private PrintWriter outToClient;
 
@@ -27,8 +28,16 @@ public class ConnectedClient
      */
     public void sendCommand(String command)
     {
-        outToClient.println(command);
-        outToClient.flush();
+        try
+        {
+            outToClient.println(command);
+            outToClient.flush();
+        }
+        catch(Exception ioe)
+        {
+            System.err.println("Failed to create PrintWriter to the client.");
+            ioe.printStackTrace();
+        }
     }
 
     public void sendFile(File toSend) throws IOException
@@ -41,7 +50,8 @@ public class ConnectedClient
         while ((count = in.read(buffer)) > 0)
             out.write(buffer, 0, count);
 
-        out.close();
+        out.flush();
+        //out.close();
         in.close();
     }
 
