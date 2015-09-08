@@ -49,6 +49,12 @@ public abstract class CommandSet implements ClipboardOwner
         new File(tempPath).mkdir();
     }
 
+    public void retrieve()
+    {
+
+
+    }
+
     /**
      * needed for the ClipboardOwner interface. We don't care if we lose ownership of the clipboard
      * @param aClipboard

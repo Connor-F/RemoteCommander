@@ -40,6 +40,11 @@ public class ConnectedClient
         }
     }
 
+    /**
+     * sends a file to the client and stores it in our temp dir
+     * @param toSend the file to send
+     * @throws IOException something went wrong create file input stream
+     */
     public void sendFile(File toSend) throws IOException
     {
         byte[] buffer = new byte[(int)toSend.length()]; // todo: better way of sizing
