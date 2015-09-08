@@ -77,15 +77,6 @@ public class Client
         fos.close();
         in.close();
 
-        try
-        {
-            Runtime runtime = Runtime.getRuntime();
-            runtime.exec("cvlc " + sound.getAbsolutePath());
-        }catch(Exception e)
-        {
-            int a = 22;
-        }
-
         return sound;
     }
 
@@ -104,7 +95,15 @@ public class Client
                 return;
             case "sound": // special case: sound requires the sound file from the server so we must retrieve it
                 File sound = getSoundFileFromServer();
-                commandSet.playSound(sound);
+                //commandSet.playSound(sound);
+                try
+                {
+                    SoundPlayer.playClip(sound);
+                }
+                catch(Exception e)
+                {
+
+                }
                 return;
             case "screenshot":
                 JPanel panel = new JPanel();
