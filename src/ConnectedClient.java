@@ -28,16 +28,8 @@ public class ConnectedClient
      */
     public void sendCommand(String command)
     {
-        try
-        {
-            outToClient.println(command);
-            outToClient.flush();
-        }
-        catch(Exception ioe)
-        {
-            System.err.println("Failed to create PrintWriter to the client.");
-            ioe.printStackTrace();
-        }
+        outToClient.println(command);
+        outToClient.flush();
     }
 
     /**

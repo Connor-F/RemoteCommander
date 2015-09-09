@@ -11,12 +11,24 @@ import javax.sound.sampled.SourceDataLine;
 /**
  * allows the playing of sound files
  */
-public class MakeSound {
+public class MakeSound implements Runnable {
 
     private int BUFFER_SIZE = 128000;
     private AudioInputStream audioStream;
     private AudioFormat audioFormat;
     private SourceDataLine sourceLine;
+    private File sound;
+
+    public MakeSound(File sound)
+    {
+        this.sound = sound;
+    }
+
+    @Override
+    public void run()
+    {
+        playSound(sound);
+    }
 
     /**
      * @param filename the name of the file that is going to be played

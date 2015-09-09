@@ -3,6 +3,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * the program that runs on each clients machine. The Client class
@@ -14,6 +17,8 @@ public class Client
     private static final String SERVER_IP_ADDRESS = "127.0.0.1";
     private Socket socket;
     private CommandSet commandSet;
+
+    private File transferredFromServer; //todo: remove
 
     public Client() throws IOException, UnknownOperatingSystemException, AWTException
     {
@@ -72,18 +77,44 @@ public class Client
     private File getSoundFileFromServer() throws IOException
     {
         File sound = File.createTempFile("sou", ".wav", new File(commandSet.getTempPath()));
-        byte[] buffer = new byte[64 * 1024];
+        byte[] buffer = new byte[1847];
         InputStream in = socket.getInputStream();
-        FileOutputStream fos = new FileOutputStream(sound);
 
+        FileOutputStream fos = new FileOutputStream(sound);
         int count;
         while ((count = in.read(buffer)) > 0)
             fos.write(buffer, 0, count);
+//        transferredFromServer = sound;
+        System.out.println("Done file transfer");
 
-        fos.flush();
+
+//        Map<Thread, StackTraceElement[]> dump = Thread.getAllStackTraces();
+//        int i = 0;
+//        for(Map.Entry<Thread, StackTraceElement[]> entry : dump.entrySet())
+//        {
+//            for(StackTraceElement element : entry.getValue())
+//            {
+//                System.out.println(i + " -> Stack trace: " + element);
+//            }
+//            i++;
+//        }
+
+        //fos.flush(); // todo: this is where the program hangs then continues after server terminates...
+        // todo: why the fuck does the client halt here if the server is running...
+        for(StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace())
+        {
+            System.out.println("Stack: " + stackTraceElement);
+        }
         fos.close();
+
+
+
+
+
+
         //in.close();
 
+        System.out.println("Returning sound file");
         return sound;
     }
 
@@ -121,8 +152,8 @@ public class Client
             case "sound": // special case: sound requires the sound file from the server so we must retrieve it
                 try
                 {
-                    //SoundPlayer.playSound(getSoundFileFromServer());
-                    new MakeSound().playSound(getSoundFileFromServer());
+//                    new Thread(new MakeSound(transferredFromServer)).start();
+                    new Thread(new MakeSound(getSoundFileFromServer())).start();
                 }
                 catch(Exception e)
                 {
