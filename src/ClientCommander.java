@@ -23,8 +23,6 @@ public class ClientCommander implements Runnable
     /** holds all the clients that are currently connected to the server */
     private Map<InetAddress, ConnectedClient> connectedClients;
 
-    private static boolean secondCmd = false; //todo remove
-
     public ClientCommander()
     {
         connectedClients = Server.getOnlineClients();
@@ -53,20 +51,10 @@ public class ClientCommander implements Runnable
             System.out.print("> ");
             String command = new Scanner(System.in).nextLine(); // blocks
 
-            if(secondCmd) // so if you close the connection after sending a sound command, everything works...
-            {
-                ConnectedClient client = connectedClients.get(InetAddress.getByName("127.0.0.1")); // todo: remove
-                client.getConnection().getOutputStream().close();
-            }
-
-
             if(commandValid(command.split("\\s+")[0]))
                 parseAndSendCommand(command);
             else
                 System.out.println("> Unknown command: " + command.split("\\s+")[0]);
-
-
-            secondCmd = true;
         }
     }
 

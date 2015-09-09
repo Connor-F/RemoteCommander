@@ -47,11 +47,11 @@ public class ConnectedClient
 
         int count;
         int sentBytes = 0;
-        while (sentBytes != size && (count = in.read(buffer)) > 0)
+        while(sentBytes != size && (count = in.read(buffer)) > 0)
         {
             sentBytes += count;
             out.write(buffer, 0, count);
-            //out.flush();
+            out.flush();
         }
 
         //out.flush();

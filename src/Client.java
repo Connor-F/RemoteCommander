@@ -18,8 +18,6 @@ public class Client
     private Socket socket;
     private CommandSet commandSet;
 
-    private File transferredFromServer; //todo: remove
-
     public Client() throws IOException, UnknownOperatingSystemException, AWTException
     {
         commandSet = setCommandSet();
@@ -77,7 +75,7 @@ public class Client
      */
     private File getSoundFileFromServer(int size) throws IOException
     {
-        File sound = File.createTempFile("sou", ".wav", new File(System.getProperty("java.io.tmpdir") + "/rc"));
+        File sound = File.createTempFile("sou", ".wav", new File(commandSet.getTempPath()));
         byte[] buffer = new byte[size];
         InputStream in = socket.getInputStream();
 
@@ -85,6 +83,7 @@ public class Client
 
         int count;
         int bytesRead = 0;
+        System.out.println("About to read " + size + " bytes sound file");
         while (bytesRead != size && (count = in.read(buffer)) > 0)
         {
             bytesRead += count;
@@ -92,7 +91,7 @@ public class Client
             fos.write(buffer, 0, count);
             //fos.flush(); // todo: needed?
         }
-        System.out.println("Done file transfer"); // todo: gets stuck before this
+        System.out.println("Done file transfer");
 
 
         fos.close();
