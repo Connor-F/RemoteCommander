@@ -19,7 +19,7 @@ public class ConnectedClient
     {
         this.connection = connection;
         this.address = address;
-        outToClient = new PrintWriter(connection.getOutputStream());
+        outToClient = new PrintWriter(connection.getOutputStream(), true);
     }
 
     /**
@@ -37,17 +37,24 @@ public class ConnectedClient
      * @param toSend the file to send
      * @throws IOException something went wrong create file input stream
      */
-    public void sendFile(File toSend) throws IOException
+    public void sendFile(File toSend, int size) throws IOException
     {
-        byte[] buffer = new byte[(int)toSend.length()]; // todo: better way of sizing
+        byte[] buffer = new byte[size];
+        outToClient.println(size); // todo: use sendCommand
+        outToClient.flush();
         InputStream in = new FileInputStream(toSend);
         OutputStream out = connection.getOutputStream();
 
         int count;
-        while ((count = in.read(buffer)) > 0)
+        int sentBytes = 0;
+        while (sentBytes != size && (count = in.read(buffer)) > 0)
+        {
+            sentBytes += count;
             out.write(buffer, 0, count);
+            //out.flush();
+        }
 
-        out.flush();
+        //out.flush();
         //out.close();
         in.close();
     }

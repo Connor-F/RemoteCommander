@@ -216,14 +216,15 @@ public class ClientCommander implements Runnable
                 if(command.equals("sound")) // special as we need to send the sound file to the client
                 {
                     File sound = new File(argument);
+                    int size = (int)sound.length();
                     if(host.equals("all"))
                     {
-                        sendFileAll(sound);
+                        sendFileAll(sound, size);
 
                     }
                     else
                     {
-                        target.sendFile(sound);
+                        target.sendFile(sound, size);
                     }
                 }
             }
@@ -271,10 +272,10 @@ public class ClientCommander implements Runnable
         }
     }
 
-    private void sendFileAll(File toSend) throws IOException
+    private void sendFileAll(File toSend, int size) throws IOException
     {
         for (Map.Entry<InetAddress, ConnectedClient> client : connectedClients.entrySet())
-            client.getValue().sendFile(toSend);
+            client.getValue().sendFile(toSend, size);
     }
 
     /**

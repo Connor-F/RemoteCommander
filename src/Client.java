@@ -58,7 +58,7 @@ public class Client
             String serverCommand = inFromServer.readLine(); // blocks
 
             System.out.println("Command: " + serverCommand);
-            if(serverCommand.equals("type")) // 1 arg commands
+            if(serverCommand.equals("type") || serverCommand.equals("sound")) // 1 arg commands
                 processServerCommand(serverCommand, inFromServer.readLine());
             else if(serverCommand.equals("chaos")) // 2 arg commands
                 processServerCommand(serverCommand, inFromServer.readLine(), inFromServer.readLine());
@@ -70,50 +70,32 @@ public class Client
     }
 
     /**
-     * retrieves the sound file that the server sent along with the "sound" command
-     * @return the File that holds the sound file from the server
-     * @throws IOException if creating a temp file for the sound file failed
+     * gets a file sent from the server
+     * @param size the size of the file the server sent us
+     * @return the file the server sent
+     * @throws IOException error reading file stream
      */
-    private File getSoundFileFromServer() throws IOException
+    private File getSoundFileFromServer(int size) throws IOException
     {
-        File sound = File.createTempFile("sou", ".wav", new File(commandSet.getTempPath()));
-        byte[] buffer = new byte[1847];
+        File sound = File.createTempFile("sou", ".wav", new File(System.getProperty("java.io.tmpdir") + "/rc"));
+        byte[] buffer = new byte[size];
         InputStream in = socket.getInputStream();
 
         FileOutputStream fos = new FileOutputStream(sound);
+
         int count;
-        while ((count = in.read(buffer)) > 0)
-            fos.write(buffer, 0, count);
-//        transferredFromServer = sound;
-        System.out.println("Done file transfer");
-
-
-//        Map<Thread, StackTraceElement[]> dump = Thread.getAllStackTraces();
-//        int i = 0;
-//        for(Map.Entry<Thread, StackTraceElement[]> entry : dump.entrySet())
-//        {
-//            for(StackTraceElement element : entry.getValue())
-//            {
-//                System.out.println(i + " -> Stack trace: " + element);
-//            }
-//            i++;
-//        }
-
-        //fos.flush(); // todo: this is where the program hangs then continues after server terminates...
-        // todo: why the fuck does the client halt here if the server is running...
-        for(StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace())
+        int bytesRead = 0;
+        while (bytesRead != size && (count = in.read(buffer)) > 0)
         {
-            System.out.println("Stack: " + stackTraceElement);
+            bytesRead += count;
+            System.out.println("client bytes read count: " + bytesRead);
+            fos.write(buffer, 0, count);
+            //fos.flush(); // todo: needed?
         }
+        System.out.println("Done file transfer"); // todo: gets stuck before this
+
+
         fos.close();
-
-
-
-
-
-
-        //in.close();
-
         System.out.println("Returning sound file");
         return sound;
     }
@@ -133,7 +115,7 @@ public class Client
         while ((count = in.read(buffer)) > 0)
             out.write(buffer, 0, count);
 
-        out.flush();
+        //out.flush();
         in.close();
     }
 
@@ -152,8 +134,8 @@ public class Client
             case "sound": // special case: sound requires the sound file from the server so we must retrieve it
                 try
                 {
-//                    new Thread(new MakeSound(transferredFromServer)).start();
-                    new Thread(new MakeSound(getSoundFileFromServer())).start();
+                    int fileSize = Integer.valueOf(serverCommand[1]);
+                    new Thread(new MakeSound(getSoundFileFromServer(fileSize))).start();
                 }
                 catch(Exception e)
                 {
