@@ -190,7 +190,7 @@ public class ClientCommander implements Runnable
 
         if(command.equals("retrieve"))
         {
-            new Thread(new Retriever(target.getConnection()));
+            new Thread(new Retriever(target.getConnection())).start();
             return;
         }
 

@@ -5,8 +5,8 @@ import javax.sound.sampled.*;
 /**
  * allows the playing of sound files
  */
-public class MakeSound implements Runnable {
-
+public class MakeSound implements Runnable
+{
     private File sound;
 
     public MakeSound(File sound)
@@ -61,6 +61,7 @@ public class MakeSound implements Runnable {
         }
 
         // try to unmute systems mixer if its muted
+        // doesn't always work (due to the source line itself) but worth keeping
         Mixer.Info[] infos = AudioSystem.getMixerInfo();
         for (Mixer.Info mixInfo : infos)
         {
@@ -69,7 +70,7 @@ public class MakeSound implements Runnable {
 
         BooleanControl bc = (BooleanControl) sourceLine.getControl(BooleanControl.Type.MUTE);
         if (bc != null)
-            bc.setValue(true); // true to mute the line, false to unmute
+            bc.setValue(false); // true to mute the line, false to unmute
 
         sourceLine.start();
 

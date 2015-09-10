@@ -18,7 +18,7 @@ public class Retriever implements Runnable
     {
         try
         {
-            getImageFilesFromClient();
+            getFileFromClient();
         }
         catch(IOException ioe)
         {
@@ -26,23 +26,19 @@ public class Retriever implements Runnable
         }
     }
 
-    private void getImageFilesFromClient() throws IOException
+    private void getFileFromClient() throws IOException
     {
-        byte[] buffer = new byte[128 * 1024];
-        InputStream in = toClient.getInputStream();
+        DataInputStream inFromClient = new DataInputStream(toClient.getInputStream());
+        int fileSize = inFromClient.readInt();
+        byte[] buffer = new byte[fileSize];
 
         String clientsPath = "/home/connor/Desktop/clients/" + toClient.getInetAddress().toString().replace("/", "");
         new File(clientsPath).mkdir();
 
-        while(in.read() != -1)
-        {
-            FileOutputStream fos = new FileOutputStream(File.createTempFile("img_", ".jpg", new File(clientsPath + "/")));
-            int count;
-            while ((count = in.read(buffer)) > 0)
-                fos.write(buffer, 0, count);
-
-            fos.flush();
-            fos.close();
-        }
+        inFromClient.readFully(buffer, 0, fileSize);
+        FileOutputStream outFile = new FileOutputStream(File.createTempFile("file_", "_test", new File(clientsPath + "/")));
+        outFile.write(buffer, 0, fileSize);
+        outFile.flush();
+        outFile.close();
     }
 }

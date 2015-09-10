@@ -55,7 +55,6 @@ public class Client
 
         while(socket.isConnected())
         {
-
             String serverCommand = getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
             if(serverCommand.equals("type") || serverCommand.equals("sound")) // 1 arg commands
@@ -98,7 +97,7 @@ public class Client
      * @return the file the server sent
      * @throws IOException error reading file stream
      */
-    private File getSoundFileFromServer(int size) throws IOException
+    private File getSoundFileFromServer(int size) throws IOException //todo: make this get any file
     {
         File sound = File.createTempFile("sou", ".wav", new File(commandSet.getTempPath()));
         byte[] buffer = new byte[size];
@@ -133,16 +132,21 @@ public class Client
      */
     public void sendFile(File toSend) throws IOException
     {
-        byte[] buffer = new byte[(int)toSend.length()]; // todo: better way of sizing
-        InputStream in = new FileInputStream(toSend);
-        OutputStream out = socket.getOutputStream();
+        byte[] buffer = new byte[(int)toSend.length()];
+        InputStream sendMe = new FileInputStream(toSend);
+        DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
 
+        outToServer.writeInt((int)toSend.length());
         int count;
-        while ((count = in.read(buffer)) > 0)
-            out.write(buffer, 0, count);
+        int sentBytes = 0;
+        while(sentBytes != toSend.length() && (count = sendMe.read(buffer)) > 0)
+        {
+            sentBytes += count;
+            outToServer.write(buffer, 0, count);
+        }
 
-        //out.flush();
-        in.close();
+        outToServer.flush();
+        sendMe.close();
     }
 
     /**
