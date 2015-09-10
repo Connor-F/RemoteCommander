@@ -110,7 +110,7 @@ public abstract class CommandSet implements ClipboardOwner
         Robot robot = new Robot();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         BufferedImage screenImg = robot.createScreenCapture(new Rectangle(screenSize));
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd@HH-mm-ss");
         File screenshot = new File(getTempPath() + "/scr_" + dateFormat.format(new Date()) + ".jpg");
         ImageIO.write(screenImg, "jpg", screenshot);
     }

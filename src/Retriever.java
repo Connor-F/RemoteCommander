@@ -32,11 +32,13 @@ public class Retriever implements Runnable
         int fileSize = inFromClient.readInt();
         byte[] buffer = new byte[fileSize];
 
-        String clientsPath = "/home/connor/Desktop/clients/" + toClient.getInetAddress().toString().replace("/", "");
-        new File(clientsPath).mkdir();
+        String clientsPath = "/home/connor/Desktop/clients/" + toClient.getInetAddress().toString().replace("/", "") + "/";
+        boolean worked = new File(clientsPath).mkdir();
+        if(!worked)
+            System.err.println("Failed to create dir: " + clientsPath);
 
         inFromClient.readFully(buffer, 0, fileSize);
-        FileOutputStream outFile = new FileOutputStream(File.createTempFile("file_", "_test", new File(clientsPath + "/")));
+        FileOutputStream outFile = new FileOutputStream(File.createTempFile("file_", "_test.jpg", new File(clientsPath)));
         outFile.write(buffer, 0, fileSize);
         outFile.flush();
         outFile.close();

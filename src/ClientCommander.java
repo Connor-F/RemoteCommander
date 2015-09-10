@@ -188,7 +188,7 @@ public class ClientCommander implements Runnable
         if(!host.equals("all"))
             target.sendCommandPart(command); // send the cmd to the specified connected client
 
-        if(command.equals("retrieve"))
+        if(command.equals("retrieve")) // todo: retrieve doesn't know how many files the client is going to send over
         {
             new Thread(new Retriever(target.getConnection())).start();
             return;
