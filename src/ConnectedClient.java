@@ -62,11 +62,9 @@ public class ConnectedClient
             sentBytes += count;
             System.out.println("Bytes sent: " + sentBytes + " / " + size);
             out.write(buffer, 0, count);
-            //out.flush();
         }
 
         out.flush();
-        //out.close();
         in.close();
     }
 

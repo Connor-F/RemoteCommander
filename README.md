@@ -14,6 +14,6 @@ client code checks the hosts OS and executes the appropriate commands for that O
 **todo**
 - document each command and args
 - find which keycodes are invalid -> or use clipboard
+- maybe: if MakeSound unmuted the systems mixer, then play the sound and mute it again
 
-- sound will only work once then get stuck reading into the buffer in getFile
 

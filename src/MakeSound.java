@@ -1,22 +1,12 @@
 import java.io.File;
 import java.io.IOException;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.*;
 
 /**
  * allows the playing of sound files
  */
 public class MakeSound implements Runnable {
 
-    private int BUFFER_SIZE = 128000;
-    private AudioInputStream audioStream;
-    private AudioFormat audioFormat;
-    private SourceDataLine sourceLine;
     private File sound;
 
     public MakeSound(File sound)
@@ -31,43 +21,72 @@ public class MakeSound implements Runnable {
     }
 
     /**
-     * @param filename the name of the file that is going to be played
+     * plays the sound file provided
+     * @param soundFile the sound to play
      */
-    public void playSound(File soundFile){
+    public void playSound(File soundFile)
+    {
+        int BUFFER_SIZE = (int)soundFile.length();
+        AudioInputStream audioStream = null;
+        AudioFormat audioFormat;
+        SourceDataLine sourceLine = null;
 
-        BUFFER_SIZE = (int)soundFile.length();
-        try {
+        try
+        {
             audioStream = AudioSystem.getAudioInputStream(soundFile);
-        } catch (Exception e){
+        }
+        catch(Exception e)
+        {
             e.printStackTrace();
-            System.exit(1);
+            System.exit(1); // todo: don't exit
         }
 
         audioFormat = audioStream.getFormat();
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-        try {
+        try
+        {
             sourceLine = (SourceDataLine) AudioSystem.getLine(info);
             sourceLine.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (Exception e) {
+        }
+        catch(LineUnavailableException e)
+        {
             e.printStackTrace();
             System.exit(1);
         }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        // try to unmute systems mixer if its muted
+        Mixer.Info[] infos = AudioSystem.getMixerInfo();
+        for (Mixer.Info mixInfo : infos)
+        {
+            Mixer mixer = AudioSystem.getMixer(mixInfo);
+        }
+
+        BooleanControl bc = (BooleanControl) sourceLine.getControl(BooleanControl.Type.MUTE);
+        if (bc != null)
+            bc.setValue(true); // true to mute the line, false to unmute
 
         sourceLine.start();
 
         int nBytesRead = 0;
         byte[] abData = new byte[BUFFER_SIZE];
-        while (nBytesRead != -1) {
-            try {
+        while(nBytesRead != -1)
+        {
+            try
+            {
                 nBytesRead = audioStream.read(abData, 0, abData.length);
-            } catch (IOException e) {
+            }
+            catch(IOException e)
+            {
                 e.printStackTrace();
             }
-            if (nBytesRead >= 0) {
+            if(nBytesRead >= 0)
+            {
                 @SuppressWarnings("unused")
                 int nBytesWritten = sourceLine.write(abData, 0, nBytesRead);
             }
