@@ -13,25 +13,34 @@ public class ConnectedClient
     private InetAddress address;
 
     /** output to the client */
-    private PrintWriter outToClient;
+    private DataOutputStream outToClient;
+//    private PrintWriter outToClient;
 
     public ConnectedClient(Socket connection, InetAddress address) throws IOException
     {
         this.connection = connection;
         this.address = address;
-        outToClient = new PrintWriter(connection.getOutputStream(), true);
+        //outToClient = new PrintWriter(connection.getOutputStream(), true);
+        outToClient = new DataOutputStream(connection.getOutputStream());
     }
 
     /**
-     * sends the command to the client
-     * @param command the string to send to the client so it can then act upon it
+     * sends part of the command to the client
+     * @param command the part of the command to send
      */
-    public void sendCommand(String command)
+    public void sendCommandPart(String command)
     {
-        System.out.println("Connected client sending cmd: " + command);
-        outToClient.flush();
-        outToClient.println(command);
-        outToClient.flush();
+        try
+        {
+                outToClient.writeInt(command.length()); // client will read this many bytes on its side
+                outToClient.write(command.getBytes(), 0, command.length());
+                outToClient.flush();
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed trying to send a command part to the client");
+            ioe.printStackTrace();
+        }
     }
 
     /**
@@ -42,7 +51,7 @@ public class ConnectedClient
     public void sendFile(File toSend, int size) throws IOException
     {
         byte[] buffer = new byte[size];
-        sendCommand("" + size);
+        sendCommandPart("" + size);
         InputStream in = new FileInputStream(toSend);
         DataOutputStream out = new DataOutputStream(connection.getOutputStream());
 
@@ -53,7 +62,7 @@ public class ConnectedClient
             sentBytes += count;
             System.out.println("Bytes sent: " + sentBytes + " / " + size);
             out.write(buffer, 0, count);
-            out.flush();
+            //out.flush();
         }
 
         out.flush();

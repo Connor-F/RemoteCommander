@@ -1,5 +1,3 @@
-import sun.applet.resources.MsgAppletViewer_ko;
-
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.File;

@@ -17,6 +17,7 @@ public class Client
     private static final String SERVER_IP_ADDRESS = "127.0.0.1";
     private Socket socket;
     private CommandSet commandSet;
+    private DataInputStream inFromServer;
 
     public Client() throws IOException, UnknownOperatingSystemException, AWTException
     {
@@ -49,22 +50,46 @@ public class Client
     private void connectAndListen() throws IOException, AWTException
     {
         socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        //BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        inFromServer = new DataInputStream(socket.getInputStream());
 
         while(socket.isConnected())
         {
-            String serverCommand = inFromServer.readLine(); // blocks
 
+            String serverCommand = getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
             if(serverCommand.equals("type") || serverCommand.equals("sound")) // 1 arg commands
-                processServerCommand(serverCommand, inFromServer.readLine());
+                processServerCommand(serverCommand, getCommandFromServer());
             else if(serverCommand.equals("chaos")) // 2 arg commands
-                processServerCommand(serverCommand, inFromServer.readLine(), inFromServer.readLine());
+                processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer());
             else if(serverCommand.equals("msg")) // 4 arg commands
-                processServerCommand(serverCommand, inFromServer.readLine(), inFromServer.readLine(), inFromServer.readLine());
+                processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer(), getCommandFromServer());
             else
                 processServerCommand(serverCommand);
         }
+    }
+
+    /**
+     * gets the command string sent from the server
+     * @return the command the server sent, null if something went wrong reading the stream
+     */
+    private String getCommandFromServer()
+    {
+        String serverCommand = null;
+        try
+        {
+            int commandLength = inFromServer.readInt();
+            byte[] commandBytes = new byte[commandLength];
+            inFromServer.readFully(commandBytes, 0, commandLength);
+            serverCommand = new String(commandBytes);
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Something went wrong reading the command from the server");
+            ioe.printStackTrace();
+        }
+
+        return serverCommand;
     }
 
     /**

@@ -136,6 +136,7 @@ public class ClientCommander implements Runnable
     {
         ArrayList<String> commandTokens = tokeniseCommand(fullCommand);
         String command = commandTokens.get(0);
+
         //System.out.println("ClientCommander sending cmd: " + command);
 
         // Zero argument commands: online, count, help
@@ -171,15 +172,21 @@ public class ClientCommander implements Runnable
 
         ConnectedClient target = null;
         if(host.equals("all"))
+        {
+            //sendCommandAll("" + commandTokens.size()); // IMPORTANT! Otherwise client doesn't know when to stop reading each cmd
             sendCommandAll(command);
+        }
         else // find the specified client
+        {
             target = connectedClients.get(InetAddress.getByName(host));
+            //target.sendCommandPart("" + commandTokens.size());
+        }
 
         if(target == null && !host.equals("all"))
             throw new UnknownHostException(host + " isn't online or doesn't exist");
 
         if(!host.equals("all"))
-            target.sendCommand(command); // send the cmd to the specified connected client
+            target.sendCommandPart(command); // send the cmd to the specified connected client
 
         if(command.equals("retrieve"))
         {
@@ -198,7 +205,7 @@ public class ClientCommander implements Runnable
                 if(host.equals("all")) // command has already been sent, just need to send argument now
                     sendCommandAll(argument);
                 else
-                    target.sendCommand(argument); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
+                    target.sendCommandPart(argument); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
             }
             else
             {
@@ -233,8 +240,8 @@ public class ClientCommander implements Runnable
             }
             else
             {
-                target.sendCommand(length);
-                target.sendCommand(delay);
+                target.sendCommandPart(length);
+                target.sendCommandPart(delay);
             }
         }
 
@@ -254,9 +261,9 @@ public class ClientCommander implements Runnable
             }
             else
             {
-                target.sendCommand(msg);
-                target.sendCommand(title);
-                target.sendCommand(type);
+                target.sendCommandPart(msg);
+                target.sendCommandPart(title);
+                target.sendCommandPart(type);
             }
         }
     }
@@ -274,7 +281,7 @@ public class ClientCommander implements Runnable
     private void sendCommandAll(String command)
     {
         for (Map.Entry<InetAddress, ConnectedClient> client : connectedClients.entrySet())
-            client.getValue().sendCommand(command);
+            client.getValue().sendCommandPart(command);
     }
 
     /**
