@@ -55,7 +55,7 @@ public class Client
         {
             String serverCommand = inFromServer.readLine(); // blocks
 
-            System.out.println("Command: " + serverCommand);
+            System.out.println("Command read from server: " + serverCommand);
             if(serverCommand.equals("type") || serverCommand.equals("sound")) // 1 arg commands
                 processServerCommand(serverCommand, inFromServer.readLine());
             else if(serverCommand.equals("chaos")) // 2 arg commands
@@ -77,25 +77,27 @@ public class Client
     {
         File sound = File.createTempFile("sou", ".wav", new File(commandSet.getTempPath()));
         byte[] buffer = new byte[size];
-        InputStream in = socket.getInputStream();
+        DataInputStream in = new DataInputStream(socket.getInputStream());
 
         FileOutputStream fos = new FileOutputStream(sound);
-
-        int count;
-        int bytesRead = 0;
-        System.out.println("About to read " + size + " bytes sound file");
-        while (bytesRead != size && (count = in.read(buffer)) > 0)
-        {
-            bytesRead += count;
-            System.out.println("client bytes read count: " + bytesRead);
-            fos.write(buffer, 0, count);
-            //fos.flush(); // todo: needed?
-        }
-        System.out.println("Done file transfer");
-
-
+        System.out.println("Before readFully: File: " + sound.getName() + " with size: " + size);
+        in.readFully(buffer, 0, size);
+        fos.write(buffer, 0, size);
+        fos.flush();
+        System.out.println("After readFully: Size: " + sound.length());
         fos.close();
-        System.out.println("Returning sound file");
+
+//        int count;
+//        int bytesRead = 0;
+//        System.out.println("About to read " + size + " bytes sound file");
+//        while (bytesRead != size && (count = in.read(buffer)) > 0)
+//        {
+//            bytesRead += count;
+//            System.out.println("client bytes read count: " + bytesRead);
+//            fos.write(buffer, 0, count);
+//            //fos.flush(); // todo: needed?
+//        }
+        System.out.println("Done file transfer");
         return sound;
     }
 

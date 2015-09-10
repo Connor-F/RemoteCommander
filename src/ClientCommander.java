@@ -136,6 +136,7 @@ public class ClientCommander implements Runnable
     {
         ArrayList<String> commandTokens = tokeniseCommand(fullCommand);
         String command = commandTokens.get(0);
+        //System.out.println("ClientCommander sending cmd: " + command);
 
         // Zero argument commands: online, count, help
         // e.g. count

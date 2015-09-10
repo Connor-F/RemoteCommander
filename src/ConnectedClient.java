@@ -28,6 +28,8 @@ public class ConnectedClient
      */
     public void sendCommand(String command)
     {
+        System.out.println("Connected client sending cmd: " + command);
+        outToClient.flush();
         outToClient.println(command);
         outToClient.flush();
     }
@@ -40,21 +42,21 @@ public class ConnectedClient
     public void sendFile(File toSend, int size) throws IOException
     {
         byte[] buffer = new byte[size];
-        outToClient.println(size); // todo: use sendCommand
-        outToClient.flush();
+        sendCommand("" + size);
         InputStream in = new FileInputStream(toSend);
-        OutputStream out = connection.getOutputStream();
+        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
 
         int count;
         int sentBytes = 0;
         while(sentBytes != size && (count = in.read(buffer)) > 0)
         {
             sentBytes += count;
+            System.out.println("Bytes sent: " + sentBytes + " / " + size);
             out.write(buffer, 0, count);
             out.flush();
         }
 
-        //out.flush();
+        out.flush();
         //out.close();
         in.close();
     }
