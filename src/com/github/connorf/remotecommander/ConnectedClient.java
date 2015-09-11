@@ -16,13 +16,11 @@ public class ConnectedClient
 
     /** output to the client */
     private DataOutputStream outToClient;
-//    private PrintWriter outToClient;
 
     public ConnectedClient(Socket connection, InetAddress address) throws IOException
     {
         this.connection = connection;
         this.address = address;
-        //outToClient = new PrintWriter(connection.getOutputStream(), true);
         outToClient = new DataOutputStream(connection.getOutputStream());
     }
 

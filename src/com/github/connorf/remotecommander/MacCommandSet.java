@@ -17,13 +17,13 @@ public class MacCommandSet extends CommandSet
     @Override
     public void shutdown() throws IOException
     {
-
+        getRuntime().exec("osascript -e 'tell app \"System Events\" to shut down'");
     }
 
     @Override
     public void restart() throws IOException
     {
-
+        getRuntime().exec("osascript -e 'tell app \"System Events\" to restart'");
     }
 
     @Override

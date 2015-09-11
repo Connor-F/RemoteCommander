@@ -14,13 +14,13 @@ public class LinuxCommandSet extends CommandSet
     @Override
     public void shutdown() throws IOException
     {
-
+        getRuntime().exec("shutdown now");
     }
 
     @Override
     public void restart() throws IOException
     {
-
+        getRuntime().exec("shutdown -r now");
     }
 
     @Override

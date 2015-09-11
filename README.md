@@ -13,7 +13,6 @@ client code checks the hosts OS and executes the appropriate commands for that O
 
 **todo**
 - document each command and args
-- find which keycodes are invalid -> or use clipboard
 - maybe: if com.github.connorf.remotecommander.MakeSound unmuted the systems mixer, then play the sound and mute it again
 - way for client to tell server its going offline, then remove that client from the online clients map
 

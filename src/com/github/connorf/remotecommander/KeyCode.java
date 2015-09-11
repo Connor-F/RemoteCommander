@@ -22,23 +22,8 @@ public class KeyCode
     private ArrayList<Integer> populateKeyCodes()
     {
         ArrayList<Integer> keycodes = new ArrayList<>();
-        keycodes.add(new Integer(8));
-        keycodes.add(new Integer(9));
-        keycodes.add(new Integer(13));
-        keycodes.add(new Integer(27));
-        keycodes.add(new Integer(45));
-        keycodes.add(new Integer(46));
-        keycodes.add(new Integer(144));
-        keycodes.add(new Integer(145));
-        for(int i = 16; i <= 20; i++)
-            keycodes.add(new Integer(Integer.valueOf(i)));
-        for(int i = 33; i <= 40; i++)
-            keycodes.add(new Integer(Integer.valueOf(i)));
-        for(int i = 48; i <= 57; i++)
-            keycodes.add(new Integer(Integer.valueOf(i)));
-        for(int i = 65; i <= 123; i++)
-            keycodes.add(new Integer(Integer.valueOf(i)));
-
+        for(int i = 32; i <= 126; i++) // all type-able chars (ASCII codes)
+            keycodes.add(i);
         return keycodes;
     }
 

@@ -103,7 +103,7 @@ public class ClientCommander implements Runnable
     private void printHelp(String command)
     {
         if(command == null) // user wants full help
-            System.out.println("Usage:\n\t" + COUNT + "\n\t" + ONLINE + "\n\t" + HELP + "\n\t" + EJECT + " HOST\n\t" + SHUTDOWN + " HOST\n\t" + RESTART + " HOST\n\t" + SCREENSHOT + " HOST\n\t" + SOUND + " HOST /path/to/local/sound/file\n\t" + MSG + " \"message body\" \"message box title\" type\n\t" + CHAOS + " HOST DURATION DELAY\n\t" + TYPE + " HOST \"message to type here\"\nHOST can either be a specified IP address or the world all (to send to every online client)");
+            System.out.println("Usage:\n\t" + COUNT + "\n\t" + ONLINE + "\n\t" + HELP + "\n\t" + EJECT + " HOST\n\t" + SHUTDOWN + " HOST\n\t" + RESTART + " HOST\n\t" + SCREENSHOT + " HOST\n\t" + SOUND + " HOST /path/to/local/sound/file\n\t" + MSG + " \"message body\" \"message box title\" type\n\t" + CHAOS + " HOST DURATION DELAY\n\t" + TYPE + " HOST \"message to type here\"\nHOST can either be a specified IP address or the word all (to send to every online client)");
         else
         {
             if(command.equals(COUNT))
@@ -142,8 +142,6 @@ public class ClientCommander implements Runnable
         ArrayList<String> commandTokens = tokeniseCommand(fullCommand);
         String command = commandTokens.get(0);
 
-        //System.out.println("com.github.connorf.remotecommander.ClientCommander sending cmd: " + command);
-
         // Zero argument commands: online, count, help
         // e.g. count
         if(command.equals(ONLINE))
@@ -177,15 +175,9 @@ public class ClientCommander implements Runnable
 
         ConnectedClient target = null;
         if(host.equals(ALL))
-        {
-            //sendCommandAll("" + commandTokens.size()); // IMPORTANT! Otherwise client doesn't know when to stop reading each cmd
             sendCommandAll(command);
-        }
         else // find the specified client
-        {
             target = connectedClients.get(InetAddress.getByName(host));
-            //target.sendCommandPart("" + commandTokens.size());
-        }
 
         if(target == null && !host.equals(ALL))
             throw new UnknownHostException(host + " isn't online or doesn't exist");

@@ -49,7 +49,6 @@ public class Client
     private void connectAndListen() throws IOException, AWTException
     {
         socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
-        //BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         inFromServer = new DataInputStream(socket.getInputStream());
 
         while(socket.isConnected())
@@ -110,16 +109,6 @@ public class Client
         System.out.println("After readFully: Size: " + sound.length());
         fos.close();
 
-//        int count;
-//        int bytesRead = 0;
-//        System.out.println("About to read " + size + " bytes sound file");
-//        while (bytesRead != size && (count = in.read(buffer)) > 0)
-//        {
-//            bytesRead += count;
-//            System.out.println("client bytes read count: " + bytesRead);
-//            fos.write(buffer, 0, count);
-//            //fos.flush(); // todo: needed?
-//        }
         System.out.println("Done file transfer");
         return sound;
     }

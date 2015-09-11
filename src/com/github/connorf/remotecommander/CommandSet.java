@@ -32,7 +32,6 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void restart() throws IOException;
     public abstract void takeCameraPicture();
     public abstract void setWallpaper(Image newWallpaper);
-    //public abstract void beep();
 
     public CommandSet()
     {
