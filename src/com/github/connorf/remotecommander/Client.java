@@ -1,10 +1,14 @@
+package com.github.connorf.remotecommander;
+
+import static com.github.connorf.remotecommander.CommandConstants.*;
+
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 
 /**
- * the program that runs on each clients machine. The Client class
- * connects to the Server and waits for instructions
+ * the program that runs on each clients machine. The com.github.connorf.remotecommander.Client class
+ * connects to the com.github.connorf.remotecommander.Server and waits for instructions
  */
 public class Client
 {
@@ -22,7 +26,7 @@ public class Client
 
     /**
      * gets the appropriate command set for the OS that the client is running
-     * @return the CommandSet that will work on the clients operating system
+     * @return the com.github.connorf.remotecommander.CommandSet that will work on the clients operating system
      * @throws UnknownOperatingSystemException if the operating system is unrecognised
      */
     private CommandSet setCommandSet() throws UnknownOperatingSystemException
@@ -52,11 +56,11 @@ public class Client
         {
             String serverCommand = getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
-            if(serverCommand.equals("type") || serverCommand.equals("sound")) // 1 arg commands
+            if(serverCommand.equals(TYPE) || serverCommand.equals(SOUND)) // 1 arg commands
                 processServerCommand(serverCommand, getCommandFromServer());
-            else if(serverCommand.equals("chaos")) // 2 arg commands
+            else if(serverCommand.equals(CHAOS)) // 2 arg commands
                 processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer());
-            else if(serverCommand.equals("msg")) // 4 arg commands
+            else if(serverCommand.equals(MSG)) // 4 arg commands
                 processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer(), getCommandFromServer());
             else
                 processServerCommand(serverCommand);
@@ -145,7 +149,7 @@ public class Client
     }
 
     /**
-     * calls the appropriate method on the CommandSet depending on what the server wants us to do to
+     * calls the appropriate method on the com.github.connorf.remotecommander.CommandSet depending on what the server wants us to do to
      * the client
      * @param serverCommand the command from the server and optionally extra arguments (msg command for example provides a msg arg)
      */
@@ -153,10 +157,10 @@ public class Client
     {
         switch(serverCommand[0].toLowerCase())
         {
-            case "eject":
+            case EJECT:
                 commandSet.eject();
                 return;
-            case "sound": // special case: sound requires the sound file from the server so we must retrieve it
+            case SOUND: // special case: sound requires the sound file from the server so we must retrieve it
                 try
                 {
                     int fileSize = Integer.valueOf(serverCommand[1]);
@@ -168,25 +172,25 @@ public class Client
                     e.printStackTrace();
                 }
                 return;
-            case "screenshot":
+            case SCREENSHOT:
                 commandSet.takeScreenshot();
                 return;
-            case "msg":
+            case MSG:
                 commandSet.showMessage(serverCommand[1], serverCommand[2], serverCommand[3]);
                 return;
-            case "shutdown":
+            case SHUTDOWN:
                 commandSet.shutdown();
                 return;
-            case "restart":
+            case RESTART:
                 commandSet.restart();
                 return;
-            case "chaos":
+            case CHAOS:
                 commandSet.chaos(Long.valueOf(serverCommand[1]), Long.valueOf(serverCommand[2]));
                 break;
-            case "type":
+            case TYPE:
                 commandSet.type(serverCommand[1]);
                 break;
-            case "retrieve":
+            case RETRIEVE:
                 sendAllImages();
                 break;
             default:
@@ -194,7 +198,7 @@ public class Client
         }
     }
 
-    private void sendAllImages()
+    private void sendAllImages() //todo: refactor
     {
         File[] allImages = new File(commandSet.getTempPath()).listFiles();
 

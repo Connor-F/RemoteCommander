@@ -1,35 +1,29 @@
-import javax.swing.filechooser.FileSystemView;
+package com.github.connorf.remotecommander;
+
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 
 /**
  * Created by connor on 06/09/15.
  */
-public class WindowsCommandSet extends CommandSet
+public class MacCommandSet extends CommandSet
 {
-//    @Override
-//    public void beep()
-//    {
-//        getRuntime().exec("")
-//    }
-
     @Override
     public void eject() throws IOException
     {
-        getRuntime().exec("eject");
+        getRuntime().exec("drutil eject internal");
     }
 
     @Override
     public void shutdown() throws IOException
     {
-        getRuntime().exec("shutdown -s");
+
     }
 
     @Override
     public void restart() throws IOException
     {
-        getRuntime().exec("shutdown -r");
+
     }
 
     @Override

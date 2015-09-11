@@ -1,3 +1,5 @@
+package com.github.connorf.remotecommander;
+
 import java.io.*;
 import java.net.Socket;
 

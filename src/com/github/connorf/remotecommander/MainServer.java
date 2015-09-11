@@ -1,3 +1,5 @@
+package com.github.connorf.remotecommander;
+
 import java.io.IOException;
 
 public class MainServer
@@ -10,7 +12,7 @@ public class MainServer
         }
         catch(IOException e)
         {
-            System.out.println("MainServer: Exception");
+            System.out.println("com.github.connorf.remotecommander.MainServer: Exception");
             e.printStackTrace();
         }
     }

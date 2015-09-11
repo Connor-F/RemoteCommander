@@ -14,7 +14,8 @@ client code checks the hosts OS and executes the appropriate commands for that O
 **todo**
 - document each command and args
 - find which keycodes are invalid -> or use clipboard
-- maybe: if MakeSound unmuted the systems mixer, then play the sound and mute it again
+- maybe: if com.github.connorf.remotecommander.MakeSound unmuted the systems mixer, then play the sound and mute it again
+- way for client to tell server its going offline, then remove that client from the online clients map
 
 - if there > 1 connection, sending an un-transmitted command (count, online) then trying to send a transmitted command causes the clients to recieve no data at all
   - > 1 connection and sending multiple sound commands causes the clients to hang, even though they both recieve the file

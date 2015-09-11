@@ -1,16 +1,14 @@
+package com.github.connorf.remotecommander;
+
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by connor on 06/09/15.
- */
-public class MacCommandSet extends CommandSet
+public class LinuxCommandSet extends CommandSet
 {
     @Override
     public void eject() throws IOException
     {
-        getRuntime().exec("drutil eject internal");
+        getRuntime().exec("eject");
     }
 
     @Override

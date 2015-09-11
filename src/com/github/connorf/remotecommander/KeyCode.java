@@ -1,3 +1,5 @@
+package com.github.connorf.remotecommander;
+
 import java.util.ArrayList;
 import java.util.Random;
 
