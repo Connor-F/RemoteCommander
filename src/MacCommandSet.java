@@ -14,13 +14,13 @@ public class MacCommandSet extends CommandSet
     }
 
     @Override
-    public void shutdown()
+    public void shutdown() throws IOException
     {
 
     }
 
     @Override
-    public void restart()
+    public void restart() throws IOException
     {
 
     }

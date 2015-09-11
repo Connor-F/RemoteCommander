@@ -29,8 +29,8 @@ public abstract class CommandSet implements ClipboardOwner
     private String tempPath;
 
     public abstract void eject() throws IOException;
-    public abstract void shutdown();
-    public abstract void restart();
+    public abstract void shutdown() throws IOException;
+    public abstract void restart() throws IOException;
     public abstract void takeCameraPicture();
     public abstract void setWallpaper(Image newWallpaper);
     //public abstract void beep();
@@ -51,8 +51,6 @@ public abstract class CommandSet implements ClipboardOwner
 
     public void retrieve()
     {
-
-
     }
 
     /**

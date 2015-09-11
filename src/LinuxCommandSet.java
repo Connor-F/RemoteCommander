@@ -11,13 +11,13 @@ public class LinuxCommandSet extends CommandSet
     }
 
     @Override
-    public void shutdown()
+    public void shutdown() throws IOException
     {
 
     }
 
     @Override
-    public void restart()
+    public void restart() throws IOException
     {
 
     }

@@ -1,11 +1,6 @@
-import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
 
 /**
  * the program that runs on each clients machine. The Client class
@@ -202,6 +197,23 @@ public class Client
     private void sendAllImages()
     {
         File[] allImages = new File(commandSet.getTempPath()).listFiles();
+
+        try
+        {
+            DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
+            int numOfImages = 0;
+            for(File file : allImages)
+            {
+                if(file.getName().endsWith(".jpg"))
+                    numOfImages++;
+            }
+            outToServer.writeInt(numOfImages);
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed creating connection to server to send files");
+        }
+
         for(File file : allImages)
         {
             if(file.getName().endsWith(".jpg"))

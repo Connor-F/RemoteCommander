@@ -4,6 +4,7 @@ import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.model.IspResponse;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -190,7 +191,9 @@ public class ClientCommander implements Runnable
 
         if(command.equals("retrieve")) // todo: retrieve doesn't know how many files the client is going to send over
         {
-            new Thread(new Retriever(target.getConnection())).start();
+            DataInputStream inFromClient = new DataInputStream(target.getConnection().getInputStream());
+            int numberOfFiles = inFromClient.readInt(); // need to know the amount of files the client is going to send over
+            new Thread(new Retriever(target.getConnection(), numberOfFiles)).start();
             return;
         }
 

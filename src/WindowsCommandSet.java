@@ -21,15 +21,15 @@ public class WindowsCommandSet extends CommandSet
     }
 
     @Override
-    public void shutdown()
+    public void shutdown() throws IOException
     {
-
+        getRuntime().exec("shutdown -s");
     }
 
     @Override
-    public void restart()
+    public void restart() throws IOException
     {
-
+        getRuntime().exec("shutdown -r");
     }
 
     @Override

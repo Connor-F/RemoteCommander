@@ -2,15 +2,17 @@ import java.io.*;
 import java.net.Socket;
 
 /**
- * Created by connor on 08/09/15.
+ * retrieves the specified number of files from the client machine
  */
 public class Retriever implements Runnable
 {
     private Socket toClient;
+    private int numOfFiles;
 
-    public Retriever(Socket toClient)
+    public Retriever(Socket toClient, int numOfFiles)
     {
         this.toClient = toClient;
+        this.numOfFiles = numOfFiles;
     }
 
     @Override
@@ -18,7 +20,8 @@ public class Retriever implements Runnable
     {
         try
         {
-            getFileFromClient();
+            for(int i = 0; i < numOfFiles; i++)
+                getFileFromClient();
         }
         catch(IOException ioe)
         {
@@ -33,9 +36,10 @@ public class Retriever implements Runnable
         byte[] buffer = new byte[fileSize];
 
         String clientsPath = "/home/connor/Desktop/clients/" + toClient.getInetAddress().toString().replace("/", "") + "/";
-        boolean worked = new File(clientsPath).mkdir();
-        if(!worked)
-            System.err.println("Failed to create dir: " + clientsPath);
+        File clientsDir = new File(clientsPath);
+        if(!clientsDir.exists())
+            if(!clientsDir.mkdir())
+                System.err.println("Failed to create directory for the client at: " + clientsPath);
 
         inFromClient.readFully(buffer, 0, fileSize);
         FileOutputStream outFile = new FileOutputStream(File.createTempFile("file_", "_test.jpg", new File(clientsPath)));
