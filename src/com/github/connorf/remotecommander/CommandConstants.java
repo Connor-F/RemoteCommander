@@ -5,18 +5,23 @@ package com.github.connorf.remotecommander;
  */
 public final class CommandConstants
 {
-    public static final String ONLINE = "online";
-    public static final String COUNT = "count";
-    public static final String EJECT = "eject";
-    public static final String SHUTDOWN = "shutdown";
-    public static final String RESTART = "restart";
-    public static final String SCREENSHOT = "screenshot";
-    public static final String RETRIEVE = "retrieve";
-    public static final String MSG = "msg";
-    public static final String SOUND = "sound";
-    public static final String CHAOS = "chaos";
-    public static final String TYPE = "type";
-    public static final String HELP = "help";
+    public static final String CMD_ONLINE = "online";
+    public static final String CMD_COUNT = "count";
+    public static final String CMD_EJECT = "eject";
+    public static final String CMD_SHUTDOWN = "shutdown";
+    public static final String CMD_RESTART = "restart";
+    public static final String CMD_SCREENSHOT = "screenshot";
+    public static final String CMD_RETRIEVE = "retrieve";
+    public static final String CMD_MSG = "msg";
+    public static final String CMD_SOUND = "sound";
+    public static final String CMD_CHAOS = "chaos";
+    public static final String CMD_TYPE = "type";
+    public static final String CMD_HELP = "help";
+    public static final String CMD_SYSINFO = "sysinfo";
 
-    public static final String ALL = "all";
+    public static final String HOST_ALL = "all";
+
+    public static final String OS_LINUX = "Linux";
+    public static final String OS_WINDOWS = "Windows";
+    public static final String OS_MAC = "Mac";
 }

