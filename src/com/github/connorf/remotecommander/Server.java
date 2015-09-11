@@ -63,8 +63,11 @@ public class Server
         Socket clientSocket = serverSocket.accept();
         ConnectedClient connectedClient = new ConnectedClient(clientSocket, clientSocket.getInetAddress());
         onlineClients.put(clientSocket.getInetAddress(), connectedClient);
-        System.out.println("> Added connection: " + connectedClient.getAddress());
-        new Thread(new ClientCommander()).start(); // start allowing input once we have at least 1 connection
+        System.out.println("[info] Added connection: " + connectedClient.getAddress().toString().replace("/", ""));
+        if(onlineClients.size() == 1) //todo: be careful not to start multiple threads
+            new Thread(new ClientCommander()).start(); // start allowing input once we have at least 1 connection
+        else
+            System.out.print("> ");
     }
 
     public static Map<InetAddress, ConnectedClient> getOnlineClients()
