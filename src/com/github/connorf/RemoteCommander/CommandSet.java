@@ -1,4 +1,8 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
+
+import static com.github.connorf.RemoteCommander.CommandConstants.MSG_TYPE_ERROR;
+import static com.github.connorf.RemoteCommander.CommandConstants.MSG_TYPE_INFO;
+import static com.github.connorf.RemoteCommander.CommandConstants.MSG_TYPE_QUESTION;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -30,6 +34,7 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void eject() throws IOException;
     public abstract void shutdown() throws IOException;
     public abstract void restart() throws IOException;
+    public abstract void rotate(String direction) throws IOException;
     public abstract void takeCameraPicture();
     public abstract void setWallpaper(Image newWallpaper);
 
@@ -43,7 +48,7 @@ public abstract class CommandSet implements ClipboardOwner
      */
     private void createStorageDir()
     {
-        tempPath = System.getProperty("java.io.tmpdir") + "/rc";
+        tempPath = System.getProperty("java.io.tmpdir") + File.separator + "rc";
         new File(tempPath).mkdir();
     }
 
@@ -87,11 +92,11 @@ public abstract class CommandSet implements ClipboardOwner
     public void showMessage(String message, String title, String type)
     {
         int option = JOptionPane.NO_OPTION;
-        if(type.equals("info"))
+        if(type.equals(MSG_TYPE_INFO))
             option = JOptionPane.INFORMATION_MESSAGE;
-        else if(type.equals("error"))
+        else if(type.equals(MSG_TYPE_ERROR))
             option = JOptionPane.ERROR_MESSAGE;
-        else if(type.equals("question"))
+        else if(type.equals(MSG_TYPE_QUESTION))
             option = JOptionPane.QUESTION_MESSAGE;
         JOptionPane.showMessageDialog(null, message, title, option);
     }

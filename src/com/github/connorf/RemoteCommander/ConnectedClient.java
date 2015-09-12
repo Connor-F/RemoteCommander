@@ -1,4 +1,4 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -48,7 +48,7 @@ public class ConnectedClient
             outToClient.flush();
         } catch(IOException ioe)
         {
-            System.err.println("Failed trying to send a command part to the client");
+            System.err.println("Failed trying to send a command part to the client: " + connection.getInetAddress());
             ioe.printStackTrace();
         }
     }
@@ -70,7 +70,6 @@ public class ConnectedClient
         while(sentBytes != size && (count = in.read(buffer)) > 0)
         {
             sentBytes += count;
-            System.out.println("Bytes sent: " + sentBytes + " / " + size);
             outToClient.write(buffer, 0, count);
         }
 
@@ -101,13 +100,13 @@ public class ConnectedClient
         System.out.println(new String(buffer));
     }
 
-    public Socket getConnection()
-    {
-        return connection;
-    }
-
     public InetAddress getAddress()
     {
         return address;
+    }
+
+    public DataOutputStream getOutToClient()
+    {
+        return outToClient;
     }
 }

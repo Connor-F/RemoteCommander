@@ -1,14 +1,14 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
-import static com.github.connorf.remotecommander.CommandConstants.*;
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 
 /**
- * the program that runs on each clients machine. The com.github.connorf.remotecommander.Client class
- * connects to the com.github.connorf.remotecommander.Server and waits for instructions
+ * the program that runs on each clients machine. The com.github.connorf.RemoteCommander.Client class
+ * connects to the com.github.connorf.RemoteCommander.Server and waits for instructions
  */
 public class Client
 {
@@ -27,7 +27,7 @@ public class Client
 
     /**
      * gets the appropriate command set for the OS that the client is running
-     * @return the com.github.connorf.remotecommander.CommandSet that will work on the clients operating system
+     * @return the com.github.connorf.RemoteCommander.CommandSet that will work on the clients operating system
      * @throws UnknownOperatingSystemException if the operating system is unrecognised
      */
     private CommandSet setCommandSet() throws UnknownOperatingSystemException
@@ -57,7 +57,7 @@ public class Client
         {
             String serverCommand = getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
-            if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_SOUND)) // 1 arg commands
+            if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_ROTATE)) // 1 arg commands
                 processServerCommand(serverCommand, getCommandFromServer());
             else if(serverCommand.equals(CMD_CHAOS)) // 2 arg commands
                 processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer());
@@ -138,7 +138,7 @@ public class Client
     }
 
     /**
-     * calls the appropriate method on the com.github.connorf.remotecommander.CommandSet depending on what the server wants us to do to
+     * calls the appropriate method on the com.github.connorf.RemoteCommander.CommandSet depending on what the server wants us to do to
      * the client
      * @param serverCommand the command from the server and optionally extra arguments (msg command for example provides a msg arg)
      */
@@ -185,8 +185,15 @@ public class Client
             case CMD_SYSINFO:
                 sendOSInfo();
                 break;
+            case CMD_ROTATE:
+                System.out.println("in rotate case");
+                if(serverCommand[1].equals(DIR_NORMAL) || serverCommand[1].equals(DIR_INVERTED) || serverCommand[1].equals(DIR_LEFT) || serverCommand[1].equals(DIR_RIGHT))
+                    commandSet.rotate(serverCommand[1]);
+                break;
             default:
-                System.out.println("Reached default in processSErverCommand with cmd: " + serverCommand);
+                System.out.println("Reached default in processServerCommand break. With serverCommands: ");
+                for(String s : serverCommand)
+                    System.out.println(s);
         }
     }
 

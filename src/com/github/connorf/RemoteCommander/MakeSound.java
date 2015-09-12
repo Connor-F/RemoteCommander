@@ -1,4 +1,4 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +32,7 @@ public class MakeSound implements Runnable
         AudioInputStream audioStream = null;
         AudioFormat audioFormat;
         SourceDataLine sourceLine = null;
+        soundFile.deleteOnExit(); // putting this here means if an exception occurs and we exit gracefully, the file will be deleted
 
         try
         {

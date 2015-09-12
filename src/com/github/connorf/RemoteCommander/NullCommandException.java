@@ -1,4 +1,4 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
 public class NullCommandException extends Exception
 {

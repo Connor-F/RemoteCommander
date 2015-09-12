@@ -1,4 +1,4 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
 /**
  * represents all command keywords
@@ -18,8 +18,18 @@ public final class CommandConstants
     public static final String CMD_TYPE = "type";
     public static final String CMD_HELP = "help";
     public static final String CMD_SYSINFO = "sysinfo";
+    public static final String CMD_ROTATE = "rotate";
 
     public static final String HOST_ALL = "all";
+
+    public static final String DIR_LEFT = "left";
+    public static final String DIR_RIGHT = "right";
+    public static final String DIR_NORMAL = "normal";
+    public static final String DIR_INVERTED = "inverted";
+
+    public static final String MSG_TYPE_INFO = "info";
+    public static final String MSG_TYPE_ERROR = "error";
+    public static final String MSG_TYPE_QUESTION = "question";
 
     public static final String OS_LINUX = "Linux";
     public static final String OS_WINDOWS = "Windows";

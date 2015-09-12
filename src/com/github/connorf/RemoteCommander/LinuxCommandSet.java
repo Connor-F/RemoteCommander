@@ -1,10 +1,22 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
 import java.awt.*;
 import java.io.IOException;
 
 public class LinuxCommandSet extends CommandSet
 {
+    /**
+     * rotates the screen. Linux version relies on xrandr being installed on the clients system
+     * @param direction the orientation to rotate the screen (up, down, left, right)
+     * @throws IOException if exec() failed
+     */
+    @Override
+    public void rotate(String direction) throws IOException
+    {
+        System.out.println("Rotating: " + direction);
+        //getRuntime().exec("xrandr --output default --rotate " + direction);
+    }
+
     @Override
     public void eject() throws IOException
     {

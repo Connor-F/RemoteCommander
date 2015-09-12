@@ -1,4 +1,4 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -32,7 +32,7 @@ public class Server
      */
     private void welcomeMessage()
     {
-        System.out.println("┏━━━━━━Welcome to━━━━━━━━┓");
+        System.out.println("┏━━━━━━━Welcome to━━━━━━━┓");
         System.out.println("┃=== Remote Commander ===┃");
         System.out.println("┃===== Version: " + MAJOR_VERSION + "." + MINOR_VERSION + " =====┃");
         System.out.println("┗━━━Command & Conquer━━━━┛");

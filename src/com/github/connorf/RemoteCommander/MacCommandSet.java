@@ -1,4 +1,4 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
 import java.awt.*;
 import java.io.IOException;
@@ -8,6 +8,12 @@ import java.io.IOException;
  */
 public class MacCommandSet extends CommandSet
 {
+    @Override
+    public void rotate(String direction)
+    {
+
+    }
+
     @Override
     public void eject() throws IOException
     {

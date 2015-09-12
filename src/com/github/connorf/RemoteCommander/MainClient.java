@@ -1,4 +1,4 @@
-package com.github.connorf.remotecommander;
+package com.github.connorf.RemoteCommander;
 
 public class MainClient
 {
@@ -10,7 +10,7 @@ public class MainClient
         }
         catch(Exception e)
         {
-            System.out.println("com.github.connorf.remotecommander.MainClient: Exception.");
+            System.out.println("com.github.connorf.RemoteCommander.MainClient: Exception.");
             e.printStackTrace();
         }
     }
