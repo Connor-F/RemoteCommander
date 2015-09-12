@@ -1,11 +1,10 @@
 package com.github.connorf.RemoteCommander;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by connor on 06/09/15.
+ * methods for controlling a mac os machine
  */
 public class MacCommandSet extends CommandSet
 {
@@ -39,9 +38,14 @@ public class MacCommandSet extends CommandSet
 
     }
 
+    /**
+     * sets the wallpaper on the system
+     * @param wallpaper the file that will be used as the wallpaper
+     * @throws IOException if something went wrong with exec()
+     */
     @Override
     public void setWallpaper(File wallpaper) throws IOException
     {
-
+        getRuntime().exec("osascript -e 'tell application \"Finder\" to set desktop picture to POSIX file \"" + wallpaper.getAbsolutePath() + "\"'");
     }
 }

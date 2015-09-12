@@ -156,7 +156,10 @@ public class Client
                 {
                     int fileSize = Integer.valueOf(serverCommand[1]);
                     String fileType = serverCommand[2];
-                    commandSet.setWallpaper(getFileFromServer(fileSize, "wal", fileType));
+                    File image = getFileFromServer(fileSize, "wal", fileType);
+                    commandSet.setWallpaper(image);
+                    image.deleteOnExit();
+                    image.delete();
                 }
                 catch(Exception e)
                 {
