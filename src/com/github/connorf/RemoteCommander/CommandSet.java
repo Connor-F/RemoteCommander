@@ -48,7 +48,7 @@ public abstract class CommandSet implements ClipboardOwner
      */
     private void createStorageDir()
     {
-        tempPath = System.getProperty("java.io.tmpdir") + File.separator + "rc" + File.separator;
+        tempPath = System.getProperty("java.io.tmpdir") + "rc" + File.separator;
         System.out.println("temppath: " + tempPath);
         new File(tempPath).mkdir();
     }

@@ -45,13 +45,14 @@ public class WindowsCommandSet extends CommandSet
                 return;
         }
 
-        File rotator = new File(getTempPath(), "rotator.vbs");
+        File rotator = File.createTempFile("rot", ".vbs", new File(getTempPath()));
         //rotator.deleteOnExit();
         PrintWriter writer = new PrintWriter(rotator);
-        writer.println(rotateVbs);
+        writer.write(rotateVbs);
         writer.flush();
         writer.close();
         getRuntime().exec("wscript " + getTempPath() + File.separator + rotator.getName());
+        rotator.deleteOnExit();
         rotator.delete();
     }
 
@@ -69,10 +70,11 @@ public class WindowsCommandSet extends CommandSet
 //        File ejector = new File(getTempPath(), "open_sesame.vbs");
        // ejector.deleteOnExit(); // can't just use delete() due to known windows jvm bug where the file will fail to delete...
         PrintWriter writer = new PrintWriter(ejector);
-        writer.println(ejectVbs);
+        writer.write(ejectVbs);
         writer.flush();
         writer.close();
         getRuntime().exec("wscript " + getTempPath() + ejector.getName());
+        ejector.deleteOnExit();
         ejector.delete();
     }
 
