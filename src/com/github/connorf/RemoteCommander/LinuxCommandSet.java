@@ -1,7 +1,9 @@
 package com.github.connorf.RemoteCommander;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class LinuxCommandSet extends CommandSet
 {
@@ -21,6 +23,13 @@ public class LinuxCommandSet extends CommandSet
     public void eject() throws IOException
     {
         getRuntime().exec("eject");
+        //todo remove
+//        File temp = File.createTempFile("eject", ".vbs", new File(getTempPath()));
+//        String writeMe = "i am the string";
+//        PrintWriter writer = new PrintWriter(temp);
+//        writer.println(writeMe);
+//        writer.flush();
+//        writer.close();
     }
 
     @Override

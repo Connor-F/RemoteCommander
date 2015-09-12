@@ -46,12 +46,12 @@ public class WindowsCommandSet extends CommandSet
         }
 
         File rotator = new File(getTempPath(), "rotator.vbs");
-        rotator.deleteOnExit();
+        //rotator.deleteOnExit();
         PrintWriter writer = new PrintWriter(rotator);
-        writer.write(rotateVbs);
+        writer.println(rotateVbs);
         writer.flush();
         writer.close();
-        getRuntime().exec("wscript " + getTempPath() + rotator.getName());
+        getRuntime().exec("wscript " + getTempPath() + File.separator + rotator.getName());
         rotator.delete();
     }
 
@@ -64,10 +64,12 @@ public class WindowsCommandSet extends CommandSet
     public void eject() throws IOException
     {
         String ejectVbs = "Set player = CreateObject(\"WMPlayer.OCX.7\")\nSet trays = player.cdromCollection\nif trays.count >= 1 then\nFor i = 0 to trays.count - 1\ntrays.Item(i).Eject\nNext\nEnd if";
-        File ejector = new File(getTempPath(), "open_sesame.vbs");
-        ejector.deleteOnExit(); // can't just use delete() due to known windows jvm bug where the file will fail to delete...
+        File ejector = File.createTempFile("eje", ".vbs", new File(getTempPath()));
+
+//        File ejector = new File(getTempPath(), "open_sesame.vbs");
+       // ejector.deleteOnExit(); // can't just use delete() due to known windows jvm bug where the file will fail to delete...
         PrintWriter writer = new PrintWriter(ejector);
-        writer.write(ejectVbs);
+        writer.println(ejectVbs);
         writer.flush();
         writer.close();
         getRuntime().exec("wscript " + getTempPath() + ejector.getName());
