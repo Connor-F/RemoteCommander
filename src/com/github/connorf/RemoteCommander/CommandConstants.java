@@ -20,6 +20,7 @@ public final class CommandConstants
     public static final String CMD_SYSINFO = "sysinfo";
     public static final String CMD_ROTATE = "rotate";
     public static final String CMD_WALLPAPER = "wallpaper";
+    public static final String CMD_MINIMISE = "mini";
 
     public static final String HOST_ALL = "all";
 

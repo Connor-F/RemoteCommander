@@ -14,6 +14,8 @@ public class Client
 {
     private static final int SERVER_PORT = 0xbeef;
     private static final String SERVER_IP_ADDRESS = "127.0.0.1";
+    private static final int MAJOR_VERSION = 0;
+    private static final int MINOR_VERSION = 3;
     private Socket socket;
     private CommandSet commandSet;
     private DataInputStream inFromServer;
@@ -159,7 +161,6 @@ public class Client
                     File image = getFileFromServer(fileSize, "wal", fileType);
                     commandSet.setWallpaper(image);
                     image.deleteOnExit();
-                    image.delete();
                 }
                 catch(Exception e)
                 {
@@ -210,6 +211,9 @@ public class Client
                 if(serverCommand[1].equals(DIR_NORMAL) || serverCommand[1].equals(DIR_INVERTED) || serverCommand[1].equals(DIR_LEFT) || serverCommand[1].equals(DIR_RIGHT))
                     commandSet.rotate(serverCommand[1]);
                 break;
+            case CMD_MINIMISE:
+                commandSet.minimise();
+                break;
             default:
                 System.out.println("Reached default in processServerCommand break. With serverCommands: ");
                 for(String s : serverCommand)
@@ -224,7 +228,7 @@ public class Client
      */
     private void sendOSInfo() throws IOException
     {
-        String os = "OS       : " + System.getProperty("os.name") + "\nJRE arch : " + System.getProperty("os.arch") + "\nJava     : " + System.getProperty("java.version") + "\nUsername : " + System.getProperty("user.name") + "\nLanguage : " + System.getProperty("user.language") + "\nCountry  : " + System.getProperty("user.country") + "\nDesktop  : " + System.getProperty("sun.desktop");
+        String os = "OS       : " + System.getProperty("os.name") + "\nJRE arch : " + System.getProperty("os.arch") + "\nJava     : " + System.getProperty("java.version") + "\nClient   : " + MAJOR_VERSION + "." + MINOR_VERSION + "\nUsername : " + System.getProperty("user.name") + "\nLanguage : " + System.getProperty("user.language") + "\nCountry  : " + System.getProperty("user.country") + "\nDesktop  : " + System.getProperty("sun.desktop");
         outToServer.writeInt(os.length());
         outToServer.write(os.getBytes(), 0, os.length());
     }

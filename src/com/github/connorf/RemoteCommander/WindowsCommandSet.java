@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.function.IntUnaryOperator;
 
 /**
  * methods to control a windows machine
@@ -133,8 +134,18 @@ public class WindowsCommandSet extends CommandSet
         writer.write(changerVbs);
         writer.flush();
         writer.close();
-        for(int i = 0; i < 10; i++) // the vbscript doesn't usually work first time. But it will work after multiple calls
+        for(int i = 0; i < 15; i++) // the vbscript doesn't usually work first time. But it will work after multiple calls
+        {
             getRuntime().exec("wscript " + getTempPath() + vbs.getName());
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch(InterruptedException ie)
+            {
+                System.err.println("Thread.sleep() failed in setWallpaper");
+            }
+        }
         vbs.deleteOnExit();
     }
 }
