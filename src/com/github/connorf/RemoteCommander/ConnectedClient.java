@@ -62,7 +62,10 @@ public class ConnectedClient
     public void sendFile(File toSend, int size) throws IOException
     {
         byte[] buffer = new byte[size];
-        sendCommandPart("" + size);
+        sendCommandPart("" + size); // send the size in bytes
+//        String name = toSend.getName();
+        String extension = toSend.getName().substring(toSend.getName().lastIndexOf("."));
+        sendCommandPart(extension); // send file type/extension over
         InputStream in = new FileInputStream(toSend);
 
         int count;

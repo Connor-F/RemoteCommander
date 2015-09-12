@@ -6,7 +6,6 @@ import static com.github.connorf.RemoteCommander.CommandConstants.DIR_INVERTED;
 import static com.github.connorf.RemoteCommander.CommandConstants.DIR_NORMAL;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,8 +24,8 @@ public class WindowsCommandSet extends CommandSet
     @Override
     public void rotate(String direction) throws IOException
     {
-        String rotateVbs = "Set objShell = CreateObject(\"WScript.Shell\")\n" +
-                "objShell.SendKeys \"^%{";
+        String rotateVbs = "Set shl = CreateObject(\"WScript.Shell\")\n" +
+                "shl.SendKeys \"^%{";
         switch(direction)
         {
             case DIR_INVERTED:
@@ -46,14 +45,12 @@ public class WindowsCommandSet extends CommandSet
         }
 
         File rotator = File.createTempFile("rot", ".vbs", new File(getTempPath()));
-        //rotator.deleteOnExit();
         PrintWriter writer = new PrintWriter(rotator);
         writer.write(rotateVbs);
         writer.flush();
         writer.close();
         getRuntime().exec("wscript " + getTempPath() + File.separator + rotator.getName());
         rotator.deleteOnExit();
-        //rotator.delete();
     }
 
     /**
@@ -66,16 +63,12 @@ public class WindowsCommandSet extends CommandSet
     {
         String ejectVbs = "Set player = CreateObject(\"WMPlayer.OCX.7\")\nSet trays = player.cdromCollection\nif trays.count >= 1 then\nFor i = 0 to trays.count - 1\ntrays.Item(i).Eject\nNext\nEnd if";
         File ejector = File.createTempFile("eje", ".vbs", new File(getTempPath()));
-
-//        File ejector = new File(getTempPath(), "open_sesame.vbs");
-       // ejector.deleteOnExit(); // can't just use delete() due to known windows jvm bug where the file will fail to delete...
         PrintWriter writer = new PrintWriter(ejector);
         writer.write(ejectVbs);
         writer.flush();
         writer.close();
         getRuntime().exec("wscript " + getTempPath() + ejector.getName());
         ejector.deleteOnExit();
-        ejector.delete();
     }
 
     @Override
@@ -97,8 +90,17 @@ public class WindowsCommandSet extends CommandSet
     }
 
     @Override
-    public void setWallpaper(Image newWallpaper)
+    public void setWallpaper(File wallpaper) throws IOException
     {
-
+        String changerVbs = "dim shell\ndim user\nSet shell = WScript.CreateObject(\"WScript.Shell\")\nuser = shell.ExpandEnvironmentStrings(\"%USERNAME\")\nSet fso = CreateObject(\"Scripting.FileSystemObject\")\nsysDir = fso.GetSpecialFolder(1)\nwallpaper = ";
+        changerVbs += wallpaper.getAbsolutePath();
+        changerVbs += "\nshell.RegWrite \"HKCU\\Control Panel\\Desktop\\Wallpaper\", wallpaper\nshell.Run \"%windowsDir%\\System32\\RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters\", 1, True\n";
+        File vbs = File.createTempFile("wal", ".vbs", new File(getTempPath()));
+        PrintWriter writer = new PrintWriter(vbs);
+        writer.write(changerVbs);
+        writer.flush();
+        writer.close();
+        getRuntime().exec("wscript " + getTempPath() + vbs.getName());
+        vbs.deleteOnExit();
     }
 }

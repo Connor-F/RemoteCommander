@@ -57,9 +57,9 @@ public class Client
         {
             String serverCommand = getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
-            if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_ROTATE)) // 1 arg commands
+            if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_ROTATE)) // 1 arg commands
                 processServerCommand(serverCommand, getCommandFromServer());
-            else if(serverCommand.equals(CMD_CHAOS)) // 2 arg commands
+            else if(serverCommand.equals(CMD_CHAOS) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_WALLPAPER)) // 2 arg commands
                 processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer());
             else if(serverCommand.equals(CMD_MSG)) // 4 arg commands
                 processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer(), getCommandFromServer());
@@ -92,26 +92,28 @@ public class Client
     }
 
     /**
-     * gets a file sent from the server
-     * @param size the size of the file the server sent us
-     * @return the file the server sent
-     * @throws IOException error reading file stream
+     * retrieves a file sent from the server to us
+     * @param size the size of the file to retrieve in bytes
+     * @param prefix the prefix name the file should have
+     * @param suffix the suffix of the name of the file (must be a file extension to work with windows)
+     * @return the file retrieved from the server
+     * @throws IOException if something went wrong reading the file from the stream
      */
-    private File getSoundFileFromServer(int size) throws IOException //todo: make this get any file
+    private File getFileFromServer(int size, String prefix, String suffix) throws IOException
     {
-        File sound = File.createTempFile("sou", ".wav", new File(commandSet.getTempPath()));
+        File fileFromServer = File.createTempFile(prefix, suffix, new File(commandSet.getTempPath()));
         byte[] buffer = new byte[size];
 
-        FileOutputStream fos = new FileOutputStream(sound);
-        System.out.println("Before readFully: File: " + sound.getName() + " with size: " + size);
+        FileOutputStream fos = new FileOutputStream(fileFromServer);
+        System.out.println("Before readFully: File: " + fileFromServer.getName() + " with size: " + size);
         inFromServer.readFully(buffer, 0, size);
         fos.write(buffer, 0, size);
         fos.flush();
-        System.out.println("After readFully: Size: " + sound.length());
+        System.out.println("After readFully: Size: " + fileFromServer.length());
         fos.close();
 
         System.out.println("Done file transfer");
-        return sound;
+        return fileFromServer;
     }
 
     /**
@@ -149,11 +151,26 @@ public class Client
             case CMD_EJECT:
                 commandSet.eject();
                 return;
+            case CMD_WALLPAPER:
+                try
+                {
+                    int fileSize = Integer.valueOf(serverCommand[1]);
+                    String fileType = serverCommand[2];
+                    commandSet.setWallpaper(getFileFromServer(fileSize, "wal", fileType));
+                }
+                catch(Exception e)
+                {
+                    System.out.println("play sound excelption");
+                    e.printStackTrace();
+                }
+                break;
             case CMD_SOUND: // special case: sound requires the sound file from the server so we must retrieve it
                 try
                 {
                     int fileSize = Integer.valueOf(serverCommand[1]);
-                    new Thread(new MakeSound(getSoundFileFromServer(fileSize))).start();
+                    String fileType = serverCommand[2];
+                    if(fileType.equals(TYPE_WAV)) // java sound supports wav files
+                        new Thread(new MakeSound(getFileFromServer(fileSize, "sou", ".wav"))).start();
                 }
                 catch(Exception e)
                 {

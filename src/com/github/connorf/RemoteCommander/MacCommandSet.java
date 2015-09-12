@@ -1,6 +1,7 @@
 package com.github.connorf.RemoteCommander;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -39,7 +40,7 @@ public class MacCommandSet extends CommandSet
     }
 
     @Override
-    public void setWallpaper(Image newWallpaper)
+    public void setWallpaper(File wallpaper) throws IOException
     {
 
     }

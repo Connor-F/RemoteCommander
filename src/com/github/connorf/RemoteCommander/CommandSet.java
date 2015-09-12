@@ -36,7 +36,7 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void restart() throws IOException;
     public abstract void rotate(String direction) throws IOException;
     public abstract void takeCameraPicture();
-    public abstract void setWallpaper(Image newWallpaper);
+    public abstract void setWallpaper(File wallpaper) throws IOException;
 
     public CommandSet()
     {
@@ -48,7 +48,7 @@ public abstract class CommandSet implements ClipboardOwner
      */
     private void createStorageDir()
     {
-        tempPath = System.getProperty("java.io.tmpdir") + "rc" + File.separator;
+        tempPath = System.getProperty("java.io.tmpdir") + File.separator + "rc" + File.separator;
         System.out.println("temppath: " + tempPath);
         new File(tempPath).mkdir();
     }

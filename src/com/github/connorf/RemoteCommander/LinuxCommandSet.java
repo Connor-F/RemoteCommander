@@ -51,7 +51,7 @@ public class LinuxCommandSet extends CommandSet
     }
 
     @Override
-    public void setWallpaper(Image newWallpaper)
+    public void setWallpaper(File wallpaper) throws IOException
     {
 
     }

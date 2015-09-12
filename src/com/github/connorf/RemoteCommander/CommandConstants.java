@@ -19,6 +19,7 @@ public final class CommandConstants
     public static final String CMD_HELP = "help";
     public static final String CMD_SYSINFO = "sysinfo";
     public static final String CMD_ROTATE = "rotate";
+    public static final String CMD_WALLPAPER = "wallpaper";
 
     public static final String HOST_ALL = "all";
 
@@ -34,4 +35,6 @@ public final class CommandConstants
     public static final String OS_LINUX = "Linux";
     public static final String OS_WINDOWS = "Windows";
     public static final String OS_MAC = "Mac";
+
+    public static final String TYPE_WAV = ".wav";
 }
