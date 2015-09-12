@@ -53,7 +53,7 @@ public class WindowsCommandSet extends CommandSet
         writer.close();
         getRuntime().exec("wscript " + getTempPath() + File.separator + rotator.getName());
         rotator.deleteOnExit();
-        rotator.delete();
+        //rotator.delete();
     }
 
     /**
