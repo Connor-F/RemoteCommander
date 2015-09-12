@@ -9,18 +9,17 @@ import static com.github.connorf.RemoteCommander.CommandConstants.DIR_NORMAL;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.function.IntUnaryOperator;
+import java.io.*;
+import java.net.Socket;
 
 /**
  * methods to control a windows machine
  */
 public class WindowsCommandSet extends CommandSet
 {
-    public WindowsCommandSet()
+    public WindowsCommandSet(Socket connection)
     {
+        super(connection);
         try
         {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -29,6 +28,16 @@ public class WindowsCommandSet extends CommandSet
         {
             System.err.println("Failed to set Windows look and feel. Using default Java look and feel");
         }
+    }
+
+    @Override
+    public void listProcesses() throws IOException
+    {
+        Process proc = getRuntime().exec("tasklist");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        String process;
+        while((process = reader.readLine()) != null)
+            System.out.println(process);
     }
 
     /**
@@ -135,17 +144,7 @@ public class WindowsCommandSet extends CommandSet
         writer.flush();
         writer.close();
         for(int i = 0; i < 15; i++) // the vbscript doesn't usually work first time. But it will work after multiple calls
-        {
             getRuntime().exec("wscript " + getTempPath() + vbs.getName());
-            try
-            {
-                Thread.sleep(100);
-            }
-            catch(InterruptedException ie)
-            {
-                System.err.println("Thread.sleep() failed in setWallpaper");
-            }
-        }
         vbs.deleteOnExit();
     }
 }

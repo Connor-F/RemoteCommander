@@ -45,7 +45,8 @@ public class ConnectedClient
             outToClient.writeInt(command.length()); // client will read this many bytes on its side
             outToClient.write(command.getBytes(), 0, command.length());
             outToClient.flush();
-        } catch(IOException ioe)
+        }
+        catch(IOException ioe)
         {
             System.err.println("Failed trying to send a command part to the client: " + connection.getInetAddress());
             ioe.printStackTrace();
@@ -89,16 +90,16 @@ public class ConnectedClient
     }
 
     /**
-     * gets the operating system, jre arch, java version, username, language, country and desktop
-     * the client is running and prints it to the screen
-     * @throws IOException if reading from the stream failed
+     * reads a string from the client. This may be the list of running processes, or system info etc.
+     * @return the string read in from the client
+     * @throws IOException if something went wrong reading the string from the stream
      */
-    public void printClientOSInfo() throws IOException
+    public String getStringFromClient() throws IOException
     {
         int strLen = inFromClient.readInt();
         byte[] buffer = new byte[strLen];
         inFromClient.readFully(buffer, 0, strLen);
-        System.out.println(new String(buffer));
+        return new String(buffer);
     }
 
     public InetAddress getAddress()

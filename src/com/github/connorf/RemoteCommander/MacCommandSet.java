@@ -5,12 +5,24 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
 
 /**
  * methods for controlling a mac os machine
  */
 public class MacCommandSet extends CommandSet
 {
+    public MacCommandSet(Socket connection)
+    {
+        super(connection);
+    }
+
+    @Override
+    public void listProcesses()
+    {
+
+    }
+
     /**
      * minimises all open windows: COMMAND+ALT+H+M
      */

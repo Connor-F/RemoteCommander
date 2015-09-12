@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
 
 /**
  * methods to control a linux machine. xrandr and gnome required
@@ -12,8 +13,9 @@ import java.io.IOException;
  */
 public class LinuxCommandSet extends CommandSet
 {
-    public LinuxCommandSet()
+    public LinuxCommandSet(Socket connection)
     {
+        super(connection);
         try
         {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
@@ -22,6 +24,12 @@ public class LinuxCommandSet extends CommandSet
         {
             System.err.println("Failed to set Linux look and feel. Using default Java look and feel");
         }
+    }
+
+    @Override
+    public void listProcesses()
+    {
+
     }
 
     /**

