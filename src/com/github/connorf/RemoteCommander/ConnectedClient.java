@@ -36,7 +36,6 @@ public class ConnectedClient
 
     /**
      * sends part of the command to the client
-     *
      * @param command the part of the command to send
      */
     public void sendCommandPart(String command)
@@ -63,7 +62,6 @@ public class ConnectedClient
     {
         byte[] buffer = new byte[size];
         sendCommandPart("" + size); // send the size in bytes
-//        String name = toSend.getName();
         String extension = toSend.getName().substring(toSend.getName().lastIndexOf("."));
         sendCommandPart(extension); // send file type/extension over
         InputStream in = new FileInputStream(toSend);
@@ -106,10 +104,5 @@ public class ConnectedClient
     public InetAddress getAddress()
     {
         return address;
-    }
-
-    public DataOutputStream getOutToClient()
-    {
-        return outToClient;
     }
 }

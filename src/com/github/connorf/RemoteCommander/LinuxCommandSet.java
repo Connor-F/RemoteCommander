@@ -1,6 +1,8 @@
 package com.github.connorf.RemoteCommander;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 
@@ -20,6 +22,35 @@ public class LinuxCommandSet extends CommandSet
         {
             System.err.println("Failed to set Linux look and feel. Using default Java look and feel");
         }
+    }
+
+    /**
+     * minimises all windows. Due to Linux distros doing things slightly different from each other, multiple
+     * commands to minimise all windows have been included
+     */
+    @Override
+    public void minimise()
+    {
+        Robot robot = getRobot();
+        // CTRL+ALT+D
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        robot.keyPress(KeyEvent.VK_ALT);
+        robot.keyPress(KeyEvent.VK_D);
+        robot.keyRelease(KeyEvent.VK_CONTROL);
+        robot.keyRelease(KeyEvent.VK_ALT);
+        robot.keyRelease(KeyEvent.VK_D);
+        // WIN+D
+        robot.keyPress(KeyEvent.VK_WINDOWS);
+        robot.keyPress(KeyEvent.VK_D);
+        robot.keyRelease(KeyEvent.VK_WINDOWS);
+        robot.keyRelease(KeyEvent.VK_D);
+        // CTRL+WIN+D
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        robot.keyPress(KeyEvent.VK_WINDOWS);
+        robot.keyPress(KeyEvent.VK_D);
+        robot.keyRelease(KeyEvent.VK_CONTROL);
+        robot.keyRelease(KeyEvent.VK_WINDOWS);
+        robot.keyRelease(KeyEvent.VK_D);
     }
 
     /**

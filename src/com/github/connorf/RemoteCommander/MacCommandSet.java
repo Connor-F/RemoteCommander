@@ -1,5 +1,8 @@
 package com.github.connorf.RemoteCommander;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 
@@ -8,6 +11,23 @@ import java.io.IOException;
  */
 public class MacCommandSet extends CommandSet
 {
+    /**
+     * minimises all open windows: COMMAND+ALT+H+M
+     */
+    @Override
+    public void minimise()
+    {
+        Robot robot = getRobot();
+        robot.keyPress(KeyEvent.VK_META);
+        robot.keyPress(KeyEvent.VK_ALT);
+        robot.keyPress(KeyEvent.VK_H);
+        robot.keyPress(KeyEvent.VK_M);
+        robot.keyRelease(KeyEvent.VK_META);
+        robot.keyRelease(KeyEvent.VK_ALT);
+        robot.keyRelease(KeyEvent.VK_H);
+        robot.keyRelease(KeyEvent.VK_M);
+    }
+
     @Override
     public void rotate(String direction)
     {

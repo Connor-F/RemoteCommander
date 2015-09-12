@@ -7,6 +7,8 @@ import static com.github.connorf.RemoteCommander.CommandConstants.DIR_RIGHT;
 import static com.github.connorf.RemoteCommander.CommandConstants.DIR_INVERTED;
 import static com.github.connorf.RemoteCommander.CommandConstants.DIR_NORMAL;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,6 +28,19 @@ public class WindowsCommandSet extends CommandSet
         {
             System.err.println("Failed to set Windows look and feel. Using default Java look and feel");
         }
+    }
+
+    /**
+     * minimises all windows
+     */
+    @Override
+    public void minimise()
+    {
+        Robot robot = getRobot();
+        robot.keyPress(KeyEvent.VK_WINDOWS);
+        robot.keyPress(KeyEvent.VK_D);
+        robot.keyRelease(KeyEvent.VK_WINDOWS);
+        robot.keyRelease(KeyEvent.VK_D);
     }
 
     /**

