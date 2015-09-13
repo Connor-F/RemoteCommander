@@ -3,12 +3,15 @@ package com.github.connorf.RemoteCommander;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 
 /**
  * methods for controlling a mac os machine
+ * Unfortuantly all the Mac commands have not been tested
  */
 public class MacCommandSet extends CommandSet
 {
@@ -17,10 +20,36 @@ public class MacCommandSet extends CommandSet
         super(connection);
     }
 
+    /**
+     * gets the running processes on the clients machine. Uses the `ps` command
+     * @return a string containing all the running processes
+     * @throws IOException if something went wrong with exec()
+     */
     @Override
-    public void getRunningProcesses()
+    public String getRunningProcesses() throws IOException
     {
+        String procCommand = "ps -fjH -u " + System.getProperty("user.name"); // we only want our logged in users processes
+        Process process = getRuntime().exec(procCommand);
+        BufferedReader inFromProcess = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        StringBuilder processList = new StringBuilder();
+        String line;
+        while((line = inFromProcess.readLine()) != null)
+            processList.append(line + "\n");
 
+        processList.deleteCharAt(processList.length() - 1); // remove trailing new line character
+        return processList.toString();
+    }
+
+    @Override
+    public boolean killProcess(int pid)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean killProcess(String processName)
+    {
+        return false;
     }
 
     /**

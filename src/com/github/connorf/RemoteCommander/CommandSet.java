@@ -38,7 +38,7 @@ public abstract class CommandSet implements ClipboardOwner
     private DataInputStream inFromServer;
 
     private static final int MAJOR_VERSION = 0;
-    private static final int MINOR_VERSION = 3;
+    private static final int MINOR_VERSION = 4;
 
     public abstract void eject() throws IOException;
     public abstract void shutdown() throws IOException;
@@ -48,6 +48,8 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void setWallpaper(File wallpaper) throws IOException;
     public abstract void minimise();
     public abstract String getRunningProcesses() throws IOException;
+    public abstract boolean killProcess(String processName); // killing by name will kill all processes with that name
+    public abstract boolean killProcess(int pid); // killing by pid will only kill that specified process
 
     public CommandSet(Socket connection)
     {

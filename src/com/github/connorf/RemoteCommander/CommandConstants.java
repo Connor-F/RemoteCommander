@@ -26,6 +26,9 @@ public final class CommandConstants
 
     public static final String HOST_ALL = "all";
 
+    public static final String KILL_PID = "pid";
+    public static final String KILL_NAME = "name";
+
     public static final String DIR_LEFT = "left";
     public static final String DIR_RIGHT = "right";
     public static final String DIR_NORMAL = "normal";

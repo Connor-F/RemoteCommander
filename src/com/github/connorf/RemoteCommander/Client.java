@@ -59,7 +59,7 @@ public class Client
             System.out.println("Command read from server: " + serverCommand);
             if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_ROTATE)) // 1 arg commands
                 processServerCommand(serverCommand, commandSet.getCommandFromServer());
-            else if(serverCommand.equals(CMD_CHAOS) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_WALLPAPER)) // 2 arg commands
+            else if(serverCommand.equals(CMD_CHAOS) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_WALLPAPER) || serverCommand.equals(CMD_KILL_PROCESS)) // 2 arg commands
                 processServerCommand(serverCommand, commandSet.getCommandFromServer(), commandSet.getCommandFromServer());
             else if(serverCommand.equals(CMD_MSG)) // 4 arg commands
                 processServerCommand(serverCommand, commandSet.getCommandFromServer(), commandSet.getCommandFromServer(), commandSet.getCommandFromServer());
@@ -144,6 +144,15 @@ public class Client
             case CMD_LIST_PROCESSES:
                 String procs = commandSet.getRunningProcesses();
                 commandSet.sendStringToServer(procs);
+                break;
+            case CMD_KILL_PROCESS:
+                String type = serverCommand[1];
+                if(type.equals(KILL_NAME))
+                    commandSet.killProcess(serverCommand[2]);
+                else if(type.equals(KILL_PID))
+                    commandSet.killProcess(Integer.valueOf(serverCommand[2]));
+                else
+                    System.err.println("Incorrect kill argument: " + serverCommand[1]);
                 break;
             default:
                 System.out.println("Reached default in processServerCommand break. With serverCommands: ");

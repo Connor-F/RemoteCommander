@@ -31,6 +31,46 @@ public class WindowsCommandSet extends CommandSet
     }
 
     /**
+     * uses the command line tool `taskkill` to forcefully terminate the program with the supplied pid
+     * @param pid the process id of the program to terminate
+     * @return true if termination worked, false otherwise
+     */
+    @Override
+    public boolean killProcess(int pid)
+    {
+        try
+        {
+            getRuntime().exec("taskkill /F /PID " + pid);
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed to kill process with pid: " + pid);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * kills all the processes with the given name
+     * @param processName the process name to kill e.g. "winword.exe"
+     * @return true if the process was killed, false otherwise
+     */
+    @Override
+    public boolean killProcess(String processName)
+    {
+        try
+        {
+            getRuntime().exec("taskkill /F /IM " + processName);
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed to kill process with name: " + processName);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * gets the list of running processes using the tasklist command
      * @return string containing the output from the tasklist command
      * @throws IOException // todo: remove
@@ -43,9 +83,12 @@ public class WindowsCommandSet extends CommandSet
         StringBuilder processesBuilder = new StringBuilder();
         String process;
         while((process = reader.readLine()) != null)
-            processesBuilder.append(process);
+            processesBuilder.append(process + "\n");
 
-        System.out.println("All processes: " + processesBuilder.toString());
+        // get rid of starting new line and trailing new line
+        processesBuilder.deleteCharAt(0);
+        processesBuilder.deleteCharAt(processesBuilder.length() - 1);
+
         reader.close();
         return processesBuilder.toString();
     }
@@ -122,13 +165,13 @@ public class WindowsCommandSet extends CommandSet
     @Override
     public void shutdown() throws IOException
     {
-        getRuntime().exec("shutdown /f /s /t 0"); // force shutdown, no warning
+        getRuntime().exec("shutdown /F /S /T 0"); // force shutdown, no warning
     }
 
     @Override
     public void restart() throws IOException
     {
-        getRuntime().exec("shutdown /f /r /t 0");
+        getRuntime().exec("shutdown /F /R /T 0");
     }
 
     @Override
