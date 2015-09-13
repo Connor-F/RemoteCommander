@@ -221,7 +221,7 @@ public class WindowsCommandSet extends CommandSet
             writer.write(changerVbs);
             writer.flush();
             writer.close();
-            for(int i = 0; i < 10; i++) // script doesn't always work first time... strange...
+            for(int i = 0; i < 15; i++) // script doesn't always work first time... strange...
                 getRuntime().exec("wscript " + getTempPath() + vbs.getName());
 
             vbs.deleteOnExit();
