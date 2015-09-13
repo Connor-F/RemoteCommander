@@ -251,7 +251,7 @@ public class ClientCommander implements Runnable
     }
 
     /**
-     * processes three argument commands, e.g. chaos
+     * processes three argument commands, e.g. chaos, killproc
      * @param cmd the command itself, e.g. chaos
      * @param host the IP address of the host or all
      * @param arg1 the argument for the command

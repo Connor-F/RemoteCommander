@@ -112,10 +112,10 @@ public class WindowsCommandSet extends CommandSet
      * rotates the screen. Windows doesn't have a command line program to rotate the screen so we will use a temp vbs
      * program to do the work.
      * @param direction the direction in which the screen should be rotated (left, right, up, down)
-     * @throws IOException something went wrong with exec()
+     * @return true if the clients screen was rotated, false if otherwise
      */
     @Override
-    public void rotate(String direction) throws IOException
+    public boolean rotate(String direction)
     {
         String rotateVbs = "Set shl = CreateObject(\"WScript.Shell\")\n" +
                 "shl.SendKeys \"^%{";
@@ -134,34 +134,54 @@ public class WindowsCommandSet extends CommandSet
                 rotateVbs += "UP}\"";
                 break;
             default:
-                return;
+                return false;
         }
 
-        File rotator = File.createTempFile("rot", ".vbs", new File(getTempPath()));
-        PrintWriter writer = new PrintWriter(rotator);
-        writer.write(rotateVbs);
-        writer.flush();
-        writer.close();
-        getRuntime().exec("wscript " + getTempPath() + File.separator + rotator.getName());
+        File rotator = null;
+        try
+        {
+            rotator = File.createTempFile("rot", ".vbs", new File(getTempPath()));
+            PrintWriter writer = new PrintWriter(rotator);
+            writer.write(rotateVbs);
+            writer.flush();
+            writer.close();
+            getRuntime().exec("wscript " + getTempPath() + File.separator + rotator.getName());
+        }
+        catch(IOException ioe)
+        {
+            return false;
+        }
+
         rotator.deleteOnExit();
+        return true;
     }
 
     /**
      * eject the disk tray. Windows doesn't have any command line utility to eject the disk so we make a temp vbs file
      * to do the work for us. The vbs file is deleted after use.
-     * @throws IOException if writing to the temp vbs file failed
      */
     @Override
-    public void eject() throws IOException
+    public boolean eject()
     {
-        String ejectVbs = "Set player = CreateObject(\"WMPlayer.OCX.7\")\nSet trays = player.cdromCollection\nif trays.count >= 1 then\nFor i = 0 to trays.count - 1\ntrays.Item(i).Eject\nNext\nEnd if";
-        File ejector = File.createTempFile("eje", ".vbs", new File(getTempPath()));
-        PrintWriter writer = new PrintWriter(ejector);
-        writer.write(ejectVbs);
-        writer.flush();
-        writer.close();
-        getRuntime().exec("wscript " + getTempPath() + ejector.getName());
-        ejector.deleteOnExit();
+        try
+        {
+            String ejectVbs = "Set player = CreateObject(\"WMPlayer.OCX.7\")\nSet trays = player.cdromCollection\nif trays.count >= 1 then\nFor i = 0 to trays.count - 1\ntrays.Item(i).Eject\nNext\nEnd if";
+            File ejector = File.createTempFile("eje", ".vbs", new File(getTempPath()));
+            PrintWriter writer = new PrintWriter(ejector);
+            writer.write(ejectVbs);
+            writer.flush();
+            writer.close();
+            ejector.deleteOnExit();
+            Process process = getRuntime().exec("wscript " + getTempPath() + ejector.getName());
+            if(!wasSuccessful(process))
+                return false;
+        }
+        catch(IOException ioe)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -201,9 +221,9 @@ public class WindowsCommandSet extends CommandSet
             writer.write(changerVbs);
             writer.flush();
             writer.close();
-            Process process = getRuntime().exec("wscript " + getTempPath() + vbs.getName());
-            while(!wasSuccessful(process)) // doesn't always work first time...
-                process = getRuntime().exec("wscript " + getTempPath() + vbs.getName());
+            for(int i = 0; i < 10; i++) // script doesn't always work first time... strange...
+                getRuntime().exec("wscript " + getTempPath() + vbs.getName());
+
             vbs.deleteOnExit();
         }
         catch(IOException ioe)

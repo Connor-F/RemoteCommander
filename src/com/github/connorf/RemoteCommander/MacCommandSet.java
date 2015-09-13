@@ -69,15 +69,25 @@ public class MacCommandSet extends CommandSet
     }
 
     @Override
-    public void rotate(String direction)
+    public boolean rotate(String direction)
     {
-
+        return false;
     }
 
     @Override
-    public void eject() throws IOException
+    public boolean eject()
     {
-        getRuntime().exec("drutil eject internal");
+        try
+        {
+            Process process = getRuntime().exec("drutil eject internal");
+            if(!wasSuccessful(process))
+                return false;
+        }
+        catch(IOException ioe)
+        {
+            return false;
+        }
+        return true;
     }
 
     @Override

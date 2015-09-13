@@ -121,18 +121,39 @@ public class LinuxCommandSet extends CommandSet
     /**
      * rotates the screen. Linux version relies on xrandr being installed on the clients system
      * @param direction the orientation to rotate the screen (up, down, left, right)
-     * @throws IOException if exec() failed
+     * @return true if the screen was rotated, false otherwise
      */
     @Override
-    public void rotate(String direction) throws IOException
+    public boolean rotate(String direction)
     {
-        getRuntime().exec("xrandr --output default --rotate " + direction);
+        try
+        {
+            Process process = getRuntime().exec("xrandr --output default --rotate " + direction);
+            if(!wasSuccessful(process))
+                return false;
+        }
+        catch(IOException ioe)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
-    public void eject() throws IOException
+    public boolean eject()
     {
-        getRuntime().exec("eject");
+        try
+        {
+            Process process = getRuntime().exec("eject");
+            if(!wasSuccessful(process))
+                return false;
+        }
+        catch(IOException ioe)
+        {
+            return false;
+        }
+        return true;
     }
 
     @Override
