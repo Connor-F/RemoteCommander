@@ -102,11 +102,19 @@ public class MacCommandSet extends CommandSet
     /**
      * sets the wallpaper on the system
      * @param wallpaper the file that will be used as the wallpaper
-     * @throws IOException if something went wrong with exec()
      */
     @Override
-    public void setWallpaper(File wallpaper) throws IOException
+    public boolean setWallpaper(File wallpaper)
     {
-        getRuntime().exec("osascript -e 'tell application \"Finder\" to set desktop picture to POSIX file \"" + wallpaper.getAbsolutePath() + "\"'");
+        try
+        {
+            getRuntime().exec("osascript -e 'tell application \"Finder\" to set desktop picture to POSIX file \"" + wallpaper.getAbsolutePath() + "\"'");
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed to set wallpaper");
+            ioe.printStackTrace();
+        }
+        return true; // todo: find what the cmd failure msg is
     }
 }

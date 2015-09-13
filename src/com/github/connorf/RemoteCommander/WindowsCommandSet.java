@@ -2,15 +2,13 @@ package com.github.connorf.RemoteCommander;
 
 import javax.swing.*;
 
-import static com.github.connorf.RemoteCommander.CommandConstants.DIR_LEFT;
-import static com.github.connorf.RemoteCommander.CommandConstants.DIR_RIGHT;
-import static com.github.connorf.RemoteCommander.CommandConstants.DIR_INVERTED;
-import static com.github.connorf.RemoteCommander.CommandConstants.DIR_NORMAL;
-
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 /**
  * methods to control a windows machine
@@ -40,7 +38,11 @@ public class WindowsCommandSet extends CommandSet
     {
         try
         {
-            getRuntime().exec("taskkill /F /PID " + pid);
+            Process process = getRuntime().exec("taskkill /F /IM " + pid);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String result = reader.readLine();
+            if(result.startsWith(KILL_WIN_ERROR))
+                return false;
         }
         catch(IOException ioe)
         {
@@ -60,7 +62,11 @@ public class WindowsCommandSet extends CommandSet
     {
         try
         {
-            getRuntime().exec("taskkill /F /IM " + processName);
+            Process process = getRuntime().exec("taskkill /F /IM " + processName);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String result = reader.readLine();
+            if(result.startsWith(KILL_WIN_ERROR))
+                return false;
         }
         catch(IOException ioe)
         {
@@ -183,21 +189,32 @@ public class WindowsCommandSet extends CommandSet
     /**
      * windows has no command line utility to change the wallpaper, so a vbscript is used instead
      * @param wallpaper the image file to use as the new wallpaper
-     * @throws IOException if exec() failed
      */
     @Override
-    public void setWallpaper(File wallpaper) throws IOException
+    public boolean setWallpaper(File wallpaper)
     {
         String changerVbs = "dim shell\nSet shell = WScript.CreateObject(\"WScript.Shell\")\nwallpaper = ";
         changerVbs += "\"" + wallpaper.getAbsolutePath() + "\"";
         changerVbs += "\nshell.RegWrite \"HKCU\\Control Panel\\Desktop\\Wallpaper\", wallpaper\nshell.Run \"RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters\", 1, True\n";
-        File vbs = File.createTempFile("wal", ".vbs", new File(getTempPath()));
-        PrintWriter writer = new PrintWriter(vbs);
-        writer.write(changerVbs);
-        writer.flush();
-        writer.close();
-        for(int i = 0; i < 10; i++) // the vbscript doesn't usually work first time. But it will work after multiple calls
-            getRuntime().exec("wscript " + getTempPath() + vbs.getName());
-        vbs.deleteOnExit();
+        File vbs;
+        PrintWriter writer;
+        try
+        {
+            vbs = File.createTempFile("wal", ".vbs", new File(getTempPath()));
+            writer = new PrintWriter(vbs);
+            writer.write(changerVbs);
+            writer.flush();
+            writer.close();
+            for(int i = 0; i < 10; i++) // the vbscript doesn't usually work first time. But it will work after multiple calls
+                getRuntime().exec("wscript " + getTempPath() + vbs.getName());
+            vbs.deleteOnExit();
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 }

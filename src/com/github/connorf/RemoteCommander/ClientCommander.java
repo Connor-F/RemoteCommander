@@ -138,7 +138,6 @@ public class ClientCommander implements Runnable
                 System.out.println(CMD_LIST_PROCESSES + " will list all running processes on the clients machine.\nExample usage:\n\t" + CMD_LIST_PROCESSES + " 127.0.0.1");
             else if(command.equals(CMD_KILL_PROCESS))
                 System.out.println(CMD_KILL_PROCESS + " will kill the process on the clients machine.\nExample usage:\n\t" + CMD_KILL_PROCESS + " 127.0.0.1 TYPE ARG\nTYPE can either be pid (process id) or name\nARG must be a valid process id if using the TYPE pid or a valid process name if using the TYPE name");
-
         }
     }
 
@@ -274,6 +273,16 @@ public class ClientCommander implements Runnable
             target.sendCommandPart(cmd);
             target.sendCommandPart(arg1);
             target.sendCommandPart(arg2);
+            try
+            {
+                if(cmd.equals(CMD_KILL_PROCESS)) // we should listen for a reply
+                    System.out.println(target.getStringFromClient());
+            }
+            catch(IOException ioe)
+            {
+                System.out.println("Failed to get string from the client regarding the recent " + CMD_KILL_PROCESS + " command.");
+                ioe.printStackTrace();
+            }
         }
     }
 
@@ -318,18 +327,26 @@ public class ClientCommander implements Runnable
 
         try
         {
-            if(commandTokens.size() == 1)
-                processZeroArgCommand(command);
-            else if(commandTokens.size() == 2)
-                processOneArgCommand(command, commandTokens.get(1));
-            else if(commandTokens.size() == 3)
-                processTwoArgCommand(command, commandTokens.get(1), commandTokens.get(2));
-            else if(commandTokens.size() == 4)
-                processThreeArgCommand(command, commandTokens.get(1), commandTokens.get(2), commandTokens.get(3));
-            else if(commandTokens.size() == 5)
-                processFourArgCommand(command, commandTokens.get(1), commandTokens.get(2), commandTokens.get(3), commandTokens.get(4));
-            else
-                System.out.println("Unknown command: " + fullCommand);
+            switch(commandTokens.size())
+            {
+                case 1:
+                    processZeroArgCommand(command);
+                    break;
+                case 2:
+                    processOneArgCommand(command, commandTokens.get(1));
+                    break;
+                case 3:
+                    processTwoArgCommand(command, commandTokens.get(1), commandTokens.get(2));
+                    break;
+                case 4:
+                    processThreeArgCommand(command, commandTokens.get(1), commandTokens.get(2), commandTokens.get(3));
+                    break;
+                case 5:
+                    processFourArgCommand(command, commandTokens.get(1), commandTokens.get(2), commandTokens.get(3), commandTokens.get(4));
+                    break;
+                default:
+                    System.out.println("Unknown command: " + fullCommand);
+            }
         }
         catch(UnknownHostException uhe)
         {

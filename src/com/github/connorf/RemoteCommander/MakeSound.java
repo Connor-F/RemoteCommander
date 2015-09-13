@@ -25,8 +25,9 @@ public class MakeSound implements Runnable
     /**
      * plays the sound file provided
      * @param soundFile the sound to play
+     * @return true if everything worked, false if otherwise
      */
-    public void playSound(File soundFile)
+    public boolean playSound(File soundFile)
     {
         int BUFFER_SIZE = (int)soundFile.length();
         AudioInputStream audioStream = null;
@@ -41,7 +42,7 @@ public class MakeSound implements Runnable
         catch(Exception e)
         {
             e.printStackTrace();
-            System.exit(1); // todo: don't exit
+            return false;
         }
 
         audioFormat = audioStream.getFormat();
@@ -55,12 +56,12 @@ public class MakeSound implements Runnable
         catch(LineUnavailableException e)
         {
             e.printStackTrace();
-            System.exit(1);
+            return false;
         }
         catch(Exception e)
         {
             e.printStackTrace();
-            System.exit(1);
+            return false;
         }
 
         // try to unmute systems mixer if its muted
@@ -88,6 +89,7 @@ public class MakeSound implements Runnable
             catch(IOException e)
             {
                 e.printStackTrace();
+                return false;
             }
             if(nBytesRead >= 0)
             {
@@ -99,5 +101,6 @@ public class MakeSound implements Runnable
         sourceLine.drain();
         sourceLine.close();
         soundFile.delete();
+        return true;
     }
 }

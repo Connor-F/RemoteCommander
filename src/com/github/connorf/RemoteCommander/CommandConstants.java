@@ -5,6 +5,7 @@ package com.github.connorf.RemoteCommander;
  */
 public final class CommandConstants
 {
+    // all commands
     public static final String CMD_ONLINE = "online";
     public static final String CMD_COUNT = "count";
     public static final String CMD_EJECT = "eject";
@@ -28,6 +29,8 @@ public final class CommandConstants
 
     public static final String KILL_PID = "pid";
     public static final String KILL_NAME = "name";
+    /** windows kill command caused an error */
+    public static final String KILL_WIN_ERROR = "ERROR";
 
     public static final String DIR_LEFT = "left";
     public static final String DIR_RIGHT = "right";
@@ -36,7 +39,9 @@ public final class CommandConstants
 
     public static final String MSG_TYPE_INFO = "info";
     public static final String MSG_TYPE_ERROR = "error";
-    public static final String MSG_TYPE_QUESTION = "question";
+    public static final String MSG_TYPE_QUESTION = "ques";
+    public static final String MSG_TYPE_WARN = "warn";
+    public static final String MSG_TYPE_NONE = "none";
 
     public static final String OS_LINUX = "Linux";
     public static final String OS_WINDOWS = "Windows";

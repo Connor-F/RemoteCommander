@@ -3,7 +3,6 @@ package com.github.connorf.RemoteCommander;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 
@@ -26,16 +25,44 @@ public class LinuxCommandSet extends CommandSet
         }
     }
 
+    /**
+     * kills the process with the process id supplied
+     * @param pid the process id of the task to kill
+     * @return true if the process was killed, false otherwise
+     */
     @Override
     public boolean killProcess(int pid)
     {
-        return false;
+        try
+        {
+            getRuntime().exec("kill " + pid); // todo: need to know if this failed to kill the pid
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
+    /**
+     * kills the process supplied
+     * @param processName the name of the process to kill
+     * @return true if the process was killed, false otherwise
+     */
     @Override
     public boolean killProcess(String processName)
     {
-        return false;
+        try
+        {
+            getRuntime().exec("pkill " + processName); // todo: need to know if this failed to kill the pid
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -128,8 +155,17 @@ public class LinuxCommandSet extends CommandSet
      * @throws IOException if exec() failed
      */
     @Override
-    public void setWallpaper(File wallpaper) throws IOException
+    public boolean setWallpaper(File wallpaper)
     {
-        getRuntime().exec("gsettings set org.gnome.desktop.background picture-uri file:///" + wallpaper.getAbsolutePath());
+        try
+        {
+            getRuntime().exec("gsettings set org.gnome.desktop.background picture-uri file:///" + wallpaper.getAbsolutePath());
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed to set wallpaper");
+            ioe.printStackTrace();
+        }
+        return true; // todo: find out what the cmd failure msg is
     }
 }

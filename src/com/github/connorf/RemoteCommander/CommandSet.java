@@ -1,9 +1,5 @@
 package com.github.connorf.RemoteCommander;
 
-import static com.github.connorf.RemoteCommander.CommandConstants.MSG_TYPE_ERROR;
-import static com.github.connorf.RemoteCommander.CommandConstants.MSG_TYPE_INFO;
-import static com.github.connorf.RemoteCommander.CommandConstants.MSG_TYPE_QUESTION;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +16,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 /**
  * contains the definitions and some implementations (if they are not OS specific) of the features of the program
@@ -45,7 +43,7 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void restart() throws IOException;
     public abstract void rotate(String direction) throws IOException;
     public abstract void takeCameraPicture();
-    public abstract void setWallpaper(File wallpaper) throws IOException;
+    public abstract boolean setWallpaper(File wallpaper);
     public abstract void minimise();
     public abstract String getRunningProcesses() throws IOException;
     public abstract boolean killProcess(String processName); // killing by name will kill all processes with that name
@@ -255,12 +253,22 @@ public abstract class CommandSet implements ClipboardOwner
     public void showMessage(String message, String title, String type)
     {
         int option = JOptionPane.NO_OPTION;
-        if(type.equals(MSG_TYPE_INFO))
-            option = JOptionPane.INFORMATION_MESSAGE;
-        else if(type.equals(MSG_TYPE_ERROR))
-            option = JOptionPane.ERROR_MESSAGE;
-        else if(type.equals(MSG_TYPE_QUESTION))
-            option = JOptionPane.QUESTION_MESSAGE;
+        switch(type)
+        {
+            case MSG_TYPE_ERROR:
+                option = JOptionPane.ERROR_MESSAGE;
+                break;
+            case MSG_TYPE_INFO:
+                option = JOptionPane.INFORMATION_MESSAGE;
+                break;
+            case MSG_TYPE_WARN:
+                option = JOptionPane.WARNING_MESSAGE;
+                break;
+            case MSG_TYPE_QUESTION:
+                option = JOptionPane.QUESTION_MESSAGE;
+                break;
+        }
+
         JOptionPane.showMessageDialog(null, message, title, option);
     }
 

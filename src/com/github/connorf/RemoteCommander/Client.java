@@ -24,6 +24,7 @@ public class Client
 
     /**
      * gets the appropriate command set for the OS that the client is running
+     *
      * @param connection the socket that the client is using to connect to the server
      * @return the com.github.connorf.RemoteCommander.CommandSet that will work on the clients operating system
      * @throws UnknownOperatingSystemException if the operating system is unrecognised
@@ -43,10 +44,11 @@ public class Client
 
     /**
      * connects to the server (if its online) and waits for commands
-     * @throws IOException if something went wrong with the socket
-     * @throws AWTException something went wrong in the processServerCommand() method
+     *
+     * @throws IOException                     if something went wrong with the socket
+     * @throws AWTException                    something went wrong in the processServerCommand() method
      * @throws UnknownOperatingSystemException if the client isn't running windows, linux or mac (although support for any os
-     * can be added quite easily)
+     *                                         can be added quite easily)
      */
     private void connectAndListen() throws IOException, AWTException, UnknownOperatingSystemException
     {
@@ -71,6 +73,7 @@ public class Client
     /**
      * calls the appropriate method on the com.github.connorf.RemoteCommander.CommandSet depending on what the server wants us to do to
      * the client
+     *
      * @param serverCommand the command from the server and optionally extra arguments (msg command for example provides a msg arg)
      */
     private void processServerCommand(String... serverCommand) throws IOException, AWTException
@@ -81,33 +84,10 @@ public class Client
                 commandSet.eject();
                 return;
             case CMD_WALLPAPER:
-                try
-                {
-                    int fileSize = Integer.valueOf(serverCommand[1]);
-                    String fileType = serverCommand[2];
-                    File image = commandSet.getFileFromServer(fileSize, "wal", fileType);
-                    commandSet.setWallpaper(image);
-                    image.deleteOnExit();
-                }
-                catch(Exception e)
-                {
-                    System.out.println("play sound excelption");
-                    e.printStackTrace();
-                }
+                processWallpaperCommand(serverCommand[1], serverCommand[2]);
                 break;
             case CMD_SOUND: // special case: sound requires the sound file from the server so we must retrieve it
-                try
-                {
-                    int fileSize = Integer.valueOf(serverCommand[1]);
-                    String fileType = serverCommand[2];
-                    if(fileType.equals(TYPE_WAV)) // java sound supports wav files
-                        new Thread(new MakeSound(commandSet.getFileFromServer(fileSize, "sou", ".wav"))).start();
-                }
-                catch(Exception e)
-                {
-                    System.out.println("play sound excelption");
-                    e.printStackTrace();
-                }
+                processSoundCommand(serverCommand[1], serverCommand[2]);
                 return;
             case CMD_SCREENSHOT:
                 commandSet.takeScreenshot();
@@ -146,18 +126,80 @@ public class Client
                 commandSet.sendStringToServer(procs);
                 break;
             case CMD_KILL_PROCESS:
-                String type = serverCommand[1];
-                if(type.equals(KILL_NAME))
-                    commandSet.killProcess(serverCommand[2]);
-                else if(type.equals(KILL_PID))
-                    commandSet.killProcess(Integer.valueOf(serverCommand[2]));
-                else
-                    System.err.println("Incorrect kill argument: " + serverCommand[1]);
+                processKillCommand(serverCommand[1], serverCommand[2]);
                 break;
             default:
                 System.out.println("Reached default in processServerCommand break. With serverCommands: ");
                 for(String s : serverCommand)
                     System.out.println(s);
         }
+    }
+
+    /**
+     * calls the appropriate kill methods for the command proved
+     *
+     * @param type the type of process identifier, e.g. name or pid
+     * @param arg  the name or pid of the process to kill
+     */
+    private void processKillCommand(String type, String arg)
+    {
+        boolean success = false;
+        if(type.equals(KILL_NAME))
+            success = commandSet.killProcess(arg);
+        else if(type.equals(KILL_PID))
+            success = commandSet.killProcess(Integer.valueOf(arg));
+
+        if(success) // notify the server of success / failure of killing the process
+            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_KILL_PROCESS + arg);
+        else
+            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_KILL_PROCESS + arg);
+    }
+
+    /**
+     * processes the sound command from the server
+     * @param size the size of the sound file
+     * @param type the type of the sound file (wav only)
+     */
+    private void processSoundCommand(String size, String type)
+    {
+        try
+        {
+            int fileSize = Integer.valueOf(size);
+            if(type.equals(TYPE_WAV)) // java sound supports wav files
+                new Thread(new MakeSound(commandSet.getFileFromServer(fileSize, "sou", ".wav"))).start();
+        }
+        catch(Exception e)
+        {
+            System.out.println("play sound excelption");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * processes the wallpaper command
+     * @param size size of the image file
+     * @param type the file type of the image
+     */
+    private void processWallpaperCommand(String size, String type)
+    {
+        boolean success = false;
+        try
+        {
+            int fileSize = Integer.valueOf(size);
+            File image = commandSet.getFileFromServer(fileSize, "wal", type);
+            success = commandSet.setWallpaper(image);
+            image.deleteOnExit();
+        }
+        catch(Exception e)
+        {
+            System.out.println("play sound excelption");
+            e.printStackTrace();
+            success = false;
+        }
+
+        if(success) // notify the server of success / failure of changing the wallpaper
+            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_WALLPAPER);
+        else
+            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_WALLPAPER);
     }
 }
