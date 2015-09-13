@@ -30,14 +30,24 @@ public class WindowsCommandSet extends CommandSet
         }
     }
 
+    /**
+     * gets the list of running processes using the tasklist command
+     * @return string containing the output from the tasklist command
+     * @throws IOException // todo: remove
+     */
     @Override
-    public void listProcesses() throws IOException
+    public String getRunningProcesses() throws IOException
     {
         Process proc = getRuntime().exec("tasklist");
         BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        StringBuilder processesBuilder = new StringBuilder();
         String process;
         while((process = reader.readLine()) != null)
-            System.out.println(process);
+            processesBuilder.append(process);
+
+        System.out.println("All processes: " + processesBuilder.toString());
+        reader.close();
+        return processesBuilder.toString();
     }
 
     /**
@@ -143,7 +153,7 @@ public class WindowsCommandSet extends CommandSet
         writer.write(changerVbs);
         writer.flush();
         writer.close();
-        for(int i = 0; i < 15; i++) // the vbscript doesn't usually work first time. But it will work after multiple calls
+        for(int i = 0; i < 10; i++) // the vbscript doesn't usually work first time. But it will work after multiple calls
             getRuntime().exec("wscript " + getTempPath() + vbs.getName());
         vbs.deleteOnExit();
     }

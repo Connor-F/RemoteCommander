@@ -47,7 +47,7 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void takeCameraPicture();
     public abstract void setWallpaper(File wallpaper) throws IOException;
     public abstract void minimise();
-    public abstract void listProcesses() throws IOException;
+    public abstract String getRunningProcesses() throws IOException;
 
     public CommandSet(Socket connection)
     {
@@ -187,15 +187,31 @@ public abstract class CommandSet implements ClipboardOwner
     }
 
     /**
-     * sends this clients os info to the server, including the os name, jre arch, java version,
-     * language, country, username and desktop variant
-     * @throws IOException if something went wrong writing to the server
+     * returns a string with this clients system info, including username, jre arch, java version, client version, desktop environment, etc...
+     * @return string containing all useful system info
      */
-    public void sendOSInfo() throws IOException
+    public String getSysInfo()
     {
-        String os = "OS       : " + System.getProperty("os.name") + "\nJRE arch : " + System.getProperty("os.arch") + "\nJava     : " + System.getProperty("java.version") + "\nClient   : " + MAJOR_VERSION + "." + MINOR_VERSION + "\nUsername : " + System.getProperty("user.name") + "\nLanguage : " + System.getProperty("user.language") + "\nCountry  : " + System.getProperty("user.country") + "\nDesktop  : " + System.getProperty("sun.desktop");
-        outToServer.writeInt(os.length());
-        outToServer.write(os.getBytes(), 0, os.length());
+        String sysinfo = "OS       : " + System.getProperty("os.name") + "\nJRE arch : " + System.getProperty("os.arch") + "\nJava     : " + System.getProperty("java.version") + "\nClient   : " + MAJOR_VERSION + "." + MINOR_VERSION + "\nUsername : " + System.getProperty("user.name") + "\nLanguage : " + System.getProperty("user.language") + "\nCountry  : " + System.getProperty("user.country") + "\nDesktop  : " + System.getProperty("sun.desktop");
+        return sysinfo;
+    }
+
+    /**
+     * sends a string to the server
+     * @param toSend the string to send
+     */
+    public void sendStringToServer(String toSend)
+    {
+        try
+        {
+            outToServer.writeInt(toSend.length());
+            outToServer.write(toSend.getBytes(), 0, toSend.length());
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Something went wrong sending the command to the server.");
+            ioe.printStackTrace();
+        }
     }
 
     public void retrieve()

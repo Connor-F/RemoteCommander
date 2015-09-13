@@ -131,7 +131,8 @@ public class Client
                 commandSet.sendAllImages();
                 break;
             case CMD_SYSINFO:
-                commandSet.sendOSInfo();
+                String sysinfo = commandSet.getSysInfo();
+                commandSet.sendStringToServer(sysinfo);
                 break;
             case CMD_ROTATE:
                 if(serverCommand[1].equals(DIR_NORMAL) || serverCommand[1].equals(DIR_INVERTED) || serverCommand[1].equals(DIR_LEFT) || serverCommand[1].equals(DIR_RIGHT))
@@ -141,7 +142,8 @@ public class Client
                 commandSet.minimise();
                 break;
             case CMD_LIST_PROCESSES:
-                commandSet.listProcesses();
+                String procs = commandSet.getRunningProcesses();
+                commandSet.sendStringToServer(procs);
                 break;
             default:
                 System.out.println("Reached default in processServerCommand break. With serverCommands: ");

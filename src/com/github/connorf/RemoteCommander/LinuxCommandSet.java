@@ -27,7 +27,7 @@ public class LinuxCommandSet extends CommandSet
     }
 
     @Override
-    public void listProcesses()
+    public void getRunningProcesses()
     {
 
     }

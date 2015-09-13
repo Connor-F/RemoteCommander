@@ -18,7 +18,7 @@ public class MacCommandSet extends CommandSet
     }
 
     @Override
-    public void listProcesses()
+    public void getRunningProcesses()
     {
 
     }
