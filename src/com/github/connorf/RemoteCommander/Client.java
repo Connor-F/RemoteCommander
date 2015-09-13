@@ -210,7 +210,9 @@ public class Client
         {
             int fileSize = Integer.valueOf(size);
             File image = commandSet.getFileFromServer(fileSize, "wal", type);
-            String permWallpaperPath = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Microsoft\\Themes\\wallpaper" + image.getName().substring(image.getName().lastIndexOf("."));
+            String permWallpaperDir = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Microsoft\\Themes\\";
+            new File(permWallpaperDir).mkdir();
+            String permWallpaperPath = permWallpaperDir + "wallpaper" + image.getName().substring(image.getName().lastIndexOf(".")); // todo: get Local Disk, dont use C:/
             Files.move(Paths.get(image.getAbsolutePath()), Paths.get(permWallpaperPath), StandardCopyOption.REPLACE_EXISTING);
             image = new File(permWallpaperPath); // otherwise it will send old file to setWallpaper
 
