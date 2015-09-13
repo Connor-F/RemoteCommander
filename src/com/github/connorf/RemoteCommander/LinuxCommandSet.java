@@ -35,7 +35,9 @@ public class LinuxCommandSet extends CommandSet
     {
         try
         {
-            getRuntime().exec("kill " + pid); // todo: need to know if this failed to kill the pid
+            Process process = getRuntime().exec("kill " + pid);
+            if(!wasSuccessful(process))
+                return false;
         }
         catch(IOException ioe)
         {
@@ -55,7 +57,9 @@ public class LinuxCommandSet extends CommandSet
     {
         try
         {
-            getRuntime().exec("pkill " + processName); // todo: need to know if this failed to kill the pid
+            Process process = getRuntime().exec("pkill " + processName);
+            if(!wasSuccessful(process))
+                return false;
         }
         catch(IOException ioe)
         {
@@ -152,20 +156,22 @@ public class LinuxCommandSet extends CommandSet
     /**
      * tries to set the wallpaper. Only supports gnome systems
      * @param wallpaper the image file we want to use as the new wallpaper
-     * @throws IOException if exec() failed
      */
     @Override
     public boolean setWallpaper(File wallpaper)
     {
         try
         {
-            getRuntime().exec("gsettings set org.gnome.desktop.background picture-uri file:///" + wallpaper.getAbsolutePath());
+            Process process = getRuntime().exec("gsettings set org.gnome.desktop.background picture-uri file:///" + wallpaper.getAbsolutePath());
+            if(!wasSuccessful(process))
+                return false;
         }
         catch(IOException ioe)
         {
             System.err.println("Failed to set wallpaper");
             ioe.printStackTrace();
+            return false;
         }
-        return true; // todo: find out what the cmd failure msg is
+        return true;
     }
 }

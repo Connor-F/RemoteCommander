@@ -150,9 +150,9 @@ public class Client
             success = commandSet.killProcess(Integer.valueOf(arg));
 
         if(success) // notify the server of success / failure of killing the process
-            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_KILL_PROCESS + arg);
+            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_KILL_PROCESS + " " + arg);
         else
-            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_KILL_PROCESS + arg);
+            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_KILL_PROCESS + " " + arg);
     }
 
     /**

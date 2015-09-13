@@ -29,8 +29,9 @@ public final class CommandConstants
 
     public static final String KILL_PID = "pid";
     public static final String KILL_NAME = "name";
-    /** windows kill command caused an error */
-    public static final String KILL_WIN_ERROR = "ERROR";
+
+    /** used to see if the process ran via Runtimes exec() method returned successfully or not */
+    public static final int RETURN_SUCCESS = 0;
 
     public static final String DIR_LEFT = "left";
     public static final String DIR_RIGHT = "right";

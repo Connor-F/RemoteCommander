@@ -1,6 +1,5 @@
 package com.github.connorf.RemoteCommander;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
@@ -108,13 +107,16 @@ public class MacCommandSet extends CommandSet
     {
         try
         {
-            getRuntime().exec("osascript -e 'tell application \"Finder\" to set desktop picture to POSIX file \"" + wallpaper.getAbsolutePath() + "\"'");
+            Process process = getRuntime().exec("osascript -e 'tell application \"Finder\" to set desktop picture to POSIX file \"" + wallpaper.getAbsolutePath() + "\"'");
+            if(!wasSuccessful(process))
+                return false;
         }
         catch(IOException ioe)
         {
             System.err.println("Failed to set wallpaper");
             ioe.printStackTrace();
+            return false;
         }
-        return true; // todo: find what the cmd failure msg is
+        return true;
     }
 }

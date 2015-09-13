@@ -328,6 +328,16 @@ public abstract class CommandSet implements ClipboardOwner
         }
     }
 
+    /**
+     * finds if the process exec() created returned successfully or not
+     * @param process the process to check its return value
+     * @return true if the process exited successfully, false otherwise
+     */
+    public boolean wasSuccessful(Process process)
+    {
+        return process.exitValue() == RETURN_SUCCESS;
+    }
+
     public Runtime getRuntime()
     {
         return runtime;

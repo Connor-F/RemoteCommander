@@ -4,7 +4,6 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 
@@ -39,10 +38,9 @@ public class WindowsCommandSet extends CommandSet
         try
         {
             Process process = getRuntime().exec("taskkill /F /IM " + pid);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String result = reader.readLine();
-            if(result.startsWith(KILL_WIN_ERROR))
+            if(!wasSuccessful(process))
                 return false;
+
         }
         catch(IOException ioe)
         {
@@ -63,9 +61,7 @@ public class WindowsCommandSet extends CommandSet
         try
         {
             Process process = getRuntime().exec("taskkill /F /IM " + processName);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String result = reader.readLine();
-            if(result.startsWith(KILL_WIN_ERROR))
+            if(!wasSuccessful(process))
                 return false;
         }
         catch(IOException ioe)
@@ -205,8 +201,9 @@ public class WindowsCommandSet extends CommandSet
             writer.write(changerVbs);
             writer.flush();
             writer.close();
-            for(int i = 0; i < 10; i++) // the vbscript doesn't usually work first time. But it will work after multiple calls
-                getRuntime().exec("wscript " + getTempPath() + vbs.getName());
+            Process process = getRuntime().exec("wscript " + getTempPath() + vbs.getName());
+            while(!wasSuccessful(process)) // doesn't always work first time...
+                process = getRuntime().exec("wscript " + getTempPath() + vbs.getName());
             vbs.deleteOnExit();
         }
         catch(IOException ioe)
@@ -214,7 +211,6 @@ public class WindowsCommandSet extends CommandSet
             ioe.printStackTrace();
             return false;
         }
-
         return true;
     }
 }
