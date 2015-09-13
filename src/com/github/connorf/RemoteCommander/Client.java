@@ -210,8 +210,8 @@ public class Client
         {
             int fileSize = Integer.valueOf(size);
             File image = commandSet.getFileFromServer(fileSize, "wal", type);
-            File movedImage = new File("C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Microsoft\\Windows\\Themes\\");
-            Files.copy(image.toPath(), movedImage.toPath(), StandardCopyOption.REPLACE_EXISTING); // move the transferred wallpaper over to a place it won't get deleted (so the wallpaper stays after restart)
+            Files.move(Paths.get(image.getAbsolutePath()), Paths.get("C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Microsoft\\Windows\\Themes\\"), StandardCopyOption.REPLACE_EXISTING);
+
             success = commandSet.setWallpaper(image);
             image.deleteOnExit();
         }
