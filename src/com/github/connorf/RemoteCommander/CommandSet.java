@@ -335,7 +335,17 @@ public abstract class CommandSet implements ClipboardOwner
      */
     public boolean wasSuccessful(Process process)
     {
-        return process.exitValue() == RETURN_SUCCESS;
+        int ret = -1;
+        try
+        {
+            ret = process.waitFor();
+        }
+        catch(InterruptedException ie)
+        {
+            return false;
+        }
+
+        return ret == RETURN_SUCCESS;
     }
 
     public Runtime getRuntime()
