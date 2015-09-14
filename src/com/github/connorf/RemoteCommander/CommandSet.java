@@ -35,6 +35,8 @@ public abstract class CommandSet implements ClipboardOwner
     private DataOutputStream outToServer;
     /** input from the server */
     private DataInputStream inFromServer;
+    /** for nice outputs on the server end */
+    private String ipAddress;
 
     private static final int MAJOR_VERSION = 0;
     private static final int MINOR_VERSION = 4;
@@ -59,6 +61,7 @@ public abstract class CommandSet implements ClipboardOwner
             robot = new Robot();
             inFromServer = new DataInputStream(connection.getInputStream());
             outToServer = new DataOutputStream(connection.getOutputStream());
+            ipAddress = connection.getInetAddress().toString().replace("/", "");
         }
         catch(AWTException awte)
         {
@@ -119,6 +122,8 @@ public abstract class CommandSet implements ClipboardOwner
             InputStream sendMe = new FileInputStream(toSend);
 
             outToServer.writeInt((int) toSend.length());
+            outToServer.writeInt(toSend.getName().length());
+            outToServer.write(toSend.getName().getBytes(), 0, toSend.getName().length());
             int count;
             int sentBytes = 0;
             while(sentBytes != toSend.length() && (count = sendMe.read(buffer)) > 0)
@@ -394,5 +399,10 @@ public abstract class CommandSet implements ClipboardOwner
     public Robot getRobot()
     {
         return robot;
+    }
+
+    public String getIpAddress()
+    {
+        return ipAddress;
     }
 }

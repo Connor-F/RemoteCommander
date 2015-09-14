@@ -34,7 +34,12 @@ public class Retriever implements Runnable
     private void getFileFromClient() throws IOException
     {
         DataInputStream inFromClient = new DataInputStream(toClient.getInputStream());
-        int fileSize = inFromClient.readInt();
+        int fileSize = inFromClient.readInt(); // client sends file size
+        int filenameLen = inFromClient.readInt(); // then filename length
+        byte[] filenameBytes = new byte[filenameLen];
+        inFromClient.readFully(filenameBytes, 0, filenameLen); // then filename itself
+        String filename = new String(filenameBytes);
+
         byte[] buffer = new byte[fileSize];
 
         String clientsPath = "/home/connor/Desktop/clients/" + toClient.getInetAddress().toString().replace("/", "") + "/";
@@ -44,7 +49,8 @@ public class Retriever implements Runnable
                 System.err.println("Failed to create directory for the client at: " + clientsPath);
 
         inFromClient.readFully(buffer, 0, fileSize);
-        FileOutputStream outFile = new FileOutputStream(File.createTempFile("file_", "_test.jpg", new File(clientsPath)));
+//        FileOutputStream outFile = new FileOutputStream(File.createTempFile("file_", "_test.jpg", new File(clientsPath)));
+        FileOutputStream outFile = new FileOutputStream(new File(clientsPath + File.separator + filename));
         outFile.write(buffer, 0, fileSize);
         outFile.flush();
         outFile.close();

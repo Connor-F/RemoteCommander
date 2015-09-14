@@ -1,7 +1,5 @@
 package com.github.connorf.RemoteCommander;
 
-import javax.print.DocFlavor;
-
 /**
  * represents all command keywords
  */
@@ -40,7 +38,9 @@ public final class CommandConstants
     /** used to notifiy the server if the command produced output in stdout */
     public static final String REMOTE_SHELL_INDICATE_STDOUT = "stdout_shell";
     /** used to notify the server if the command has completed */
-    public static final String REMOTE_SHELL_INDICATE_END = "end_shell_command";
+    public static final String REMOTE_SHELL_INDICATE_END = "end_command_shell";
+    /** used to indicate that we'd like to transfer a file to the server from within the remote shell */
+    public static final String REMOTE_SHELL_TRANSFER = "get_file";
 
     /** used to see if the process ran via Runtimes exec() method returned successfully or not */
     public static final int RETURN_SUCCESS = 0;
