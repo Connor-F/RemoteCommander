@@ -35,13 +35,6 @@ public abstract class CommandSet implements ClipboardOwner
     private DataOutputStream outToServer;
     /** input from the server */
     private DataInputStream inFromServer;
-    /** represents to command to start a shell on the specific os */
-    private String shellStartCommand;
-    /** represents the options needed to run the shell with a command then exit */
-    private String shellOptions;
-    /** the shell specific command for printing the working directory */
-    private String shellPwdCommand;
-
 
     private static final int MAJOR_VERSION = 0;
     private static final int MINOR_VERSION = 4;

@@ -44,9 +44,11 @@ public class ConnectedClient
     {
         try
         {
+            String username = System.getProperty("user.name");
+            String ipAddress = connection.getInetAddress().toString().replace("/", ""); // for nice console output
             String inputCommand;
             String workingDirectory = getStringFromClient();
-            System.out.print(workingDirectory + "> ");
+            System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + "> ");
             Scanner input = new Scanner(System.in);
 
             while(!(inputCommand = input.nextLine()).equals(REMOTE_SHELL_TERMINATE))
@@ -60,7 +62,7 @@ public class ConnectedClient
                     System.out.print(getStringFromClient());
                 // otherwise server send REMOTE_SHELL_INDICATE_END meaning the command worked as expected so we continue
 
-                System.out.print(workingDirectory + "> ");
+                System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + "> ");
             }
         }
         catch(IOException ioe)

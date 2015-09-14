@@ -1,14 +1,13 @@
 package com.github.connorf.RemoteCommander;
 
-import javax.swing.*;
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-
-import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 /**
  * methods to control a windows machine
@@ -48,21 +47,17 @@ public class WindowsCommandSet extends CommandSet
         {
             try
             {
-                System.out.println("Working directory: " + workingDirectory);
-                System.out.println("Using command: " + inputCommand);
                 // runs the systems shell, changes dir to the current one, runs the supplied command, then pwd so we can track our current location (if user ran a dir changing command)
                 String[] command = {"cmd.exe", "/c", "cd " + workingDirectory + "& " + inputCommand + " & cd"};
                 Process process = getRuntime().exec(command);
-                if(process.waitFor() != RETURN_SUCCESS)
-                    throw new Exception("Process returned a non-zero value, indicating failure");
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 ArrayList<String> fullOutput = new ArrayList<>(); // used later so we can get pwd output and track out workingDirectory
                 String result;
                 while((result = reader.readLine()) != null)
-                    fullOutput.add(result);
+                    fullOutput.add(result + "\n");
 
-                workingDirectory = fullOutput.get(fullOutput.size() - 1); // this is pwd's output. Used to keep track of working dir as we have to have a new process for each command given
+                workingDirectory = fullOutput.get(fullOutput.size() - 1).replace("\n", ""); // this is pwd's output. Used to keep track of working dir as we have to have a new process for each command given
                 sendStringToServer(workingDirectory);
                 fullOutput.remove(fullOutput.size() - 1);
                 if(!fullOutput.isEmpty()) // if the cmd created output in stdout we must let server know so it can read the stdout
@@ -76,7 +71,7 @@ public class WindowsCommandSet extends CommandSet
                 fullOutput.clear();
                 reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 while((result = reader.readLine()) != null)
-                    fullOutput.add(result);
+                    fullOutput.add(result + "\n");
                 if(!fullOutput.isEmpty()) // if cmd created output in stderr we must tell the server so it can read the error
                 {
                     sendStringToServer(REMOTE_SHELL_INDICATE_STDERR);
