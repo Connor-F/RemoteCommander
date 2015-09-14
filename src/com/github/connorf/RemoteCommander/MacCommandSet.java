@@ -19,6 +19,12 @@ public class MacCommandSet extends CommandSet
         super(connection);
     }
 
+    @Override
+    public void remoteShell()
+    {
+
+    }
+
     /**
      * gets the running processes on the clients machine. Uses the `ps` command
      * @return a string containing all the running processes

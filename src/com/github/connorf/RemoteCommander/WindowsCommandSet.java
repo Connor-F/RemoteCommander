@@ -27,6 +27,12 @@ public class WindowsCommandSet extends CommandSet
         }
     }
 
+    @Override
+    public void remoteShell()
+    {
+
+    }
+
     /**
      * uses the command line tool `taskkill` to forcefully terminate the program with the supplied pid
      * @param pid the process id of the program to terminate

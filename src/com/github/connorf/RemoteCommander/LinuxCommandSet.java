@@ -5,6 +5,9 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 /**
  * methods to control a linux machine. xrandr and gnome required
@@ -23,6 +26,88 @@ public class LinuxCommandSet extends CommandSet
         {
             System.err.println("Failed to set Linux look and feel. Using default Java look and feel");
         }
+    }
+
+    /**
+     * allows the server to control a local shell on the client
+     */
+    @Override
+    public void remoteShell()
+    {
+        String workingDirectory = getTempPath();
+        sendStringToServer(workingDirectory);
+        String inputCommad;
+        // Remote Shell Protocol...
+        //
+        // send working directory path to server
+        // if(any output from command)
+        //     send output to server
+        // else
+        //     send end marker to server
+        while(!(inputCommad = getCommandFromServer()).equals(REMOTE_SHELL_TERMINATE))
+        {
+            try
+            {
+                System.out.println("Working directory: " + workingDirectory);
+                System.out.println("Using command: " + inputCommad);
+                // runs the systems shell, changes dir to the current one, runs the supplied command, then pwd so we can track our current location (if user ran a dir changing command)
+                String[] command = {"/bin/sh", "-c", "cd " + workingDirectory + "; " + inputCommad + " ; pwd;"};
+                Process process = getRuntime().exec(command);
+                if(process.waitFor() != RETURN_SUCCESS)
+                    throw new Exception("Process returned a non-zero value, indicating failure");
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                ArrayList<String> fullOutput = new ArrayList<>(); // used later so we can get pwd output and track out workingDirectory
+                String result;
+                while((result = reader.readLine()) != null)
+                    fullOutput.add(result + "\n");
+
+                workingDirectory = fullOutput.get(fullOutput.size() - 1).replace("\n", ""); // this is pwd's output. Used to keep track of working dir as we have to have a new process for each command given
+                sendStringToServer(workingDirectory);
+                fullOutput.remove(fullOutput.size() - 1);
+                if(!fullOutput.isEmpty()) // if the cmd created output in stdout we must let server know so it can read the stdout
+                {
+                    sendStringToServer(REMOTE_SHELL_INDICATE_STDOUT);
+                    sendStringToServer(arrayListToString(fullOutput));
+                    continue;
+                }
+
+                // print any errors back to server
+                fullOutput.clear();
+                reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                while((result = reader.readLine()) != null)
+                    fullOutput.add(result + "\n");
+                if(!fullOutput.isEmpty()) // if cmd created output in stderr we must tell the server so it can read the error
+                {
+                    sendStringToServer(REMOTE_SHELL_INDICATE_STDERR);
+                    sendStringToServer(arrayListToString(fullOutput));
+                    continue;
+                }
+
+                sendStringToServer(REMOTE_SHELL_INDICATE_END); // no output from the command
+            }
+            catch(Exception ioe)
+            {
+                sendStringToServer(REMOTE_SHELL_INDICATE_STDERR);
+                sendStringToServer(ioe.getMessage());
+                ioe.printStackTrace();
+            }
+
+        }
+    }
+
+    /**
+     * since the server expects a string input from the client we can use this method
+     * to converts an array list of strings to a single string that the server expects
+     * @param list the list of strings to make into a single string
+     * @return a string containing each elecment of the list
+     */
+    private String arrayListToString(ArrayList<String> list)
+    {
+        StringBuilder singleStr = new StringBuilder();
+        for(String s : list)
+            singleStr.append(s);
+        return singleStr.toString();
     }
 
     /**

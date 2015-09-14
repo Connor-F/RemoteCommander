@@ -1,5 +1,7 @@
 package com.github.connorf.RemoteCommander;
 
+import javax.print.DocFlavor;
+
 /**
  * represents all command keywords
  */
@@ -23,12 +25,22 @@ public final class CommandConstants
     public static final String CMD_WALLPAPER = "wallpaper";
     public static final String CMD_MINIMISE = "mini";
     public static final String CMD_LIST_PROCESSES = "lsprocs";
-    public static final String CMD_KILL_PROCESS = "killproc";
+    public static final String CMD_KILL_PROCESS = "kill";
+    public static final String CMD_REMOTE_SHELL = "shell";
 
     public static final String HOST_ALL = "all";
 
     public static final String KILL_PID = "pid";
     public static final String KILL_NAME = "name";
+
+    /** allows the server to quit a remote shell session to the client */
+    public static final String REMOTE_SHELL_TERMINATE = "exit_shell";
+    /** used to notifiy the server if the command produced output in stderr */
+    public static final String REMOTE_SHELL_INDICATE_STDERR = "stderr_shell";
+    /** used to notifiy the server if the command produced output in stdout */
+    public static final String REMOTE_SHELL_INDICATE_STDOUT = "stdout_shell";
+    /** used to notify the server if the command has completed */
+    public static final String REMOTE_SHELL_INDICATE_END = "end_shell_command";
 
     /** used to see if the process ran via Runtimes exec() method returned successfully or not */
     public static final int RETURN_SUCCESS = 0;

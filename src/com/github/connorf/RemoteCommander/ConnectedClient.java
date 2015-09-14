@@ -3,6 +3,9 @@ package com.github.connorf.RemoteCommander;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Scanner;
+
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 /**
  * represents a client that has connected to our server
@@ -32,6 +35,38 @@ public class ConnectedClient
         this.address = address;
         outToClient = new DataOutputStream(connection.getOutputStream());
         inFromClient = new DataInputStream(connection.getInputStream());
+    }
+
+    /**
+     * allows the server user to control a remote shell ON the clients computer!
+     */
+    public void controlRemoteShell()
+    {
+        try
+        {
+            String inputCommand;
+            String workingDirectory = getStringFromClient();
+            System.out.print(workingDirectory + "> ");
+            Scanner input = new Scanner(System.in);
+
+            while(!(inputCommand = input.nextLine()).equals(REMOTE_SHELL_TERMINATE))
+            {
+                sendCommandPart(inputCommand); // protocol
+                workingDirectory = getStringFromClient();
+                String result = getStringFromClient();
+                if(result.equals(REMOTE_SHELL_INDICATE_STDERR)) // get extra info if the command produced an output
+                    System.out.print("[!] " + getStringFromClient());
+                else if(result.equals(REMOTE_SHELL_INDICATE_STDOUT))
+                    System.out.print(getStringFromClient());
+                // otherwise server send REMOTE_SHELL_INDICATE_END meaning the command worked as expected so we continue
+
+                System.out.print(workingDirectory + "> ");
+            }
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
     }
 
     /**

