@@ -51,14 +51,14 @@ public class ClientCommander implements Runnable
     {
         while(true)
         {
-            System.out.print("> ");
+            System.out.print(TERMINAL_PROMPT + " ");
             String command = new Scanner(System.in).nextLine(); // blocks
             command = command.toLowerCase();
 
             if(commandValid(command.split("\\s+")[0]))
                 parseAndSendCommand(command);
             else
-                System.out.println("> Unknown command: " + command.split("\\s+")[0]);
+                System.out.println(TERMINAL_PROMPT + " Unknown command: " + command.split("\\s+")[0]);
         }
     }
 
@@ -255,7 +255,7 @@ public class ClientCommander implements Runnable
     }
 
     /**
-     * processes three argument commands, e.g. chaos, killproc
+     * processes three argument commands, e.g. chaos, kill
      * @param cmd the command itself, e.g. chaos
      * @param host the IP address of the host or all
      * @param arg1 the argument for the command

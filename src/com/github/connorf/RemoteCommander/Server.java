@@ -1,5 +1,7 @@
 package com.github.connorf.RemoteCommander;
 
+import static com.github.connorf.RemoteCommander.CommandConstants.TERMINAL_PROMPT;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -67,7 +69,7 @@ public class Server
         if(onlineClients.size() == 1) //todo: be careful not to start multiple threads
             new Thread(new ClientCommander()).start(); // start allowing input once we have at least 1 connection
         else
-            System.out.print("> ");
+            System.out.print(TERMINAL_PROMPT + " ");
     }
 
     public static Map<InetAddress, ConnectedClient> getOnlineClients()

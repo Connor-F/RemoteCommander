@@ -262,7 +262,7 @@ public abstract class CommandSet implements ClipboardOwner
      */
     public void showMessage(String message, String title, String type)
     {
-        int option = JOptionPane.NO_OPTION;
+        int option = JOptionPane.PLAIN_MESSAGE;
         switch(type)
         {
             case MSG_TYPE_ERROR:

@@ -61,4 +61,6 @@ public final class CommandConstants
     public static final String OS_MAC = "Mac";
 
     public static final String TYPE_WAV = ".wav";
+
+    public static final String TERMINAL_PROMPT = "$";
 }

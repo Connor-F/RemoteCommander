@@ -44,11 +44,11 @@ public class ConnectedClient
     {
         try
         {
-            String username = System.getProperty("user.name");
+            String username = getStringFromClient();
             String ipAddress = connection.getInetAddress().toString().replace("/", ""); // for nice console output
             String inputCommand;
             String workingDirectory = getStringFromClient();
-            System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + "> ");
+            System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + " " + TERMINAL_PROMPT + " ");
             Scanner input = new Scanner(System.in);
 
             while(!(inputCommand = input.nextLine()).equals(REMOTE_SHELL_TERMINATE))
@@ -62,13 +62,15 @@ public class ConnectedClient
                     System.out.print(getStringFromClient());
                 // otherwise server send REMOTE_SHELL_INDICATE_END meaning the command worked as expected so we continue
 
-                System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + "> ");
+                System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + " " + TERMINAL_PROMPT + " ");
             }
         }
         catch(IOException ioe)
         {
             ioe.printStackTrace();
         }
+
+        sendCommandPart(REMOTE_SHELL_TERMINATE); // tell the client we've ended the remote shell session
     }
 
     /**

