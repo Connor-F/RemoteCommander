@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -34,6 +35,13 @@ public abstract class CommandSet implements ClipboardOwner
     private DataOutputStream outToServer;
     /** input from the server */
     private DataInputStream inFromServer;
+    /** represents to command to start a shell on the specific os */
+    private String shellStartCommand;
+    /** represents the options needed to run the shell with a command then exit */
+    private String shellOptions;
+    /** the shell specific command for printing the working directory */
+    private String shellPwdCommand;
+
 
     private static final int MAJOR_VERSION = 0;
     private static final int MINOR_VERSION = 4;
@@ -364,6 +372,20 @@ public abstract class CommandSet implements ClipboardOwner
         }
 
         return ret == RETURN_SUCCESS;
+    }
+
+    /**
+     * since the server expects a string input from the client we can use this method
+     * to converts an array list of strings to a single string that the server expects
+     * @param list the list of strings to make into a single string
+     * @return a string containing each elecment of the list
+     */
+    public String arrayListToString(ArrayList<String> list)
+    {
+        StringBuilder singleStr = new StringBuilder();
+        for(String s : list)
+            singleStr.append(s);
+        return singleStr.toString();
     }
 
     public Runtime getRuntime()

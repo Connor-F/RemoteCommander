@@ -97,20 +97,6 @@ public class LinuxCommandSet extends CommandSet
     }
 
     /**
-     * since the server expects a string input from the client we can use this method
-     * to converts an array list of strings to a single string that the server expects
-     * @param list the list of strings to make into a single string
-     * @return a string containing each elecment of the list
-     */
-    private String arrayListToString(ArrayList<String> list)
-    {
-        StringBuilder singleStr = new StringBuilder();
-        for(String s : list)
-            singleStr.append(s);
-        return singleStr.toString();
-    }
-
-    /**
      * kills the process with the process id supplied
      * @param pid the process id of the task to kill
      * @return true if the process was killed, false otherwise
