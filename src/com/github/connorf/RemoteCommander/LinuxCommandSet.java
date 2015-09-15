@@ -35,7 +35,6 @@ public class LinuxCommandSet extends CommandSet
     public void remoteShell()
     {
         sendStringToServer(System.getProperty("user.name"));
-        sendStringToServer(getIpAddress());
         String workingDirectory = getTempPath();
         sendStringToServer(workingDirectory);
 

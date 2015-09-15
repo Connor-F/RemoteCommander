@@ -45,7 +45,7 @@ public class ConnectedClient
         try
         {
             String username = getStringFromClient();
-            String ipAddress = getStringFromClient(); // for nice terminal output
+            String ipAddress = connection.getInetAddress().toString().replace("/", ""); // for nice terminal output
             String inputCommand;
             String workingDirectory = getStringFromClient();
             System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + " " + TERMINAL_PROMPT + " ");
