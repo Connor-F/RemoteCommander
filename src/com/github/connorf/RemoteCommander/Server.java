@@ -1,6 +1,8 @@
 package com.github.connorf.RemoteCommander;
 
 import static com.github.connorf.RemoteCommander.CommandConstants.TERMINAL_PROMPT;
+import static com.github.connorf.RemoteCommander.CommandConstants.MAJOR_VERSION;
+import static com.github.connorf.RemoteCommander.CommandConstants.MINOR_VERSION;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -19,8 +21,6 @@ public class Server
     private static final int SERVER_PORT = 0xbeef;
     /** contains all the clients that are currently online */
     private static Map<InetAddress, ConnectedClient> onlineClients;
-    private static final int MAJOR_VERSION = 0;
-    private static final int MINOR_VERSION = 4;
 
     public Server() throws IOException
     {

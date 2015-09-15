@@ -53,13 +53,10 @@ public class ConnectedClient
 
             while(!(inputCommand = input.nextLine()).equals(REMOTE_SHELL_TERMINATE))
             {
-                sendCommandPart(inputCommand); // protocol
+                sendCommandPart(inputCommand);
 
                 if(inputCommand.startsWith(REMOTE_SHELL_TRANSFER))
-                {
                     new Thread(new Retriever(connection, 1)).start();
-                    //System.out.println(getStringFromClient());
-                }
                 else
                 {
                     workingDirectory = getStringFromClient();

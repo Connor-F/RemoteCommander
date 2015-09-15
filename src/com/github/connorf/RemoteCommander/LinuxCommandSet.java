@@ -50,8 +50,6 @@ public class LinuxCommandSet extends CommandSet
                     continue;
                 }
 
-                System.out.println("Working directory: " + workingDirectory);
-                System.out.println("Using command: " + inputCommand);
                 // runs the systems shell, changes dir to the current one, runs the supplied command, then pwd so we can track our current location (if user ran a dir changing command)
                 String[] command = {"/bin/sh", "-c", "cd " + workingDirectory + "; " + inputCommand + " ; pwd;"};
                 Process process = getRuntime().exec(command);
@@ -59,7 +57,7 @@ public class LinuxCommandSet extends CommandSet
                     throw new Exception("Process returned a non-zero value, indicating failure");
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                ArrayList<String> fullOutput = new ArrayList<>(); // used later so we can get pwd output and track out workingDirectory
+                ArrayList<String> fullOutput = new ArrayList<>(); // used later so we can get pwd output and track our workingDirectory
                 String result;
                 while((result = reader.readLine()) != null)
                     fullOutput.add(result + "\n");
@@ -86,7 +84,7 @@ public class LinuxCommandSet extends CommandSet
                     continue;
                 }
 
-                sendStringToServer(REMOTE_SHELL_INDICATE_END); // no output from the command
+                sendStringToServer(REMOTE_SHELL_INDICATE_END); // no output from the command, so indicate the command is complete
             }
             catch(Exception ioe)
             {

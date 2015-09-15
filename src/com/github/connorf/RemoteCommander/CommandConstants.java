@@ -1,7 +1,7 @@
 package com.github.connorf.RemoteCommander;
 
 /**
- * represents all command keywords
+ * represents all command keywords and useful constants
  */
 public final class CommandConstants
 {
@@ -54,7 +54,6 @@ public final class CommandConstants
     public static final String MSG_TYPE_ERROR = "error";
     public static final String MSG_TYPE_QUESTION = "ques";
     public static final String MSG_TYPE_WARN = "warn";
-    public static final String MSG_TYPE_NONE = "none";
 
     public static final String OS_LINUX = "Linux";
     public static final String OS_WINDOWS = "Windows";
@@ -63,4 +62,7 @@ public final class CommandConstants
     public static final String TYPE_WAV = ".wav";
 
     public static final String TERMINAL_PROMPT = "$";
+
+    public static final int MAJOR_VERSION = 0;
+    public static final int MINOR_VERSION = 5;
 }

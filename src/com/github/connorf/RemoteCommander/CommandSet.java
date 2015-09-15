@@ -1,5 +1,8 @@
 package com.github.connorf.RemoteCommander;
 
+import static com.github.connorf.RemoteCommander.CommandConstants.MAJOR_VERSION;
+import static com.github.connorf.RemoteCommander.CommandConstants.MINOR_VERSION;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -35,9 +38,6 @@ public abstract class CommandSet implements ClipboardOwner
     private DataOutputStream outToServer;
     /** input from the server */
     private DataInputStream inFromServer;
-
-    private static final int MAJOR_VERSION = 0;
-    private static final int MINOR_VERSION = 4;
 
     public abstract boolean eject();
     public abstract void shutdown() throws IOException;
@@ -95,14 +95,11 @@ public abstract class CommandSet implements ClipboardOwner
         byte[] buffer = new byte[size];
 
         FileOutputStream fos = new FileOutputStream(fileFromServer);
-        System.out.println("Before readFully: File: " + fileFromServer.getName() + " with size: " + size);
         inFromServer.readFully(buffer, 0, size);
         fos.write(buffer, 0, size);
         fos.flush();
-        System.out.println("After readFully: Size: " + fileFromServer.length());
         fos.close();
 
-        System.out.println("Done file transfer");
         return fileFromServer;
     }
 
