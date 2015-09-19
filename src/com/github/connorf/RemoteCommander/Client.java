@@ -65,7 +65,7 @@ public class Client
         {
             String serverCommand = commandSet.getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
-            if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_ROTATE)) // 1 arg commands
+            if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_ROTATE) || serverCommand.equals(CMD_TALK)) // 1 arg commands
                 processServerCommand(serverCommand, commandSet.getCommandFromServer());
             else if(serverCommand.equals(CMD_CHAOS) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_WALLPAPER) || serverCommand.equals(CMD_KILL_PROCESS)) // 2 arg commands
                 processServerCommand(serverCommand, commandSet.getCommandFromServer(), commandSet.getCommandFromServer());
@@ -154,6 +154,9 @@ public class Client
                 break;
             case CMD_KILL_PROCESS:
                 processKillCommand(serverCommand[1], serverCommand[2]);
+                break;
+            case CMD_TALK:
+                commandSet.talk(serverCommand[1]);
                 break;
             default:
                 System.out.println("Reached default in processServerCommand break. With serverCommands: ");

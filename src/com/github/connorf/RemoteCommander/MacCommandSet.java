@@ -25,6 +25,19 @@ public class MacCommandSet extends CommandSet
 
     }
 
+    @Override
+    public void talk(String message)
+    {
+        try
+        {
+            getRuntime().exec("say " + message);
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+    }
+
     /**
      * gets the running processes on the clients machine. Uses the `ps` command
      * @return a string containing all the running processes

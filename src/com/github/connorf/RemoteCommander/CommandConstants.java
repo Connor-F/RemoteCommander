@@ -25,6 +25,7 @@ public final class CommandConstants
     public static final String CMD_LIST_PROCESSES = "lsprocs";
     public static final String CMD_KILL_PROCESS = "kill";
     public static final String CMD_REMOTE_SHELL = "shell";
+    public static final String CMD_TALK = "talk";
 
     public static final String HOST_ALL = "all";
 

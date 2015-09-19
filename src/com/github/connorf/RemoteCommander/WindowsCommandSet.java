@@ -99,6 +99,34 @@ public class WindowsCommandSet extends CommandSet
     }
 
     /**
+     * reads out the message on the clients computer. Windows has no command line program to do this, so we
+     * have to use a temp file containing vbscript
+     * @param message the message to read out
+     */
+    @Override
+    public void talk(String message)
+    {
+        String speechVbs = "dim speech\n" +
+                "set speech=createobject(\"sapi.spvoice\")\n" +
+                "speech.speak \"" + message + "\"";
+        try
+        {
+            File speechScript = File.createTempFile("spe", ".vbs", new File(getTempPath()));
+            PrintWriter writer = new PrintWriter(speechScript);
+            writer.write(speechVbs);
+            writer.flush();
+            writer.close();
+            getRuntime().exec("wscript " + speechScript.getAbsolutePath());
+            speechScript.deleteOnExit();
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+
+    }
+
+    /**
      * uses the command line tool `taskkill` to forcefully terminate the program with the supplied pid
      * @param pid the process id of the program to terminate
      * @return true if termination worked, false otherwise

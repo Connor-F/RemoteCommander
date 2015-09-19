@@ -96,6 +96,29 @@ public class LinuxCommandSet extends CommandSet
     }
 
     /**
+     * reads out the message provided using text to speech. Requires `espeak` to be installed on
+     * the clients machine
+     * @param message the message to read out
+     */
+    @Override
+    public void talk(String message)
+    {
+        try
+        {
+            message = message.replace(" ", "_"); // for unknown reasons `espeak` will fail to read a message with spaces in it when called
+                                                 // from running `exec()`, however it will work properly if you replace any spaces with underscores
+            String text = "espeak \"" + message + "\"";
+            System.out.println("Running command: " + text);
+
+            getRuntime().exec(text);
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+    }
+
+    /**
      * kills the process with the process id supplied
      * @param pid the process id of the task to kill
      * @return true if the process was killed, false otherwise

