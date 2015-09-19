@@ -36,6 +36,7 @@ public class ClientCommander implements Runnable
         try
         {
             waitForCommand();
+
         }
         catch(NullCommandException | IOException excp)
         {
@@ -222,7 +223,7 @@ public class ClientCommander implements Runnable
             try
             {
                 if(cmd.equals(CMD_KILL_PROCESS)) // we should listen for a reply (success / failure)
-                    System.out.println(target.getStringFromClient());
+                    System.out.println("[" + target.getAddress().toString().replace("/", "") + "] " + target.getStringFromClient());
             }
             catch(IOException ioe)
             {
