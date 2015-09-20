@@ -104,12 +104,12 @@ public class ConnectedClient
      * @param toSend the file to send
      * @throws IOException something went wrong create file input stream
      */
-    public void sendFile(File toSend, int size) throws IOException
+    public void sendFile(File toSend) throws IOException
     {
+        int size = (int)toSend.length();
         byte[] buffer = new byte[size];
-        sendCommandPart("" + size); // send the size in bytes
-        String extension = toSend.getName().substring(toSend.getName().lastIndexOf("."));
-        sendCommandPart(extension); // send file type/extension over
+        sendCommandPart("" + size); // sendFile protocol: send the number of bytes, then send the filename
+        sendCommandPart(toSend.getName());
         InputStream in = new FileInputStream(toSend);
 
         int count;

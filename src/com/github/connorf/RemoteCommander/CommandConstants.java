@@ -26,6 +26,7 @@ public final class CommandConstants
     public static final String CMD_KILL_PROCESS = "kill";
     public static final String CMD_REMOTE_SHELL = "shell";
     public static final String CMD_TALK = "talk";
+    public static final String CMD_UPLOAD = "upload";
 
     public static final String HOST_ALL = "all";
 
@@ -61,6 +62,8 @@ public final class CommandConstants
     public static final String OS_MAC = "Mac";
 
     public static final String TYPE_WAV = ".wav";
+
+    public static final String TEMP_DIR_NAME = "rc";
 
     public static final String TERMINAL_PROMPT = "$";
 

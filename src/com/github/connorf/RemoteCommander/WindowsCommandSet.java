@@ -7,7 +7,11 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * methods to control a windows machine
@@ -315,6 +319,16 @@ public class WindowsCommandSet extends CommandSet
         PrintWriter writer;
         try
         {
+            // move wallpaper to theme dir instead of keeping it in our temp dir which will get deleted
+            String name = wallpaper.getName();
+            String permWallpaperDir = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Microsoft\\Themes\\";
+            new File(permWallpaperDir).mkdir();
+            String permWallpaperPath = permWallpaperDir + "wallpaper" + wallpaper.getName().substring(wallpaper.getName().lastIndexOf(".")); // todo: get Local Disk, dont use C:/
+            Files.move(Paths.get(wallpaper.getAbsolutePath()), Paths.get(permWallpaperPath), StandardCopyOption.REPLACE_EXISTING);
+            wallpaper = new File(permWallpaperPath); // otherwise it will send old file to setWallpaper
+            wallpaper.deleteOnExit();
+
+            // create the vbs to change the wallpaper
             vbs = File.createTempFile("wal", ".vbs", new File(getTempPath()));
             writer = new PrintWriter(vbs);
             writer.write(changerVbs);

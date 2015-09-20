@@ -21,6 +21,4 @@ client code checks the hosts OS and executes the appropriate commands for that O
   - > 1 connection and sending multiple sound commands causes the clients to hang, even though they both recieve the file
   
   
-- windows get_file broke, doesn't make dir
-- remote shell showing own ip address instead of clients
 

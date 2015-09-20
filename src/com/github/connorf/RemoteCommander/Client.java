@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Random;
 
 /**
  * the program that runs on each clients machine. The com.github.connorf.RemoteCommander.Client class
@@ -67,7 +68,7 @@ public class Client
             System.out.println("Command read from server: " + serverCommand);
             if(serverCommand.equals(CMD_TYPE) || serverCommand.equals(CMD_ROTATE) || serverCommand.equals(CMD_TALK)) // 1 arg commands
                 processServerCommand(serverCommand, commandSet.getCommandFromServer());
-            else if(serverCommand.equals(CMD_CHAOS) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_WALLPAPER) || serverCommand.equals(CMD_KILL_PROCESS)) // 2 arg commands
+            else if(serverCommand.equals(CMD_CHAOS) || serverCommand.equals(CMD_SOUND) || serverCommand.equals(CMD_WALLPAPER) || serverCommand.equals(CMD_KILL_PROCESS) || serverCommand.equals(CMD_UPLOAD)) // 2 arg commands
                 processServerCommand(serverCommand, commandSet.getCommandFromServer(), commandSet.getCommandFromServer());
             else if(serverCommand.equals(CMD_MSG)) // 4 arg commands
                 processServerCommand(serverCommand, commandSet.getCommandFromServer(), commandSet.getCommandFromServer(), commandSet.getCommandFromServer());
@@ -158,6 +159,9 @@ public class Client
             case CMD_TALK:
                 commandSet.talk(serverCommand[1]);
                 break;
+            case CMD_UPLOAD:
+                commandSet.getFileFromServer(Integer.valueOf(serverCommand[1]), serverCommand[2]);
+                break;
             default:
                 System.out.println("Reached default in processServerCommand break. With serverCommands: ");
                 for(String s : serverCommand)
@@ -188,19 +192,20 @@ public class Client
     /**
      * processes the sound command from the server
      * @param size the size of the sound file
-     * @param type the type of the sound file (wav only)
+     * @param name the filename of the sound file (incl. extension)
      */
-    private void processSoundCommand(String size, String type)
+    private void processSoundCommand(String size, String name)
     {
         try
         {
             int fileSize = Integer.valueOf(size);
-            if(type.equals(TYPE_WAV)) // java sound supports wav files
-                new Thread(new MakeSound(commandSet.getFileFromServer(fileSize, "sou", ".wav"))).start();
+            String extension = name.substring(name.lastIndexOf("."));
+            if(extension.equals(TYPE_WAV)) // java sound supports wav files
+                new Thread(new MakeSound(commandSet.getFileFromServer(fileSize, "sou" + new Random().nextInt() + ".wav"))).start();
         }
         catch(Exception e)
         {
-            System.out.println("play sound excelption");
+            System.out.println("play sound exception");
             e.printStackTrace();
         }
     }
@@ -208,27 +213,23 @@ public class Client
     /**
      * processes the wallpaper command
      * @param size size of the image file
-     * @param type the file type of the image
+     * @param name the filename of the sound file (incl. extension)
      */
-    private void processWallpaperCommand(String size, String type)
+    private void processWallpaperCommand(String size, String name) // todo: make multi platform!
     {
         boolean success = false;
         try
         {
             int fileSize = Integer.valueOf(size);
-            File image = commandSet.getFileFromServer(fileSize, "wal", type);
-            String permWallpaperDir = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Microsoft\\Themes\\";
-            new File(permWallpaperDir).mkdir();
-            String permWallpaperPath = permWallpaperDir + "wallpaper" + image.getName().substring(image.getName().lastIndexOf(".")); // todo: get Local Disk, dont use C:/
-            Files.move(Paths.get(image.getAbsolutePath()), Paths.get(permWallpaperPath), StandardCopyOption.REPLACE_EXISTING);
-            image = new File(permWallpaperPath); // otherwise it will send old file to setWallpaper
+            String extension = name.substring(name.lastIndexOf("."));
+            File image = commandSet.getFileFromServer(fileSize, "wal" + new Random().nextInt() + extension);
 
             success = commandSet.setWallpaper(image);
             image.deleteOnExit();
         }
         catch(Exception e)
         {
-            System.out.println("play sound excelption");
+            System.out.println("process wallpaper excp");
             e.printStackTrace();
             success = false;
         }

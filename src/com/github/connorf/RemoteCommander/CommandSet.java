@@ -78,21 +78,20 @@ public abstract class CommandSet implements ClipboardOwner
      */
     private void createStorageDir()
     {
-        tempPath = System.getProperty("java.io.tmpdir") + File.separator + "rc" + File.separator;
+        tempPath = System.getProperty("java.io.tmpdir") + File.separator + TEMP_DIR_NAME + File.separator;
         new File(tempPath).mkdir();
     }
 
     /**
      * retrieves a file sent from the server to us
      * @param size the size of the file to retrieve in bytes
-     * @param prefix the prefix name the file should have
-     * @param suffix the suffix of the name of the file (must be a file extension to work with windows)
+     * @param name the full name of the file (incl. extension)
      * @return the file retrieved from the server
      * @throws IOException if something went wrong reading the file from the stream
      */
-    public File getFileFromServer(int size, String prefix, String suffix) throws IOException
+    public File getFileFromServer(int size, String name) throws IOException
     {
-        File fileFromServer = File.createTempFile(prefix, suffix, new File(tempPath));
+        File fileFromServer = new File(getTempPath(), name);
         byte[] buffer = new byte[size];
 
         FileOutputStream fos = new FileOutputStream(fileFromServer);
