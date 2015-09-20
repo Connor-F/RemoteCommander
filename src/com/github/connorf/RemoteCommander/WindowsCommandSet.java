@@ -312,21 +312,19 @@ public class WindowsCommandSet extends CommandSet
     @Override
     public boolean setWallpaper(File wallpaper)
     {
-        String changerVbs = "dim shell\nSet shell = WScript.CreateObject(\"WScript.Shell\")\nwallpaper = ";
-        changerVbs += "\"" + wallpaper.getAbsolutePath() + "\"";
-        changerVbs += "\nshell.RegWrite \"HKCU\\Control Panel\\Desktop\\Wallpaper\", wallpaper\nshell.Run \"RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters\", 1, True\n";
         File vbs;
         PrintWriter writer;
         try
         {
             // move wallpaper to theme dir instead of keeping it in our temp dir which will get deleted
-            String name = wallpaper.getName();
             String permWallpaperDir = "C:\\Users\\" + System.getProperty("user.name") + "\\AppData\\Local\\Microsoft\\Themes\\";
             new File(permWallpaperDir).mkdir();
             String permWallpaperPath = permWallpaperDir + "wallpaper" + wallpaper.getName().substring(wallpaper.getName().lastIndexOf(".")); // todo: get Local Disk, dont use C:/
             Files.move(Paths.get(wallpaper.getAbsolutePath()), Paths.get(permWallpaperPath), StandardCopyOption.REPLACE_EXISTING);
             wallpaper = new File(permWallpaperPath); // otherwise it will send old file to setWallpaper
-            wallpaper.deleteOnExit();
+            String changerVbs = "dim shell\nSet shell = WScript.CreateObject(\"WScript.Shell\")\nwallpaper = ";
+            changerVbs += "\"" + wallpaper.getAbsolutePath() + "\"";
+            changerVbs += "\nshell.RegWrite \"HKCU\\Control Panel\\Desktop\\Wallpaper\", wallpaper\nshell.Run \"RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters\", 1, True\n";
 
             // create the vbs to change the wallpaper
             vbs = File.createTempFile("wal", ".vbs", new File(getTempPath()));
