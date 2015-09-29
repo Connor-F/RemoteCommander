@@ -1,7 +1,6 @@
 package com.github.connorf.RemoteCommander;
 
-import static com.github.connorf.RemoteCommander.CommandConstants.MAJOR_VERSION;
-import static com.github.connorf.RemoteCommander.CommandConstants.MINOR_VERSION;
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
-import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 /**
  * contains the definitions and some implementations (if they are not OS specific) of the features of the program
@@ -43,7 +41,6 @@ public abstract class CommandSet implements ClipboardOwner
     public abstract void shutdown() throws IOException;
     public abstract void restart() throws IOException;
     public abstract boolean rotate(String direction);
-    public abstract void takeCameraPicture();
     public abstract boolean setWallpaper(File wallpaper);
     public abstract void minimise();
     public abstract String getRunningProcesses() throws IOException;
@@ -137,9 +134,20 @@ public abstract class CommandSet implements ClipboardOwner
         return true;
     }
 
-    public void sendAllImages() //todo: refactor
+    /**
+     * sends all the images in the clients temp dir over to the server. These images are the screenshots of
+     * the clients machine when the server issued to screenshot command
+     *
+     * Send all images protocol
+     * ========================
+     * 1. count the number of images in the temp dir (screenshots)
+     * 2. send the number of images to the server
+     * 3. send the images one by one to the server
+     */
+    public void sendAllImages()
     {
         File[] allImages = new File(tempPath).listFiles();
+        ArrayList<File> allScreenshots = new ArrayList<>();
 
         try
         {
@@ -147,23 +155,23 @@ public abstract class CommandSet implements ClipboardOwner
             for(File file : allImages)
             {
                 if(file.getName().endsWith(".jpg"))
+                {
                     numOfImages++;
+                    allScreenshots.add(file);
+                }
             }
             outToServer.writeInt(numOfImages);
-        }
-        catch(IOException ioe)
-        {
-            System.err.println("Failed creating connection to server to send files");
-        }
 
-        for(File file : allImages)
-        {
-            if(file.getName().endsWith(".jpg"))
+            for(File file : allScreenshots)
             {
                 sendFile(file);
                 file.deleteOnExit();
                 file.delete();
             }
+        }
+        catch(IOException ioe)
+        {
+            System.err.println("Failed creating connection to server to send files");
         }
     }
 
@@ -216,10 +224,6 @@ public abstract class CommandSet implements ClipboardOwner
             System.err.println("Something went wrong sending the command to the server.");
             ioe.printStackTrace();
         }
-    }
-
-    public void retrieve()
-    {
     }
 
     /**
@@ -353,7 +357,7 @@ public abstract class CommandSet implements ClipboardOwner
      */
     public boolean wasSuccessful(Process process)
     {
-        int ret = -1;
+        int ret;
         try
         {
             ret = process.waitFor();
@@ -378,6 +382,23 @@ public abstract class CommandSet implements ClipboardOwner
         for(String s : list)
             singleStr.append(s);
         return singleStr.toString();
+    }
+
+    /**
+     * reads data from a buffered reader into an array list. Used to read any outputs from
+     * remote commands
+     * @param reader the stream to read
+     * @return an array list containing any output from the remote command
+     * @throws IOException if something went wrong reading from the stream
+     */
+    public ArrayList<String> getStreamData(BufferedReader reader) throws IOException
+    {
+        ArrayList<String> data = new ArrayList<>();
+        String result;
+        while((result = reader.readLine()) != null)
+            data.add(result + "\n");
+
+        return data;
     }
 
     public Runtime getRuntime()

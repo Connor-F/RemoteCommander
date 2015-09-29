@@ -68,5 +68,8 @@ public final class CommandConstants
     public static final String TERMINAL_PROMPT = "$";
 
     public static final int MAJOR_VERSION = 0;
-    public static final int MINOR_VERSION = 5;
+    public static final int MINOR_VERSION = 6;
+
+    /** the location on the server where any files transferred from a client should be stored */
+    public static final String LOCAL_STORAGE_PATH = "/home/connor/Desktop/clients/";
 }

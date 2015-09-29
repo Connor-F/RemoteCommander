@@ -16,6 +16,8 @@ client code checks the hosts OS and executes the appropriate commands for that O
 - maybe: if com.github.connorf.RemoteCommander.MakeSound unmuted the systems mixer, then play the sound and mute it again
 - way for client to tell server its going offline, then remove that client from the online clients map
 - need to store wallpaper somewhere, otherwise it gets deleted in temp folder and then when the sys restarts the wallpaper is blank
+- exit server command
+- command that is of a valid length but is invalid in some way doesn't notify the user of the invalid cmd
 
 - if there > 1 connection, sending an un-transmitted command (count, online) then trying to send a transmitted command causes the clients to recieve no data at all
   - > 1 connection and sending multiple sound commands causes the clients to hang, even though they both recieve the file

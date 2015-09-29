@@ -1,5 +1,7 @@
 package com.github.connorf.RemoteCommander;
 
+import static com.github.connorf.RemoteCommander.CommandConstants.LOCAL_STORAGE_PATH;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -31,6 +33,11 @@ public class Retriever implements Runnable
         }
     }
 
+    /**
+     * runs in the background and retrieved a file from the clients machine and then stores it onto the servers machine
+     * in the clients own directory
+     * @throws IOException if something went wrong reading from the stream
+     */
     private void getFileFromClient() throws IOException
     {
         DataInputStream inFromClient = new DataInputStream(toClient.getInputStream());
@@ -42,14 +49,13 @@ public class Retriever implements Runnable
 
         byte[] buffer = new byte[fileSize];
 
-        String clientsPath = "/home/connor/Desktop/clients/" + toClient.getInetAddress().toString().replace("/", "") + "/";
+        String clientsPath = LOCAL_STORAGE_PATH + toClient.getInetAddress().toString().replace("/", "") + "/";
         File clientsDir = new File(clientsPath);
         if(!clientsDir.exists())
             if(!clientsDir.mkdir())
                 System.err.println("Failed to create directory for the client at: " + clientsPath);
 
         inFromClient.readFully(buffer, 0, fileSize);
-//        FileOutputStream outFile = new FileOutputStream(File.createTempFile("file_", "_test.jpg", new File(clientsPath)));
         FileOutputStream outFile = new FileOutputStream(new File(clientsPath + File.separator + filename));
         outFile.write(buffer, 0, fileSize);
         outFile.flush();

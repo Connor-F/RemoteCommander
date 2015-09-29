@@ -1,11 +1,12 @@
 package com.github.connorf.RemoteCommander;
 
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
-import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 /**
  * represents a client that has connected to our server

@@ -1,13 +1,13 @@
 package com.github.connorf.RemoteCommander;
 
+import static com.github.connorf.RemoteCommander.CommandConstants.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-
-import static com.github.connorf.RemoteCommander.CommandConstants.*;
 
 /**
  * methods to control a linux machine. xrandr and gnome required
@@ -30,6 +30,14 @@ public class LinuxCommandSet extends CommandSet
 
     /**
      * allows the server to control a local shell on the client
+     *
+     * Remote Shell Protocol
+     * =====================
+     * 1. send the clients username to the server
+     * 2. send the current directory to the server (first time the temp path is sent)
+     * 3. read string from the server, if it isn't the terminate string then...
+     * 4. run the command provided and update the current directory if needed
+     * 5. send any output of the command to the server as a string, or end of command if no output
      */
     @Override
     public void remoteShell()
@@ -56,11 +64,7 @@ public class LinuxCommandSet extends CommandSet
                 if(process.waitFor() != RETURN_SUCCESS)
                     throw new Exception("Process returned a non-zero value, indicating failure");
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                ArrayList<String> fullOutput = new ArrayList<>(); // used later so we can get pwd output and track our workingDirectory
-                String result;
-                while((result = reader.readLine()) != null)
-                    fullOutput.add(result + "\n");
+                ArrayList<String> fullOutput = getStreamData(new BufferedReader(new InputStreamReader(process.getInputStream()))); // used later so we can get pwd output and track our workingDirectory
 
                 workingDirectory = fullOutput.get(fullOutput.size() - 1).replace("\n", ""); // this is pwd's output. Used to keep track of working dir as we have to have a new process for each command given
                 sendStringToServer(workingDirectory);
@@ -74,9 +78,7 @@ public class LinuxCommandSet extends CommandSet
 
                 // print any errors back to server
                 fullOutput.clear();
-                reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                while((result = reader.readLine()) != null)
-                    fullOutput.add(result + "\n");
+                fullOutput = getStreamData(new BufferedReader(new InputStreamReader(process.getErrorStream())));
                 if(!fullOutput.isEmpty()) // if cmd created output in stderr we must tell the server so it can read the error
                 {
                     sendStringToServer(REMOTE_SHELL_INDICATE_STDERR);
@@ -259,12 +261,6 @@ public class LinuxCommandSet extends CommandSet
     public void restart() throws IOException
     {
         getRuntime().exec("shutdown -r now");
-    }
-
-    @Override
-    public void takeCameraPicture()
-    {
-
     }
 
     /**

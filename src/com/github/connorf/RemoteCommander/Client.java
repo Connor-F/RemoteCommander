@@ -5,9 +5,6 @@ import static com.github.connorf.RemoteCommander.CommandConstants.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Random;
 
 /**
@@ -18,7 +15,7 @@ public class Client
 {
     private static final int SERVER_PORT = 0xbeef;
     private static final String SERVER_IP_ADDRESS = "127.0.0.1";
-    private Socket socket;
+    private Socket socketToServer;
     private CommandSet commandSet;
 
     public Client() throws IOException, UnknownOperatingSystemException, AWTException
@@ -27,9 +24,11 @@ public class Client
     }
 
     /**
-     * gets the appropriate command set for the OS that the client is running
+     * gets the appropriate command set for the OS that the client is running. This can be expanded upon easily,
+     * simply create a new class representing the new OS, have it extend CommandSet and add an extra check in the method
+     * below to correctly assign the needed CommandSet.
      *
-     * @param connection the socket that the client is using to connect to the server
+     * @param connection the socketToServer that the client is using to connect to the server
      * @return the com.github.connorf.RemoteCommander.CommandSet that will work on the clients operating system
      * @throws UnknownOperatingSystemException if the operating system is unrecognised
      */
@@ -49,20 +48,20 @@ public class Client
     /**
      * connects to the server (if its online) and waits for commands
      *
-     * @throws IOException                     if something went wrong with the socket
+     * @throws IOException                     if something went wrong with the socketToServer
      * @throws AWTException                    something went wrong in the processServerCommand() method
      * @throws UnknownOperatingSystemException if the client isn't running windows, linux or mac (although support for any os
      *                                         can be added quite easily)
      */
     private void connectAndListen() throws IOException, AWTException, UnknownOperatingSystemException
     {
-        if(socket == null)
+        if(socketToServer == null)
         {
-            socket = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
-            commandSet = setCommandSet(socket);
+            socketToServer = new Socket(SERVER_IP_ADDRESS, SERVER_PORT);
+            commandSet = setCommandSet(socketToServer);
         }
 
-        while(socket.isConnected())
+        while(socketToServer.isConnected())
         {
             String serverCommand = commandSet.getCommandFromServer();
             System.out.println("Command read from server: " + serverCommand);
@@ -92,9 +91,9 @@ public class Client
                 break;
             case CMD_EJECT:
 //                if(commandSet.eject())
-//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_EJECT);
+//                    commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_EJECT);
 //                else
-//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_EJECT);
+//                    commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_EJECT);
                 commandSet.eject();
                 break;
             case CMD_WALLPAPER:
@@ -105,9 +104,9 @@ public class Client
                 break;
             case CMD_SCREENSHOT:
 //                if(commandSet.takeScreenshot())
-//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_SCREENSHOT);
+//                    commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_SCREENSHOT);
 //                else
-//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_SCREENSHOT);
+//                    commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_SCREENSHOT);
                 commandSet.takeScreenshot();
                 break;
             case CMD_MSG:
@@ -124,9 +123,9 @@ public class Client
                 break;
             case CMD_TYPE:
 //                if(commandSet.type(serverCommand[1]))
-//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_TYPE);
+//                    commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_TYPE);
 //                else
-//                    commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_TYPE);
+//                    commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_TYPE);
                 commandSet.type(serverCommand[1]);
                 break;
             case CMD_RETRIEVE:
@@ -140,9 +139,9 @@ public class Client
                 if(serverCommand[1].equals(DIR_NORMAL) || serverCommand[1].equals(DIR_INVERTED) || serverCommand[1].equals(DIR_LEFT) || serverCommand[1].equals(DIR_RIGHT))
                 {
 //                    if(commandSet.rotate(serverCommand[1]))
-//                        commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_ROTATE);
+//                        commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_ROTATE);
 //                    else
-//                        commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_ROTATE);
+//                        commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_ROTATE);
                     commandSet.rotate(serverCommand[1]);
                 }
                 break;
@@ -227,16 +226,16 @@ public class Client
             success = commandSet.setWallpaper(image);
             image.deleteOnExit();
         }
-        catch(Exception e)
+        catch(IOException ioe)
         {
             System.out.println("process wallpaper excp");
-            e.printStackTrace();
+            ioe.printStackTrace();
             success = false;
         }
 
 //        if(success) // notify the server of success / failure of changing the wallpaper
-//            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_WALLPAPER);
+//            commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Success: " + CMD_WALLPAPER);
 //        else
-//            commandSet.sendStringToServer("[" + socket.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_WALLPAPER);
+//            commandSet.sendStringToServer("[" + socketToServer.getInetAddress().toString().replace("/", "") + "] Failure: " + CMD_WALLPAPER);
     }
 }
