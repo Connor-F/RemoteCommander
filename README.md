@@ -6,7 +6,7 @@ A multi-platform, client server program to remotely command other computers.
 
 These commands are executed from the server and cause something to happen on the clients machine. More info can be found about their
 usage by checking the `Help` and `CommandConstants` classes. `HOST` can either be a specified IPv4 address of a client or the word "all" to 
-send the command to every online client.
+send the command to every online client ("all" applies to certain commands only).
 
 - `talk HOST "MSG HERE"` -> make the clients computer talk to them 
 - `screenshot HOST` -> take a screenshot of the clients computer and save it
@@ -38,6 +38,7 @@ These commands only run on the server. Clients are not needed for these commands
 
 - `online` -> prints out geolocation info about each online client
 - `count` -> returns the number of online clients
+- `help COMMAND` -> prints out help info relating to the supplied command. Leaving the command option out will print brief help of all commands
 
 
 ###How it Works
@@ -51,10 +52,20 @@ client code checks the hosts OS and executes the appropriate commands for that O
 - way for client to tell server its going offline, then remove that client from the online clients map
 - need to store wallpaper somewhere, otherwise it gets deleted in temp folder and then when the sys restarts the wallpaper is blank
 - exit server command
-- command that is of a valid length but is invalid in some way doesn't notify the user of the invalid cmd
 
 - if there > 1 connection, sending an un-transmitted command (count, online) then trying to send a transmitted command causes the clients to recieve no data at all
   - > 1 connection and sending multiple sound commands causes the clients to hang, even though they both recieve the file
   
-  
+####Client Requirements
 
+#####Linux
+
+These programs are needed for some of the commands. Ubuntu based distros have them installed by default. Other distros
+have not been tested but the source code can easily be modified to support them.
+
+- `xrandr` to allow the screen to be rotated
+- `espeak` to allow 
+
+#####Windows and Mac
+
+All programs needed should be installed already.

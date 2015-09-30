@@ -54,6 +54,12 @@ public class ConnectedClient
 
             while(!(inputCommand = input.nextLine()).equals(REMOTE_SHELL_TERMINATE))
             {
+                if(inputCommand.equals("")) // user just pressed enter
+                {
+                    System.out.print(username + "@" + ipAddress + " ~ " + workingDirectory + " " + TERMINAL_PROMPT + " ");
+                    continue;
+                }
+
                 sendCommandPart(inputCommand);
 
                 if(inputCommand.startsWith(REMOTE_SHELL_TRANSFER))

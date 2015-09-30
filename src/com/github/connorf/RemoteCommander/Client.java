@@ -214,7 +214,7 @@ public class Client
      * @param size size of the image file
      * @param name the filename of the sound file (incl. extension)
      */
-    private void processWallpaperCommand(String size, String name) // todo: make multi platform!
+    private void processWallpaperCommand(String size, String name)
     {
         boolean success = false;
         try
