@@ -22,6 +22,9 @@ public class Server
     /** contains all the clients that are currently online */
     private static Map<InetAddress, ConnectedClient> onlineClients;
 
+    /**
+     * @throws IOException something went wrong with the data stream
+     */
     public Server() throws IOException
     {
         welcomeMessage();
@@ -66,7 +69,7 @@ public class Server
         ConnectedClient connectedClient = new ConnectedClient(clientSocket, clientSocket.getInetAddress());
         onlineClients.put(clientSocket.getInetAddress(), connectedClient);
         System.out.println("[i] Added connection: " + connectedClient.getAddress().toString().replace("/", ""));
-        if(onlineClients.size() == 1) //todo: be careful not to start multiple threads
+        if(onlineClients.size() == 1) // be careful not to start multiple threads
             new Thread(new ClientCommander()).start(); // start allowing input once we have at least 1 connection
         else
             System.out.print(TERMINAL_PROMPT + " ");

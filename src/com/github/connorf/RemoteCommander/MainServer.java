@@ -10,10 +10,10 @@ public class MainServer
         {
             new Server();
         }
-        catch(IOException e)
+        catch(IOException ioe)
         {
-            System.out.println("com.github.connorf.RemoteCommander.MainServer: Exception");
-            e.printStackTrace();
+            System.err.println("Error: Something went wrong sending/recieving from a data stream.");
+            ioe.printStackTrace();
         }
     }
 }

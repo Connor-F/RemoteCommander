@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
-
 /**
  * represents a client that has connected to our server
  */

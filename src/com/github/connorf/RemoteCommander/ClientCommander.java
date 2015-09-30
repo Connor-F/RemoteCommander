@@ -48,7 +48,7 @@ public class ClientCommander implements Runnable
 
             if(commandValid(command.split("\\s+")[0]))
                 parseAndSendCommand(command);
-            else
+            else if(!command.equals(""))
                 System.out.println(TERMINAL_PROMPT + " Unknown command: " + command.split("\\s+")[0]);
         }
     }
@@ -299,6 +299,11 @@ public class ClientCommander implements Runnable
         }
     }
 
+    /**
+     * sends the file to all online clients
+     * @param toSend the file to send to the clients
+     * @throws IOException if something went wrong sending a file via the stream
+     */
     private void sendFileAll(File toSend) throws IOException
     {
         for (Map.Entry<InetAddress, ConnectedClient> client : connectedClients.entrySet())

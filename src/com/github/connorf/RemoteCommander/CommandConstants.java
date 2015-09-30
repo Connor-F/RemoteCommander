@@ -28,6 +28,9 @@ public final class CommandConstants
     public static final String CMD_TALK = "talk";
     public static final String CMD_UPLOAD = "upload";
 
+    /** this is sent to the server when the client's process is terminated (shutdown, restart, manually etc.) */
+    public static final String CLIENT_TERMINATING = "client_terminate";
+
     public static final String HOST_ALL = "all";
 
     public static final String KILL_PID = "pid";
@@ -68,7 +71,7 @@ public final class CommandConstants
     public static final String TERMINAL_PROMPT = "$";
 
     public static final int MAJOR_VERSION = 0;
-    public static final int MINOR_VERSION = 6;
+    public static final int MINOR_VERSION = 9;
 
     /** the location on the server where any files transferred from a client should be stored */
     public static final String LOCAL_STORAGE_PATH = "/home/connor/Desktop/clients/";
